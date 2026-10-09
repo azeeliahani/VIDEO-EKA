@@ -2,3 +2,4 @@ node_modules/
 output/frames/
 output/segments/
 *.tmp
+output/stills/
