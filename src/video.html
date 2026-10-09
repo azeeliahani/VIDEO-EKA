@@ -1,0 +1,640 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EKA Knowledge Hub Explainer</title>
+<style>
+  @font-face { font-family: "Fredoka"; font-weight: 500; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 600; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 700; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 500; src: url("../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 700; src: url("../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2") format("woff2"); }
+
+  :root {
+    --cream: #F6F3EC;
+    --navy: #13222F;
+    --ink: #24323F;
+    --orange: #D9622B;
+    --blue: #2F6FDE;
+    --green: #3DB54A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--cream); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: "Inter", sans-serif; color: var(--ink); }
+  .abs { position: absolute; left: 0; top: 0; }
+  .layer { position: absolute; inset: 0; }
+  .fred { font-family: "Fredoka", sans-serif; }
+  .grot { font-family: "Space Grotesk", sans-serif; }
+
+  /* background */
+  #bg { background: radial-gradient(1400px 900px at 70% 30%, #FFFDF8 0%, var(--cream) 60%, #EFE9DD 100%); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; }
+  #dots { background-image: radial-gradient(#d9d1c1 2px, transparent 2.5px); background-size: 44px 44px; opacity: .55; }
+  .deco { position: absolute; }
+
+  /* EKA */
+  #eka { position: absolute; width: 630px; height: 874px; transform-origin: 315px 860px; }
+  #eka img { position: absolute; left: 0; top: 0; width: 630px; height: 874px; }
+  #ekaArm { transform-origin: 482px 408px; }
+  .lid { position: absolute; border-radius: 50%; overflow: hidden; }
+  .lid > div { width: 100%; height: 100%; background: linear-gradient(#e4e8ec, #f2f3f5 80%, #c9d3dd); transform-origin: 50% 0; transform: scaleY(0); }
+  #chestGlow { position: absolute; left: 270px; top: 375px; width: 90px; height: 70px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(150,255,140,.95), rgba(80,220,90,.35) 60%, rgba(80,220,90,0)); mix-blend-mode: screen; }
+  #ekaShadow { position: absolute; width: 420px; height: 46px; border-radius: 50%; background: radial-gradient(closest-side, rgba(19,34,47,.35), rgba(19,34,47,0)); }
+
+  .bubble { position: absolute; background: #fff; border-radius: 34px; padding: 22px 34px; font-family: "Fredoka"; font-weight: 600;
+    font-size: 46px; color: var(--navy); box-shadow: 0 14px 34px rgba(19,34,47,.18); white-space: nowrap; transform-origin: 0% 100%; }
+  .bubble::after { content: ""; position: absolute; left: 34px; bottom: -22px; border: 16px solid transparent; border-top: 22px solid #fff; border-bottom: 0; }
+
+  /* intro */
+  .kicker { font-family: "Space Grotesk"; font-weight: 700; letter-spacing: .14em; font-size: 26px; color: var(--orange); text-transform: uppercase; }
+  .pill { display: inline-block; padding: 12px 24px; border-radius: 40px; background: #fff; box-shadow: 0 8px 20px rgba(19,34,47,.1); }
+  .mask { overflow: hidden; }
+  .hl { position: relative; display: inline-block; }
+  .hl > i { position: absolute; left: -10px; right: -10px; bottom: 10px; height: 42%; background: #9BE38F; border-radius: 10px; transform-origin: 0 50%; z-index: -1; }
+
+  /* problem */
+  .file { position: absolute; width: 200px; height: 250px; background: #fff; border-radius: 18px; box-shadow: 0 12px 26px rgba(19,34,47,.14);
+    padding: 26px 20px; font-family: "Space Grotesk"; font-weight: 700; font-size: 21px; color: var(--ink); }
+  .file .bar { height: 14px; border-radius: 7px; margin-bottom: 14px; }
+  .file .ln { height: 10px; border-radius: 5px; background: #E7E2D8; margin-bottom: 12px; }
+  .file .nm { position: absolute; left: 16px; right: 16px; bottom: 18px; text-align: center; word-break: break-all; }
+  .file .warn { position: absolute; right: -18px; top: -18px; width: 52px; height: 52px; border-radius: 50%; background: #E4572E; color: #fff;
+    font: 700 34px "Fredoka"; display: flex; align-items: center; justify-content: center; }
+  .qmark { position: absolute; font: 700 110px "Fredoka"; color: #E4572E; text-shadow: 0 8px 0 rgba(0,0,0,.08); }
+  .mini { position: absolute; width: 150px; height: 150px; border-radius: 26px; color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; box-shadow: 0 12px 0 rgba(0,0,0,.14), 0 18px 30px rgba(19,34,47,.15); }
+  .mini b { font: 700 54px "Space Grotesk"; line-height: 1; }
+  .mini span { font: 600 20px "Fredoka"; margin-top: 6px; opacity: .95; }
+
+  /* blocks */
+  .card { position: absolute; left: 640px; top: 96px; width: 1180px; height: 740px; background: #fff; border-radius: 40px;
+    box-shadow: 0 30px 70px rgba(19,34,47,.16); overflow: hidden; }
+  .card .stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 16px; }
+  .card .iconWrap { position: absolute; left: 64px; top: 70px; width: 400px; height: 400px; border-radius: 50%; }
+  .card .iconWrap svg { position: absolute; inset: 0; width: 400px; height: 400px; overflow: visible; }
+  .card .num { position: absolute; left: 66px; top: 500px; font: 700 150px/1 "Space Grotesk"; letter-spacing: -.04em; }
+  .card .of { position: absolute; left: 70px; top: 652px; font: 700 24px "Space Grotesk"; letter-spacing: .14em; color: #8a94a0; }
+  .card .right { position: absolute; left: 520px; top: 76px; width: 620px; }
+  .card .title { font: 600 92px/1.02 "Fredoka"; color: var(--navy); }
+  .card .tag { display: inline-block; margin-top: 18px; font: 600 40px "Fredoka"; padding: 8px 26px; border-radius: 40px; color: #fff; transform-origin: 0 50%; }
+  .card ul { list-style: none; margin-top: 46px; }
+  .card li { position: relative; padding-left: 70px; font: 500 33px/1.28 "Inter"; color: #2b3a48; margin-bottom: 30px; }
+  .card li .ck { position: absolute; left: 0; top: 0; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .card li .ck svg { width: 28px; height: 28px; }
+  .card.dark { background: var(--navy); }
+  .card.dark .title { color: #fff; }
+  .card.dark li { color: #dfe7ee; }
+  .card.dark .of { color: #7f93a6; }
+
+  .chip { position: absolute; top: 880px; width: 136px; height: 124px; border-radius: 24px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; border: 3px dashed #cfc6b5; color: #a49a88; background: rgba(255,255,255,.5); transform-origin: 50% 100%; }
+  .chip b { font: 700 38px "Space Grotesk"; line-height: 1; }
+  .chip span { font: 600 18px "Fredoka"; margin-top: 6px; }
+  .chip .fill { position: absolute; inset: -3px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
+    box-shadow: 0 10px 0 rgba(0,0,0,.14); }
+  .chip .done { position: absolute; right: -12px; top: -12px; width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,.2); }
+
+  .chat { position: absolute; padding: 22px 28px; border-radius: 28px; font: 600 30px/1.2 "Fredoka"; max-width: 360px; }
+  .spark { position: absolute; width: 40px; height: 40px; }
+
+  /* recap */
+  .brick { position: absolute; width: 220px; height: 140px; border-radius: 22px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: inset 0 -12px 0 rgba(0,0,0,.14), 0 14px 26px rgba(19,34,47,.18); }
+  .brick b { font: 700 46px "Space Grotesk"; line-height: 1; }
+  .brick span { font: 600 26px "Fredoka"; margin-top: 6px; }
+  .conf { position: absolute; width: 18px; height: 28px; border-radius: 4px; }
+
+  /* wipe */
+  .band { position: absolute; top: -200px; height: 1480px; width: 2500px; transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="blobs" class="layer"></div>
+  <div id="dots" class="layer"></div>
+  <div id="decos" class="layer"></div>
+  <div id="sceneOutroBg" class="layer" style="background: radial-gradient(1300px 900px at 70% 40%, #3B82F0 0%, #1E5BB8 55%, #123A7A 100%)"></div>
+
+  <div id="sIntro" class="layer"></div>
+  <div id="sProblem" class="layer"></div>
+  <div id="sBlocks" class="layer"></div>
+  <div id="sRecap" class="layer"></div>
+  <div id="sOutro" class="layer"></div>
+
+  <div id="ekaShadow"></div>
+  <div id="eka">
+    <img id="ekaBody" src="../assets/eka_body.png">
+    <img id="ekaArm" src="../assets/eka_arm.png">
+    <div id="chestGlow"></div>
+    <div class="lid" id="lidL" style="left:159px; top:182px; width:120px; height:126px"><div></div></div>
+    <div class="lid" id="lidR" style="left:351px; top:147px; width:110px; height:122px"><div></div></div>
+  </div>
+  <div id="fx" class="layer"></div>
+  <div id="bubbles" class="layer"></div>
+  <div id="wipe" class="layer"></div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  lin: p => p,
+  outCubic: p => 1 - Math.pow(1 - p, 3),
+  inCubic: p => p * p * p,
+  inOutCubic: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+  outBack: p => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+  outElastic: p => p === 0 ? 0 : p === 1 ? 1 : Math.pow(2, -10 * p) * Math.sin((p * 10 - .75) * (2 * Math.PI / 3)) + 1,
+  outBounce: p => { const n1 = 7.5625, d1 = 2.75;
+    if (p < 1 / d1) return n1 * p * p;
+    if (p < 2 / d1) return n1 * (p -= 1.5 / d1) * p + .75;
+    if (p < 2.5 / d1) return n1 * (p -= 2.25 / d1) * p + .9375;
+    return n1 * (p -= 2.625 / d1) * p + .984375; },
+};
+const tw = (t, a, b, from, to, ease = E.outCubic) => lerp(from, to, ease(prog(t, a, b)));
+// Fade in over [a, a+d], fade out over [b-d2, b].
+const inout = (t, a, b, d = .3, d2 = .3) => Math.min(prog(t, a, a + d), 1 - prog(t, b - d2, b));
+function rng(seed) { seed = (seed * 2654435761) % 2147483647 || 1; return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+function el(tag, cls, parent, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; }
+function put(e, { x = 0, y = 0, s = 1, sx, sy, r = 0, o = 1 }) {
+  e.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${(sx ?? s).toFixed(4)}, ${(sy ?? s).toFixed(4)})`;
+  e.style.opacity = clamp(o).toFixed(3);
+  e.style.visibility = o <= 0.001 ? "hidden" : "visible";
+}
+const vis = (e, on) => { e.style.display = on ? "" : "none"; };
+// Damped swing used for hanging tags and arrows.
+const swing = (u, amp, freq = 2.2, damp = 3) => u < 0 ? 0 : amp * Math.exp(-damp * u) * Math.sin(2 * Math.PI * freq * u);
+const CHECK = c => `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="${c}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* ---------- timeline ---------- */
+const T = { intro: 0, problem: 5, blocks: 10, recap: 50, outro: 55, end: 60 };
+const BLOCK_LEN = 5;
+const BLOCKS = [
+  { n: "01", title: "Understand", tag: "Know your why", color: "#2F6FDE", tint: "#E3ECFC",
+    bullets: ["Who is it for, and what is it for?", "Collect the real questions people ask", "Agree one source of truth per topic"] },
+  { n: "02", title: "Content", tag: "Clean up first", color: "#3DB54A", tint: "#E3F5E4",
+    bullets: ["Remove outdated and duplicate files", "Give every document one named owner", "Log the gaps where content is missing"] },
+  { n: "03", title: "Metadata", tag: "Label everything", color: "#E8962A", tint: "#FCEFD9",
+    bullets: ["Simple tags and agreed terms", "Every doc has owner, status and review date", "One naming convention, always enforced"] },
+  { n: "04", title: "Format", tag: "Easy to read", color: "#E4572E", tint: "#FBE4DC",
+    bullets: ["Templates with clear headings", "Text-based, one topic per document", "FAQ blocks, no facts hidden in images"] },
+  { n: "05", title: "Governance", tag: "Set the rules", color: "#7B5CD6", tint: "#ECE6FA",
+    bullets: ["Agree who does what (RACI)", "Approve, review and archive on a cycle", "Check permissions before launch"] },
+  { n: "06", title: "Automation", tag: "Let flows do chores", color: "#159FAE", tint: "#DDF2F4",
+    bullets: ["Power Automate checks names and tags", "Routes approvals and review reminders", "Flags expired content automatically"] },
+  { n: "07", title: "Agent", tag: "That's me!", color: "#62D66A", tint: "#1E3445", dark: true,
+    bullets: ["I only read curated libraries", "Clear instructions and a safe fallback answer", "Tested with real questions, then piloted"] },
+  { n: "08", title: "Analytics", tag: "Measure & improve", color: "#E2457A", tint: "#FBE1EA",
+    bullets: ["Track usage and unanswered questions", "Monitor content health and feedback", "Report regularly, fix gaps, retest"] },
+];
+const blockStart = i => T.blocks + i * BLOCK_LEN;
+
+/* ---------- background ---------- */
+const $ = id => document.getElementById(id);
+const blobs = [
+  { c: "#BFD5FB", w: 760, x: 1300, y: -180 }, { c: "#CBEFC6", w: 640, x: -160, y: 560 },
+  { c: "#FBD9C3", w: 560, x: 1500, y: 700 }, { c: "#E6DCFA", w: 480, x: 600, y: 820 },
+].map(b => { const e = el("div", "blob", $("blobs")); e.style.width = e.style.height = b.w + "px"; e.style.background = b.c; return { ...b, e }; });
+
+const R = rng(7);
+const DECO_COLORS = ["#2F6FDE", "#3DB54A", "#E8962A", "#E4572E", "#7B5CD6", "#159FAE"];
+const decos = [];
+for (let i = 0; i < 22; i++) {
+  const kind = ["ring", "dot", "plus", "sq"][i % 4];
+  const size = 14 + R() * 26, c = DECO_COLORS[i % DECO_COLORS.length];
+  const e = el("div", "deco", $("decos"));
+  e.style.width = e.style.height = size + "px";
+  if (kind === "ring") { e.style.border = `${Math.max(3, size / 6)}px solid ${c}`; e.style.borderRadius = "50%"; }
+  if (kind === "dot") { e.style.background = c; e.style.borderRadius = "50%"; }
+  if (kind === "sq") { e.style.background = c; e.style.borderRadius = "5px"; }
+  if (kind === "plus") e.innerHTML = `<svg viewBox="0 0 10 10" width="${size}" height="${size}"><path d="M5 1v8M1 5h8" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+  decos.push({ e, x: R() * 1920, y: R() * 1080, ph: R() * 6.28, sp: .2 + R() * .4, rot: (R() - .5) * 60, o: .25 + R() * .3 });
+}
+function renderBg(t) {
+  blobs.forEach((b, i) => put(b.e, { x: b.x + 60 * Math.sin(t * .25 + i * 1.7), y: b.y + 40 * Math.cos(t * .21 + i), o: 1 }));
+  decos.forEach(d => put(d.e, { x: d.x + 24 * Math.sin(t * d.sp + d.ph), y: d.y + 30 * Math.cos(t * d.sp * .8 + d.ph), r: t * d.rot, o: d.o }));
+  $("dots").style.backgroundPosition = `${(t * 8) % 44}px ${(t * 5) % 44}px`;
+  $("sceneOutroBg").style.opacity = prog(t, T.outro - .02, T.outro);
+}
+
+/* ---------- EKA ---------- */
+const BLINKS = [2.1, 4.3, 6.4, 8.6, 12.2, 15.9, 18.7, 21.3, 24.8, 27.6, 31.1, 33.9, 36.4, 39.2, 42.8, 46.1, 48.7, 52.6, 56.9, 59.0];
+function hop(t, t0, h = 70, dur = .5) {
+  // Returns {dy, sx, sy}: anticipation squash, airborne arc, landing squash.
+  const u = t - t0;
+  if (u < -.1 || u > dur + .16) return { dy: 0, sx: 1, sy: 1 };
+  if (u < 0) { const p = prog(u, -.1, 0); return { dy: 0, sx: 1 + .07 * p, sy: 1 - .08 * p }; }
+  if (u < dur) { const p = u / dur; return { dy: -4 * h * p * (1 - p), sx: .96, sy: 1.05 }; }
+  const p = prog(u, dur, dur + .16); const k = Math.sin(p * Math.PI);
+  return { dy: 0, sx: 1 + .08 * k, sy: 1 - .1 * k };
+}
+function ekaPose(t) {
+  const P = { x: 520, y: 1000, s: .95, r: 0, sx: 1, sy: 1, dy: 0, wave: 0, o: 1, glow: .25 };
+  const idle = Math.sin(t * 2 * Math.PI / 1.7);
+  P.dy = -6 * idle; P.r = 1.2 * Math.sin(t * 1.3);
+  const hops = [];
+  let waveOn = [];
+  if (t < T.problem) {
+    // Drop in from the sky and land with a squash.
+    const p = prog(t, .25, .78);
+    P.dy = t < .78 ? lerp(-1300, 0, E.inCubic(p)) : -6 * idle * prog(t, 1.2, 1.6);
+    if (t >= .78 && t < 1.05) { const k = Math.sin(prog(t, .78, 1.05) * Math.PI); P.sx = 1 + .14 * k; P.sy = 1 - .16 * k; }
+    P.r = t < .78 ? 0 : P.r;
+    waveOn = [[1.0, 3.6]];
+    hops.push(3.9);
+  } else if (t < T.blocks) {
+    P.x = 330; P.s = .78;
+    // Confused head-tilt wobble while the messy files appear, then a happy hop.
+    P.r = tw(t, 5.5, 6.1, 0, -7, E.outBack) * (1 - prog(t, 7.6, 7.9)) + 1.5 * Math.sin(t * 5) * prog(t, 5.6, 6) * (1 - prog(t, 7.5, 7.8));
+    hops.push(7.75);
+    waveOn = [[8.1, 9.4]];
+  } else if (t < T.recap) {
+    P.x = 330; P.s = .78;
+    for (let i = 0; i < 8; i++) hops.push(blockStart(i) + .05);
+    for (let i = 0; i < 8; i++) waveOn.push([blockStart(i) + .6, blockStart(i) + 1.7]);
+    // Block 07 is EKA: bigger, glowing, extra hops.
+    const a7 = blockStart(6);
+    const big = prog(t, a7, a7 + .5) * (1 - prog(t, a7 + 4.4, a7 + 4.9));
+    P.s = .78 + .08 * E.outBack(clamp(big));
+    P.glow = .25 + .75 * big;
+    hops.push(a7 + 1.9, a7 + 2.5);
+  } else if (t < T.outro) {
+    P.x = 1560; P.s = .7; P.y = 990;
+    hops.push(52.0, 52.55, 53.1);
+    waveOn = [[53.6, 54.9]];
+    P.glow = .6;
+  } else {
+    P.x = 1390; P.s = 1.0; P.y = 1060;
+    // Slide in from the right after the wipe.
+    P.x += tw(t, 55, 55.6, 500, 0, E.outBack);
+    waveOn = [[55.6, 59.4]];
+    P.glow = .5 + .5 * Math.max(0, Math.sin(t * 4));
+    hops.push(57.6);
+  }
+  hops.forEach(h0 => { const h = hop(t, h0, t >= T.recap && t < T.outro ? 110 : 70); P.dy += h.dy; P.sx *= h.sx; P.sy *= h.sy; });
+  waveOn.forEach(([a, b]) => {
+    const env = Math.min(prog(t, a, a + .25), 1 - prog(t, b - .25, b));
+    if (env > 0) P.wave += env * (Math.sin((t - a) * 2 * Math.PI * 2.1) * 16 - 4);
+  });
+  return P;
+}
+function renderEka(t) {
+  const P = ekaPose(t);
+  const eka = $("eka");
+  eka.style.left = (P.x - 315) + "px"; eka.style.top = (P.y - 860) + "px";
+  put(eka, { y: P.dy, r: P.r, sx: P.s * P.sx, sy: P.s * P.sy, o: P.o });
+  $("ekaArm").style.transform = `rotate(${P.wave.toFixed(2)}deg)`;
+  const lift = clamp(-P.dy / 400);
+  const sh = $("ekaShadow");
+  sh.style.left = (P.x - 210) + "px"; sh.style.top = (P.y - 20) + "px";
+  put(sh, { sx: P.s * (1 - .45 * lift), sy: P.s * (1 - .45 * lift), o: (1 - .7 * lift) * (P.y + P.dy > -200 ? 1 : 0) });
+  // Blinks
+  let b = 0;
+  BLINKS.forEach(t0 => { const u = t - t0; if (u >= 0 && u < .2) b = u < .07 ? u / .07 : 1 - (u - .07) / .13; });
+  document.querySelectorAll(".lid > div").forEach(l => l.style.transform = `scaleY(${b.toFixed(3)})`);
+  $("chestGlow").style.opacity = clamp(P.glow * (.75 + .25 * Math.sin(t * 6)));
+  return P;
+}
+
+/* ---------- speech bubbles ---------- */
+const BUBBLES = [
+  { text: "Hi, I'm EKA!", a: 1.05, b: 4.5, x: 640, y: 220 },
+  { text: "Hmm...", a: 5.9, b: 7.5, x: 470, y: 340 },
+  { text: "Let's fix it!", a: 7.9, b: 9.6, x: 470, y: 340 },
+  { text: "That's me!", a: blockStart(6) + .35, b: blockStart(6) + 2.9, x: 250, y: 120 },
+  { text: "We did it!", a: 52.1, b: 54.6, x: 1380, y: 380, left: true },
+];
+BUBBLES.forEach(B => { B.e = el("div", "bubble", $("bubbles"), B.text); B.e.style.left = B.x + "px"; B.e.style.top = B.y + "px";
+  if (B.left) { B.e.style.transformOrigin = "100% 100%"; B.e.classList.add("lft"); } });
+const lftStyle = document.createElement("style");
+lftStyle.textContent = ".bubble.lft::after{left:auto;right:34px}";
+document.head.appendChild(lftStyle);
+function renderBubbles(t) {
+  BUBBLES.forEach(B => {
+    const pin = E.outBack(prog(t, B.a, B.a + .35)), pout = prog(t, B.b - .2, B.b);
+    const on = t >= B.a && t <= B.b;
+    put(B.e, { s: on ? pin * (1 - .3 * pout) : 0, o: on ? 1 - pout : 0, y: -6 * Math.sin(t * 3) });
+    if (B.left) B.e.style.left = (B.x - B.e.offsetWidth) + "px";
+  });
+}
+
+/* ---------- scene 1: intro ---------- */
+const sIntro = $("sIntro");
+const iKick = el("div", "abs pill kicker", sIntro, "Beginner's guide");
+const iL1 = el("div", "abs fred", sIntro, "Let's build an");
+const iL2 = el("div", "abs fred", sIntro, `<span class="hl"><i></i>AI-powered</span>`);
+const iL3 = el("div", "abs fred", sIntro, "Knowledge Hub");
+const iSub = el("div", "abs", sIntro, `in <b style="color:var(--orange)">8 simple</b> building blocks`);
+[iL1, iL2, iL3].forEach((e, i) => { e.style.left = "960px"; e.style.top = (250 + i * 128) + "px"; e.style.font = "600 112px/1.1 Fredoka"; e.style.color = "#13222F"; e.style.whiteSpace = "nowrap"; });
+iKick.style.left = "964px"; iKick.style.top = "160px";
+iSub.style.left = "964px"; iSub.style.top = "660px"; iSub.style.font = "500 46px Inter"; iSub.style.color = "#3a4856";
+const iMiniRow = el("div", "abs", sIntro); iMiniRow.style.left = "964px"; iMiniRow.style.top = "760px";
+const iMinis = BLOCKS.map((B, i) => { const m = el("div", "abs", iMiniRow); m.style.cssText += `left:${i * 92}px;width:76px;height:76px;border-radius:16px;background:${B.color};
+  color:#fff;font:700 30px 'Space Grotesk';display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 rgba(0,0,0,.14)`; m.textContent = B.n; return m; });
+function renderIntro(t) {
+  put(iKick, { y: tw(t, .9, 1.4, 30, 0), o: prog(t, .9, 1.3) });
+  [iL1, iL2, iL3].forEach((e, i) => { const a = 1.25 + i * .28; put(e, { y: tw(t, a, a + .5, 70, 0, E.outBack), o: prog(t, a, a + .25), r: tw(t, a, a + .5, 4, 0) }); });
+  iL2.querySelector("i").style.transform = `scaleX(${E.outCubic(prog(t, 2.2, 2.7)).toFixed(3)})`;
+  put(iSub, { y: tw(t, 2.6, 3.1, 30, 0), o: prog(t, 2.6, 3.0) });
+  iMinis.forEach((m, i) => { const a = 3.1 + i * .09; put(m, { y: tw(t, a, a + .4, -60, 0, E.outBounce) + (t > 3.9 ? -8 * Math.max(0, Math.sin((t - 3.9 - i * .07) * 7)) * (1 - prog(t, 4.3, 4.6)) : 0), o: prog(t, a, a + .1), s: tw(t, a, a + .4, .4, 1, E.outBack) }); });
+}
+
+/* ---------- scene 2: problem ---------- */
+const sProblem = $("sProblem");
+const pKick = el("div", "abs kicker", sProblem, "Sound familiar?");
+const pHead = el("div", "abs fred", sProblem, "Too many files.<br>Which one is right?");
+const pHead2 = el("div", "abs fred", sProblem, `Let's fix it with<br><span style="color:var(--orange)">8 building blocks!</span>`);
+[pKick, pHead, pHead2].forEach(e => { e.style.left = "760px"; });
+pKick.style.top = "96px";
+[pHead, pHead2].forEach(e => { e.style.top = "140px"; e.style.font = "600 84px/1.08 Fredoka"; e.style.color = "#13222F"; });
+const FILES = [
+  { nm: "FINAL.docx", c: "#2F6FDE", x: 830, y: 520, r: -8 },
+  { nm: "FINAL_v2.docx", c: "#2F6FDE", x: 1070, y: 545, r: 6, w: 1 },
+  { nm: "old_2019.pdf", c: "#E4572E", x: 1310, y: 510, r: -4, w: 1 },
+  { nm: "copy (2).xlsx", c: "#3DB54A", x: 1550, y: 550, r: 9 },
+  { nm: "notes (3).txt", c: "#8a94a0", x: 950, y: 830, r: 5 },
+  { nm: "HR stuff??", c: "#E8962A", x: 1200, y: 845, r: -7, w: 1 },
+  { nm: "IMG_0042.png", c: "#7B5CD6", x: 1450, y: 830, r: 4 },
+];
+FILES.forEach((F, i) => {
+  F.e = el("div", "file", sProblem, `<div class="bar" style="background:${F.c};width:${60 + (i * 13) % 30}%"></div><div class="ln"></div><div class="ln" style="width:80%"></div><div class="ln" style="width:65%"></div><div class="ln" style="width:85%"></div><div class="nm">${F.nm}</div>${F.w ? '<div class="warn">!</div>' : ""}`);
+  F.e.style.left = (F.x - 100) + "px"; F.e.style.top = (F.y - 125) + "px";
+});
+const QM = [{ x: 210, y: 150, d: 0 }, { x: 420, y: 120, d: .15 }, { x: 320, y: 60, d: .3 }].map(q => { q.e = el("div", "qmark", sProblem, "?"); q.e.style.left = q.x + "px"; q.e.style.top = q.y + "px"; return q; });
+const pMinis = BLOCKS.map((B, i) => { const m = el("div", "mini", sProblem, `<b>${B.n}</b><span>${B.title}</span>`); m.style.background = B.color;
+  m.style.left = (760 + (i % 4) * 176) + "px"; m.style.top = (470 + Math.floor(i / 4) * 186) + "px"; return m; });
+function renderProblem(t) {
+  const u = t - T.problem;
+  put(pKick, { y: tw(u, .3, .7, 20, 0), o: prog(u, .3, .6) * (1 - prog(u, 2.5, 2.7)) });
+  put(pHead, { y: tw(u, .4, .9, 50, 0, E.outBack), o: prog(u, .4, .7) * (1 - prog(u, 2.5, 2.7)) });
+  put(pHead2, { y: tw(u, 2.75, 3.2, 50, 0, E.outBack), o: prog(u, 2.75, 3.0) });
+  FILES.forEach((F, i) => {
+    const a = .6 + i * .16;
+    const jit = F.w ? 3 * Math.sin(u * 30 + i) * prog(u, 1.8, 2) * (1 - prog(u, 2.4, 2.5)) : 0;
+    // Files get sucked into the centre and vanish as the blocks appear.
+    const suck = E.inCubic(prog(u, 2.5, 2.95));
+    put(F.e, { x: lerp(0, 1180 - F.x, suck) + jit, y: lerp(tw(u, a, a + .45, 160, 0, E.outBack), 640 - F.y, suck), r: F.r * (1 - suck) + 360 * suck + jit, s: tw(u, a, a + .45, .3, 1, E.outBack) * (1 - suck), o: prog(u, a, a + .15) });
+  });
+  QM.forEach((q, i) => { const a = 1.0 + q.d; put(q.e, { y: tw(u, a, a + .5, 60, 0, E.outBack) + 10 * Math.sin(u * 5 + i), s: tw(u, a, a + .5, 0, 1, E.outBack) * (1 - prog(u, 2.5, 2.8)), r: 10 * Math.sin(u * 4 + i), o: prog(u, a, a + .1) * (1 - prog(u, 2.5, 2.8)) }); });
+  pMinis.forEach((m, i) => { const a = 2.95 + i * .11; put(m, { s: tw(u, a, a + .4, 0, 1, E.outBack), r: tw(u, a, a + .4, -20, 0), o: prog(u, a, a + .08), y: -10 * Math.max(0, Math.sin((u - 4 - i * .08) * 6)) * prog(u, 4, 4.1) }); });
+}
+
+/* ---------- scene 3: building blocks ---------- */
+const sBlocks = $("sBlocks");
+const ICONS = {};
+function gearPath(cx, cy, r, teeth, depth) {
+  let d = ""; const n = teeth * 4;
+  for (let k = 0; k <= n; k++) {
+    const a = k / n * 2 * Math.PI, rr = (k % 4 === 0 || k % 4 === 1) ? r + depth : r;
+    d += (k ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + " " + (cy + rr * Math.sin(a)).toFixed(1);
+  }
+  return d + "Z";
+}
+const DOC = (fill = "#fff", stroke = "#1f3445") => `<rect x="-55" y="-70" width="110" height="140" rx="14" fill="${fill}" stroke="${stroke}" stroke-width="6"/>
+  <rect x="-32" y="-44" width="64" height="10" rx="5" fill="${stroke}" opacity=".7"/><rect x="-32" y="-20" width="50" height="8" rx="4" fill="${stroke}" opacity=".3"/>
+  <rect x="-32" y="0" width="58" height="8" rx="4" fill="${stroke}" opacity=".3"/><rect x="-32" y="20" width="40" height="8" rx="4" fill="${stroke}" opacity=".3"/>`;
+const ICON_SVG = [
+  // 01 target
+  `<g id="i0r"><circle cx="200" cy="210" r="150" fill="#2F6FDE"/><circle cx="200" cy="210" r="112" fill="#fff"/><circle cx="200" cy="210" r="74" fill="#2F6FDE"/><circle cx="200" cy="210" r="36" fill="#fff"/><circle cx="200" cy="210" r="16" fill="#D9622B"/></g>
+   <circle id="i0f" cx="200" cy="210" r="40" fill="none" stroke="#D9622B" stroke-width="8"/>
+   <g id="i0a"><line x1="0" y1="0" x2="150" y2="-150" stroke="#13222F" stroke-width="12" stroke-linecap="round"/><path d="M150 -150 l10 -48 l22 22 z M150 -150 l48 -10 l-22 -22z" fill="#D9622B"/><path d="M-8 8 l8 -30 l22 22z" fill="#13222F"/></g>`,
+  // 02 content
+  `<g id="i1bin"><rect x="245" y="230" width="120" height="130" rx="14" fill="#3DB54A"/><rect x="265" y="250" width="12" height="90" rx="6" fill="#fff" opacity=".5"/><rect x="299" y="250" width="12" height="90" rx="6" fill="#fff" opacity=".5"/><rect x="333" y="250" width="12" height="90" rx="6" fill="#fff" opacity=".5"/></g>
+   <g id="i1lid"><rect x="-70" y="-14" width="140" height="22" rx="10" fill="#2a8a35"/><rect x="-20" y="-30" width="40" height="18" rx="8" fill="#2a8a35"/></g>
+   <g id="i1c">${DOC("#FBE4DC", "#E4572E")}<text x="0" y="56" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="22" fill="#E4572E">COPY</text></g>
+   <g id="i1b">${DOC("#eee", "#8a94a0")}<text x="0" y="56" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="22" fill="#8a94a0">OLD</text></g>
+   <g id="i1a">${DOC()}</g>
+   <g id="i1ok"><circle r="34" fill="#3DB54A"/><path d="M-15 1l10 10 19-21" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+   <g id="i1own"><circle r="30" fill="#2F6FDE"/><circle cy="-6" r="10" fill="#fff"/><path d="M-16 18 a16 14 0 0 1 32 0z" fill="#fff"/></g>`,
+  // 03 metadata
+  `<g transform="translate(200 215) scale(1.55)">${DOC()}</g>
+   ${["Owner", "Status", "Review"].map((s, k) => `<g id="i2t${k}"><line x1="0" y1="0" x2="0" y2="40" stroke="#13222F" stroke-width="4"/><g transform="translate(0 40)"><rect x="-70" y="0" width="140" height="56" rx="28" fill="#E8962A"/><circle cx="-44" cy="28" r="8" fill="#fff"/><text x="10" y="37" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="26" fill="#fff">${s}</text></g></g>`).join("")}`,
+  // 04 format
+  `<rect x="70" y="40" width="260" height="330" rx="22" fill="#fff" stroke="#13222F" stroke-width="7"/>
+   <rect id="i3h" x="100" y="78" width="200" height="30" rx="10" fill="#E4572E"/>
+   <rect id="i3l0" x="100" y="128" width="170" height="12" rx="6" fill="#C9C1B2"/><rect id="i3l1" x="100" y="152" width="190" height="12" rx="6" fill="#C9C1B2"/>
+   <rect id="i3h2" x="100" y="186" width="130" height="20" rx="8" fill="#E8962A"/>
+   <rect id="i3l2" x="100" y="220" width="180" height="12" rx="6" fill="#C9C1B2"/>
+   <g id="i3faq"><rect x="96" y="262" width="208" height="84" rx="14" fill="#FBE4DC" stroke="#E4572E" stroke-width="4"/><text x="118" y="298" font-family="Space Grotesk" font-weight="700" font-size="24" fill="#E4572E">Q</text><rect x="148" y="281" width="130" height="12" rx="6" fill="#E4572E" opacity=".5"/><text x="118" y="332" font-family="Space Grotesk" font-weight="700" font-size="24" fill="#13222F">A</text><rect x="148" y="315" width="110" height="12" rx="6" fill="#13222F" opacity=".35"/></g>`,
+  // 05 governance
+  `<g id="i4s"><path d="M200 50 L320 95 V200 C320 280 265 335 200 362 C135 335 80 280 80 200 V95 Z" fill="#7B5CD6"/><path d="M200 78 L295 113 V200 C295 265 252 310 200 334 Z" fill="#fff" opacity=".15"/></g>
+   <path id="i4c" d="M140 205 L185 250 L265 160" fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="220" stroke-dashoffset="220"/>
+   ${["R", "A", "C", "I"].map((s, k) => `<g id="i4b${k}"><circle r="34" fill="#fff" stroke="#7B5CD6" stroke-width="6"/><text y="12" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="34" fill="#7B5CD6">${s}</text></g>`).join("")}`,
+  // 06 automation
+  `<g id="i5g1"><path d="${gearPath(0, 0, 105, 10, 26)}" fill="#159FAE"/><circle r="42" fill="#fff"/></g>
+   <g id="i5g2"><path d="${gearPath(0, 0, 58, 8, 20)}" fill="#E8962A"/><circle r="22" fill="#fff"/></g>
+   <path id="i5z" d="M300 230 L262 300 H292 L270 370 L338 280 H306 L330 230 Z" fill="#F7C531" stroke="#13222F" stroke-width="5" stroke-linejoin="round"/>`,
+  // 07 agent (chat built in HTML)
+  ``,
+  // 08 analytics
+  `<line x1="70" y1="340" x2="340" y2="340" stroke="#13222F" stroke-width="7" stroke-linecap="round"/>
+   ${[0, 1, 2, 3].map(k => `<rect id="i7b${k}" x="${92 + k * 62}" y="0" width="44" height="10" rx="8" fill="${k === 3 ? "#E2457A" : "#F3A6BF"}"/>`).join("")}
+   <polyline id="i7l" points="100,290 170,250 230,215 290,130" fill="none" stroke="#13222F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="300" stroke-dashoffset="300"/>
+   <path id="i7h" d="M0 0 l-30 -4 l14 26z" fill="#13222F"/>`,
+];
+const cards = BLOCKS.map((B, i) => {
+  const c = el("div", "card" + (B.dark ? " dark" : ""), sBlocks);
+  c.innerHTML = `<div class="stripe" style="background:${B.color}"></div>
+    <div class="iconWrap" style="background:${B.tint}"><svg viewBox="0 0 400 400">${ICON_SVG[i]}</svg></div>
+    <div class="num" style="color:${B.color}">${B.n}</div><div class="of">BLOCK ${B.n} OF 08</div>
+    <div class="right"><div class="title">${B.title}</div><div class="tag" style="background:${B.color};${B.dark ? "color:#13222F" : ""}">${B.tag}</div>
+    <ul>${B.bullets.map(s => `<li><span class="ck" style="background:${B.color}">${CHECK(B.dark ? "#13222F" : "#fff")}</span>${s}</li>`).join("")}</ul></div>`;
+  return c;
+});
+// Agent chat demo inside card 07
+const chatWrap = cards[6].querySelector(".iconWrap");
+const chatQ = el("div", "chat", chatWrap, "How do I book leave?"); chatQ.style.cssText += "right:-10px;top:58px;background:#fff;color:#13222F;border-bottom-right-radius:8px";
+const chatDots = el("div", "chat", chatWrap, `<span>●</span> <span>●</span> <span>●</span>`); chatDots.style.cssText += "left:10px;top:180px;background:#62D66A;color:#13222F;font-size:22px;padding:18px 24px";
+const chatA = el("div", "chat", chatWrap, `Here's the leave policy ✓<div style="font:600 20px 'Space Grotesk';margin-top:10px;opacity:.75">SOURCE: HR LIBRARY</div>`); chatA.style.cssText += "left:-10px;top:180px;max-width:440px;white-space:nowrap;background:#62D66A;color:#13222F;border-bottom-left-radius:8px";
+const SPARKS = [...Array(10)].map((_, k) => { const s = el("div", "spark", $("fx"), `<svg viewBox="0 0 40 40"><path d="M20 0 C22 14 26 18 40 20 C26 22 22 26 20 40 C18 26 14 22 0 20 C14 18 18 14 20 0Z" fill="${["#62D66A", "#F7C531", "#2F6FDE"][k % 3]}"/></svg>`); return s; });
+
+const chips = BLOCKS.map((B, i) => {
+  const c = el("div", "chip", sBlocks, `<b>${B.n}</b><span>${B.title}</span><div class="fill" style="background:${B.color};${B.dark ? "" : ""}"><b>${B.n}</b><span>${B.title}</span></div><div class="done">${CHECK(B.dark ? "#13222F" : B.color)}</div>`);
+  c.style.left = (640 + i * 149.5) + "px";
+  return c;
+});
+const q = (c, s) => c.querySelector(s), qa = (c, s) => [...c.querySelectorAll(s)];
+
+function renderIcon(i, card, u) {
+  const g = id => card.querySelector("#" + id);
+  const at = (e, x, y, r = 0, s = 1, o = 1) => { e.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${r.toFixed(2)}) scale(${Math.max(0, s).toFixed(3)})`); e.setAttribute("opacity", clamp(o).toFixed(3)); };
+  if (i === 0) {
+    const rs = E.outBack(prog(u, .15, .6)); at(g("i0r"), 200 - 200 * rs, 210 - 210 * rs, 0, rs);
+    const p = E.inCubic(prog(u, .55, .85));
+    at(g("i0a"), lerp(470, 200, p), lerp(-60, 210, p), swing(u - .85, 7, 3, 4), 1, prog(u, .5, .55));
+    const f = prog(u, .85, 1.3); g("i0f").setAttribute("r", 30 + 150 * E.outCubic(f)); g("i0f").setAttribute("opacity", f > 0 ? 1 - f : 0);
+  }
+  if (i === 1) {
+    at(g("i1bin"), 0, 0, 0, 1, prog(u, .2, .4));
+    at(g("i1lid"), 305, 228, -40 * Math.sin(Math.PI * prog(u, .9, 1.8)), 1, prog(u, .2, .4));
+    at(g("i1a"), lerp(110, 150, E.inOutCubic(prog(u, 1.8, 2.2))), lerp(140, 200, E.inOutCubic(prog(u, 1.8, 2.2))), lerp(-6, 0, prog(u, 1.8, 2.2)), lerp(.9, 1.35, E.outBack(prog(u, 1.8, 2.2))) * E.outBack(prog(u, .2, .5)));
+    const fly = (e, a, x0, y0, r0) => { const p = prog(u, a, a + .45); at(e, lerp(x0, 305, p), lerp(y0, 300, p) - 120 * Math.sin(Math.PI * p), r0 + 200 * p, E.outBack(prog(u, .3, .6)) * (1 - .5 * p), 1 - prog(u, a + .38, a + .45)); };
+    fly(g("i1b"), 1.0, 230, 110, 8); fly(g("i1c"), 1.3, 340, 130, 14);
+    at(g("i1ok"), 230, 110, 0, E.outBack(prog(u, 2.2, 2.5)));
+    at(g("i1own"), 75, 290, 0, E.outBack(prog(u, 2.4, 2.7)));
+  }
+  if (i === 2) {
+    [[90, 70], [310, 130], [100, 250]].forEach(([x, y], k) => { const a = .6 + k * .35; at(g("i2t" + k), x, y, swing(u - a, 26, 1.6, 2.2), E.outBack(prog(u, a, a + .3)), prog(u, a, a + .1)); });
+  }
+  if (i === 3) {
+    const grow = (id, a, w0) => { const e = g(id); e.setAttribute("width", (w0 * E.outCubic(prog(u, a, a + .35))).toFixed(1)); };
+    grow("i3h", .4, 200); grow("i3l0", .7, 170); grow("i3l1", .8, 190); grow("i3h2", 1.0, 130); grow("i3l2", 1.15, 180);
+    const f = E.outBack(prog(u, 1.5, 1.85)); at(g("i3faq"), 200 - 200 * f, 304 - 304 * f, 0, f);
+  }
+  if (i === 4) {
+    const s = E.outBack(prog(u, .2, .6)); at(g("i4s"), 200 - 200 * s, 206 - 206 * s, 0, s);
+    g("i4c").setAttribute("stroke-dashoffset", (220 * (1 - E.outCubic(prog(u, .7, 1.05)))).toFixed(1));
+    [[62, 92], [338, 92], [52, 300], [348, 300]].forEach(([x, y], k) => { const a = 1.1 + k * .15; at(g("i4b" + k), x, y + 4 * Math.sin(u * 3 + k), 0, E.outBack(prog(u, a, a + .3))); });
+  }
+  if (i === 5) {
+    const sp = E.outBack(prog(u, .2, .6)), rot = u * 70;
+    at(g("i5g1"), 165, 225, rot, sp); at(g("i5g2"), 290, 112, -rot * 1.45 + 12, E.outBack(prog(u, .35, .75)));
+    const z = prog(u, .9, 1.1); const flash = .75 + .25 * Math.sin(u * 14);
+    at(g("i5z"), 0, 0, 0, 1, z * flash);
+  }
+  if (i === 6) {
+    put(chatQ, { x: tw(u, .6, 1.0, 120, 0, E.outBack), o: prog(u, .6, .75) });
+    const dotsOn = u > 1.1 && u < 1.9;
+    put(chatDots, { s: dotsOn ? E.outBack(prog(u, 1.1, 1.3)) : 0, o: dotsOn ? 1 : 0 });
+    qa(chatDots, "span").forEach((d, k) => d.style.opacity = .35 + .65 * Math.max(0, Math.sin(u * 10 - k * .9)));
+    put(chatA, { x: tw(u, 1.9, 2.3, -120, 0, E.outBack), o: prog(u, 1.9, 2.05) });
+  }
+  if (i === 7) {
+    [110, 150, 190, 260].forEach((h, k) => { const a = .4 + k * .2; const hh = h * E.outBack(prog(u, a, a + .45)); const b = g("i7b" + k); b.setAttribute("height", Math.max(0, hh).toFixed(1)); b.setAttribute("y", (340 - Math.max(0, hh)).toFixed(1)); });
+    const lp = E.outCubic(prog(u, 1.3, 1.9)); g("i7l").setAttribute("stroke-dashoffset", (300 * (1 - lp)).toFixed(1));
+    at(g("i7h"), 290 + 8, 130 - 8, -30, E.outBack(prog(u, 1.8, 2.05)));
+  }
+}
+function renderBlocks(t) {
+  BLOCKS.forEach((B, i) => {
+    const c = cards[i], a = blockStart(i), u = t - a;
+    const on = u > -0.01 && u < BLOCK_LEN;
+    vis(c, on);
+    if (on) {
+      const pin = prog(u, 0, .55), pout = prog(u, 4.55, 5);
+      put(c, { x: lerp(320, 0, E.outBack(pin)) - 380 * E.inCubic(pout), y: i === 0 ? 0 : 0, r: lerp(5, 0, E.outCubic(pin)) - 4 * E.inCubic(pout), s: lerp(.85, 1, E.outBack(pin)) - .08 * pout, o: prog(u, 0, .2) * (1 - prog(u, 4.75, 5)) });
+      put(q(c, ".num"), { s: E.outBack(prog(u, .25, .6)), o: prog(u, .25, .35) });
+      put(q(c, ".of"), { y: tw(u, .45, .8, 16, 0), o: prog(u, .45, .7) });
+      put(q(c, ".title"), { y: tw(u, .3, .7, 40, 0, E.outBack), o: prog(u, .3, .5) });
+      put(q(c, ".tag"), { sx: E.outBack(prog(u, .55, .9)), sy: 1, o: prog(u, .55, .65) });
+      put(q(c, ".iconWrap"), { s: E.outBack(prog(u, .15, .55)), o: prog(u, .15, .3) });
+      qa(c, "li").forEach((li, k) => { const a2 = 1.0 + k * .5; put(li, { x: tw(u, a2, a2 + .4, 60, 0, E.outBack), o: prog(u, a2, a2 + .2) }); put(q(li, ".ck"), { s: E.outBack(prog(u, a2 + .1, a2 + .45)), r: tw(u, a2 + .1, a2 + .45, -90, 0) }); });
+      renderIcon(i, c, u);
+    }
+  });
+  chips.forEach((c, i) => {
+    const a = blockStart(i), act = prog(t, a + .2, a + .5), end = prog(t, a + BLOCK_LEN - .1, a + BLOCK_LEN + .2);
+    const cur = act * (1 - end);
+    const intro = E.outBack(prog(t, T.blocks + .1 + i * .06, T.blocks + .5 + i * .06));
+    put(c, { y: -22 * E.outBack(cur) + (1 - intro) * 60, s: (1 + .08 * cur) * (.6 + .4 * intro), o: prog(t, T.blocks + .1 + i * .06, T.blocks + .25 + i * .06) });
+    put(q(c, ".fill"), { s: E.outBack(act), o: act });
+    put(q(c, ".done"), { s: E.outBack(end), o: end });
+  });
+  // Sparkles around EKA for block 07
+  const a7 = blockStart(6), u7 = t - a7;
+  SPARKS.forEach((s, k) => {
+    const ang = k / SPARKS.length * Math.PI * 2 + u7 * .8, rad = 280 + 30 * Math.sin(u7 * 3 + k);
+    const on = u7 > .3 && u7 < 4.6;
+    put(s, { x: 330 + rad * Math.cos(ang) - 20, y: 640 + rad * .9 * Math.sin(ang) - 20, s: on ? (.6 + .5 * Math.abs(Math.sin(u7 * 4 + k))) * prog(u7, .3 + k * .05, .6 + k * .05) * (1 - prog(u7, 4.3, 4.6)) : 0, r: u7 * 90, o: on ? 1 : 0 });
+  });
+}
+
+/* ---------- scene 4: recap ---------- */
+const sRecap = $("sRecap");
+const rHead = el("div", "abs fred", sRecap, `8 blocks = <span style="color:var(--orange)">1 smart hub</span>`);
+rHead.style.cssText += "left:110px;top:70px;font:600 84px/1.1 Fredoka;color:#13222F;white-space:nowrap";
+const rSub = el("div", "abs", sRecap, `Good content in <b style="color:var(--green)">→</b> great answers out!`);
+rSub.style.cssText += "left:114px;top:178px;font:500 42px Inter;color:#3a4856;white-space:nowrap";
+const roof = el("div", "abs", sRecap, `<svg viewBox="0 0 980 260" width="980" height="260"><path d="M490 10 L970 250 H10 Z" fill="#13222F" stroke="#13222F" stroke-width="16" stroke-linejoin="round"/>
+  <text x="490" y="200" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="58" fill="#fff">AI Knowledge Hub</text><circle cx="490" cy="105" r="30" fill="#62D66A"/></svg>`);
+roof.style.left = "170px"; roof.style.top = "300px";
+const bricks = BLOCKS.map((B, i) => { const b = el("div", "brick", sRecap, `<b>${B.n}</b><span>${B.title}</span>`); b.style.background = B.color;
+  if (B.dark) b.style.boxShadow = "inset 0 0 0 5px #62D66A, inset 0 -12px 0 rgba(0,0,0,.2), 0 14px 26px rgba(19,34,47,.18)";
+  b.style.left = (200 + (i % 4) * 232) + "px"; b.style.top = (562 + Math.floor(i / 4) * 154) + "px"; return b; });
+const floor = el("div", "abs", sRecap); floor.style.cssText += "left:150px;top:868px;width:1020px;height:22px;border-radius:11px;background:#d8cfbf";
+const CONF = [...Array(90)].map((_, k) => { const r = rng(100 + k); const e = el("div", "conf", $("fx")); e.style.background = DECO_COLORS[k % 6];
+  return { e, vx: (r() - .5) * 1500, vy: -600 - r() * 900, spin: (r() - .5) * 1400, t0: 52.0 + (k % 3) * .55, x0: k % 2 ? 660 : 1560, y0: k % 2 ? 400 : 640 }; });
+function renderRecap(t) {
+  const u = t - T.recap;
+  put(rHead, { y: tw(u, .2, .6, 40, 0, E.outBack), o: prog(u, .2, .4) });
+  put(rSub, { y: tw(u, 2.3, 2.7, 30, 0), o: prog(u, 2.3, 2.6) });
+  put(floor, { sx: E.outCubic(prog(u, .1, .5)), sy: 1, o: 1 });
+  // Bottom row first, then top row (like stacking real bricks).
+  const order = [4, 5, 6, 7, 0, 1, 2, 3];
+  bricks.forEach((b, i) => { const a = .35 + order.indexOf(i) * .14; const p = prog(u, a, a + .42);
+    put(b, { y: lerp(-900, 0, E.outBounce(p)), r: lerp((i % 2 ? 12 : -12), 0, E.outCubic(p)), o: p > 0 ? 1 : 0 }); });
+  const rp = prog(u, 1.65, 2.1);
+  put(roof, { y: lerp(-700, 0, E.outBounce(rp)), o: rp > 0 ? 1 : 0 });
+}
+function renderConfetti(t) {
+  CONF.forEach(c => { const u = t - c.t0; const on = u > 0 && u < 2.6 && t < T.outro;
+    put(c.e, { x: c.x0 + c.vx * u, y: c.y0 + c.vy * u + 1400 * u * u, r: c.spin * u, sx: Math.cos(u * 9 + c.spin), sy: 1, o: on ? 1 - prog(u, 2.0, 2.6) : 0 }); });
+}
+
+/* ---------- scene 5: outro ---------- */
+const sOutro = $("sOutro");
+const oKick = el("div", "abs pill kicker", sOutro, "Your turn!");
+oKick.style.cssText += "left:130px;top:190px;color:#1E5BB8";
+const oHead = el("div", "abs fred", sOutro, `Start with<br>Block 01:<br><span style="color:#9BE38F">Understand</span>`);
+oHead.style.cssText += "left:126px;top:280px;font:600 118px/1.05 Fredoka;color:#fff";
+const oFoot = el("div", "abs", sOutro, `Building an AI-Powered Knowledge Hub · with EKA`);
+oFoot.style.cssText += "left:130px;top:930px;font:600 30px 'Space Grotesk';letter-spacing:.04em;color:#cfe0ff";
+const oFade = el("div", "layer", $("wipe")); oFade.style.background = "#0d1f3d";
+function renderOutro(t) {
+  const u = t - T.outro;
+  put(oKick, { y: tw(u, .5, .9, 30, 0, E.outBack), o: prog(u, .5, .8) });
+  put(oHead, { y: tw(u, .7, 1.2, 60, 0, E.outBack), o: prog(u, .7, 1.0) });
+  put(oFoot, { y: tw(u, 1.6, 2.0, 20, 0), o: prog(u, 1.6, 1.9) });
+}
+
+/* ---------- wipes ---------- */
+const WIPES = [T.problem, T.blocks, T.recap, T.outro];
+const BAND_COLORS = ["#3DB54A", "#F2A33A", "#2F6FDE"];
+const bands = BAND_COLORS.map(c => { const b = el("div", "band", $("wipe")); b.style.background = c; return b; });
+function renderWipe(t) {
+  bands.forEach((b, k) => {
+    let x = 4000; // offscreen
+    WIPES.forEach(B => {
+      const lead = (2 - k) * .07;
+      const a = B - .42 - lead, m = B - .04, c = B + .04 + lead * .6, d = B + .44 + lead * .6;
+      if (t >= a && t <= d) {
+        if (t < m) x = lerp(2000, -260, E.outCubic(prog(t, a, m)));
+        else if (t < c) x = -260;
+        else x = lerp(-260, -2900, E.inCubic(prog(t, c, d)));
+      }
+    });
+    b.style.transform = `translateX(${x.toFixed(1)}px) skewX(-14deg)`;
+  });
+}
+
+/* ---------- master ---------- */
+function render(t) {
+  renderBg(t);
+  vis(sIntro, t < T.problem); vis(sProblem, t >= T.problem && t < T.blocks);
+  vis(sBlocks, t >= T.blocks && t < T.recap); vis(sRecap, t >= T.recap && t < T.outro); vis(sOutro, t >= T.outro);
+  if (t < T.problem) renderIntro(t);
+  else if (t < T.blocks) renderProblem(t);
+  else if (t < T.recap) renderBlocks(t);
+  else if (t < T.outro) renderRecap(t);
+  else renderOutro(t);
+  if (!(t >= T.blocks && t < T.recap)) SPARKS.forEach(s => put(s, { o: 0 }));
+  renderEka(t);
+  renderBubbles(t);
+  renderConfetti(t);
+  renderWipe(t);
+  oFade.style.opacity = prog(t, 59.35, 60).toFixed(3);
+}
+window.render = render;
+window.DURATION = T.end;
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = r; i.onerror = r; }))])
+  .then(() => Promise.all(["600 40px Fredoka", "500 40px Fredoka", "700 40px 'Space Grotesk'", "500 40px Inter"].map(f => document.fonts.load(f))))
+  .then(() => { render(0); return true; });
+// Preview mode: open the file in a browser with #play to watch in real time.
+if (location.hash === "#play") { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % T.end); requestAnimationFrame(loop); }; window.ready.then(loop); }
+</script>
+</body>
+</html>
