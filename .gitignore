@@ -4,3 +4,5 @@ output/segments/
 *.tmp
 output/stills/
 __pycache__/
+output/**/segments/
+output/**/stills/
