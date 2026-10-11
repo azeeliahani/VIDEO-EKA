@@ -10,11 +10,12 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 // VIDEO=v2 renders the Enterprise Knowledge Hub version (src/hub_v2.html -> output/v2/).
 const V2 = process.env.VIDEO === "v2";
-const URL = "file://" + path.join(ROOT, V2 ? "src/hub_v2.html" : "src/video.html");
-const NAME = V2 ? "eka_enterprise_knowledge_hub_60s" : "eka_knowledge_hub_60s";
+const V3 = process.env.VIDEO === "v3";
+const URL = "file://" + path.join(ROOT, V3 ? "src/eka_v3.html" : V2 ? "src/hub_v2.html" : "src/video.html");
+const NAME = V3 ? "eka_knowledge_hub_ai_agent_60s" : V2 ? "eka_enterprise_knowledge_hub_60s" : "eka_knowledge_hub_60s";
 const FPS = 30;
 const WORKERS = Number(process.env.WORKERS || 4);
-const OUT = path.join(ROOT, "output", V2 ? "v2" : "");
+const OUT = path.join(ROOT, "output", V3 ? "v3" : V2 ? "v2" : "");
 
 async function openPage(browser) {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });

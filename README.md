@@ -1,5 +1,42 @@
 # EKA explainers
 
+## What it takes to build a Knowledge Hub with an AI Agent (60 s)
+
+**Video:** `output/v3/eka_knowledge_hub_ai_agent_60s.mp4` (1920×1080, 30 fps, voice-over, music and sound effects)
+
+EKA presents the eight essentials in dark blue, white and green.
+EKA drops in, blinks, hops, points and lip-syncs to the voice.
+As each essential is explained, its icon flies onto an orbit around EKA.
+
+| Time | Scene |
+|---|---|
+| 0–7.5 s | "What does it take? To build a Knowledge Hub with an AI Agent." The orbit of eight appears around EKA |
+| 7.5–47.5 s | 8 steps × 5 s: Understand, Content, Metadata, Format, Governance, Automation, AI Agent ("That's me!"), Analytics. Each step has an animated icon, *what to do* and **Why it matters** |
+| 47.5–52.5 s | The full orbit gathers around EKA: trusted content, clear governance, continuous improvement |
+| 52.5–60 s | "When these foundations are in place, your AI agent delivers accurate knowledge & helps people work smarter!" |
+
+**Narration** (`assets/voiceover/eka_vo_v3.wav`): an excited, bubbly voice modelled on the ElevenLabs Allison reference (`assets/source/voice_reference_allison_energetic.mp3`).
+It is generated offline by `scripts/make_voiceover_v3.py` (Kokoro TTS, a blend of three expressive voices).
+The lines are in that script, and each one fits its scene.
+
+**Files**
+- `src/eka_v3.html` is the animation, and `src/timeline_v3.js` holds the scene and voice cue timings.
+- `scripts/make_audio_v3.py` makes the music, the sound effects and the final mix (`output/v3/mix_vo.wav`). The music is ducked under the voice.
+- `output/v3/voice.wav`, `music.wav` and `sfx.wav` are the separate stems.
+
+**Rebuild**
+
+```bash
+npm install
+python3 scripts/make_voiceover_v3.py          # optional: regenerate the voice (setup steps are in the script)
+python3 scripts/make_audio_v3.py --vo assets/voiceover/eka_vo_v3.wav
+MIX=mix_vo.wav VIDEO=v3 node scripts/render.js
+```
+
+To use an ElevenLabs recording instead, pass its MP3 to `--vo`, adjust the cue times in `src/timeline_v3.js` (`me`, `found`), and re-render.
+
+---
+
 ## v2: Building an Enterprise Knowledge Hub (dark blue, white and green)
 
 **Video:** `output/v2/eka_enterprise_knowledge_hub_60s.mp4` (1920×1080, 30 fps, voice-over, music and SFX)

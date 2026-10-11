@@ -1,0 +1,582 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EKA Knowledge Hub with an AI Agent</title>
+<style>
+  @font-face { font-family: "Fredoka"; font-weight: 500; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 600; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 700; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 700; src: url("../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2") format("woff2"); }
+
+  :root {
+    --navy: #0A1F44;
+    --navy-deep: #050F2A;
+    --navy-mid: #16336B;
+    --blue: #2A5BD7;
+    --green: #6CC24A;
+    --green-dark: #3E8E2A;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--navy); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: "Inter", sans-serif; color: var(--white); }
+  .abs { position: absolute; left: 0; top: 0; }
+  .layer { position: absolute; inset: 0; }
+
+  #bg { background: radial-gradient(1400px 1000px at 65% 35%, #163A7E 0%, var(--navy) 52%, var(--navy-deep) 100%); }
+  #grid { background-image: radial-gradient(rgba(255,255,255,.11) 1.6px, transparent 2px); background-size: 48px 48px; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(90px); }
+  .streak { position: absolute; width: 900px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, rgba(108,194,74,0), rgba(108,194,74,.7), rgba(255,255,255,0)); }
+  .deco { position: absolute; }
+
+  /* EKA rig */
+  #eka { position: absolute; width: 883px; height: 1517px; transform-origin: 441px 1497px; }
+  #eka img { position: absolute; left: 0; top: 0; width: 883px; height: 1517px; }
+  #ekaArm { transform-origin: 700px 807px; }
+  .lid { position: absolute; border-radius: 50%; overflow: hidden; }
+  .lid > div { width: 100%; height: 100%; background: linear-gradient(#e9ecef, #f6f7f6 80%, #cfd8e0); transform-origin: 50% 0; transform: scaleY(0); }
+  #mouthCover { position: absolute; left: 326px; top: 468px; width: 150px; height: 56px; border-radius: 50%; background: #f7f8f6; filter: blur(2px); }
+  #mouth { position: absolute; left: 368px; top: 494px; width: 66px; height: 10px; border-radius: 10px 10px 40px 40px; background: #08162F;
+    border: 4px solid #5BC23A; transform-origin: 50% 0; overflow: hidden; }
+  #mouth i { position: absolute; left: 14px; right: 14px; bottom: -6px; height: 16px; border-radius: 50%; background: #4FB82F; }
+  #chestGlow { position: absolute; left: 280px; top: 650px; width: 140px; height: 90px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(170,255,150,.95), rgba(90,220,90,.35) 60%, rgba(90,220,90,0)); mix-blend-mode: screen; }
+  #ekaShadow { position: absolute; width: 440px; height: 50px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); }
+  #ekaHalo { position: absolute; width: 760px; height: 760px; border-radius: 50%; background: radial-gradient(closest-side, rgba(108,194,74,.4), rgba(108,194,74,0)); }
+
+  /* orbit of the eight essentials */
+  #orbitSvg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .node { position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; }
+  .node .empty { position: absolute; inset: 0; border-radius: 50%; border: 3px dashed rgba(255,255,255,.45); background: rgba(10,31,68,.55);
+    display: flex; align-items: center; justify-content: center; font: 700 40px "Space Grotesk"; color: rgba(255,255,255,.7); }
+  .node .lit { position: absolute; inset: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px var(--green), 0 0 40px rgba(108,194,74,.75); overflow: hidden; }
+  .node .lit svg { width: 112px; height: 112px; }
+  .node .lab { position: absolute; left: 50%; top: 122px; transform: translateX(-50%); white-space: nowrap; font: 600 22px "Fredoka"; color: #fff;
+    background: rgba(5,15,42,.75); padding: 3px 12px; border-radius: 14px; }
+
+  /* step scene */
+  .bigNum { position: absolute; left: 1330px; top: 380px; font: 700 560px/1 "Space Grotesk"; color: transparent; -webkit-text-stroke: 4px rgba(255,255,255,.07); letter-spacing: -.04em; }
+  .iconDisc { position: absolute; left: 870px; top: 130px; width: 280px; height: 280px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 10px rgba(108,194,74,.35), 0 30px 60px rgba(0,0,0,.35); }
+  .iconDisc svg { position: absolute; inset: 0; width: 280px; height: 280px; overflow: visible; }
+  .kicker { position: absolute; left: 1196px; top: 150px; font: 700 30px "Space Grotesk"; letter-spacing: .2em; color: var(--green); white-space: nowrap; }
+  .title { position: absolute; left: 1190px; top: 196px; font: 600 112px/1 "Fredoka"; color: #fff; white-space: nowrap; }
+  .swoosh { position: absolute; left: 1196px; top: 330px; width: 600px; height: 40px; overflow: visible; }
+  .what { position: absolute; left: 870px; top: 470px; width: 990px; font: 600 50px/1.28 "Inter"; color: #fff; }
+  .what span { display: inline-block; white-space: pre; }
+  .why { position: absolute; left: 870px; top: 668px; width: 990px; padding: 28px 40px 32px 132px; border-radius: 34px;
+    background: linear-gradient(100deg, rgba(108,194,74,.28), rgba(108,194,74,.10)); border: 3px solid rgba(108,194,74,.75); transform-origin: 0 50%; }
+  .why .lab { font: 700 24px "Space Grotesk"; letter-spacing: .18em; color: var(--green); margin-bottom: 10px; }
+  .why .txt { font: 500 39px/1.3 "Inter"; color: #fff; }
+  .why .bulb { position: absolute; left: 30px; top: 30px; width: 76px; height: 76px; border-radius: 50%; background: var(--green);
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(108,194,74,.7); }
+
+  .bubble { position: absolute; background: #fff; border-radius: 34px; padding: 18px 32px; font: 600 46px "Fredoka"; color: var(--navy);
+    box-shadow: 0 14px 34px rgba(0,0,0,.35); white-space: nowrap; transform-origin: 0% 100%; }
+  .bubble::after { content: ""; position: absolute; left: 34px; bottom: -22px; border: 16px solid transparent; border-top: 22px solid #fff; border-bottom: 0; }
+  .bubble b { color: var(--green-dark); }
+  .bubble.lft { transform-origin: 100% 100%; }
+  .bubble.lft::after { left: auto; right: 34px; }
+
+  .hl { position: relative; display: inline-block; color: var(--navy); }
+  .hl > i { position: absolute; left: -14px; right: -14px; top: 6%; bottom: 0; background: var(--green); border-radius: 18px; transform-origin: 0 50%; z-index: -1; }
+  .word { display: inline-block; white-space: pre; }
+  .found { position: absolute; padding: 16px 32px 16px 80px; border-radius: 44px; background: #fff; color: var(--navy); font: 600 40px "Fredoka"; white-space: nowrap;
+    box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+  .found i { position: absolute; left: 18px; top: 50%; margin-top: -24px; width: 48px; height: 48px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; }
+  .conf { position: absolute; width: 18px; height: 28px; border-radius: 4px; }
+  .spark { position: absolute; width: 44px; height: 44px; }
+  .band { position: absolute; top: -200px; height: 1480px; width: 2500px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="glows" class="layer"></div>
+  <div id="grid" class="layer"></div>
+  <div id="streaks" class="layer"></div>
+  <div id="decos" class="layer"></div>
+
+  <div id="sIntro" class="layer"></div>
+  <div id="sSteps" class="layer"></div>
+  <div id="sRecap" class="layer"></div>
+  <div id="sClose" class="layer"></div>
+
+  <svg id="orbitSvg"></svg>
+  <div id="nodesBack" class="layer"></div>
+
+  <div id="ekaHalo"></div>
+  <div id="ekaShadow"></div>
+  <div id="eka">
+    <img id="ekaBody" src="../assets/eka2_body.png">
+    <img id="ekaArm" src="../assets/eka2_arm.png">
+    <div id="chestGlow"></div>
+    <div class="lid" style="left:160px; top:287px; width:172px; height:190px"><div></div></div>
+    <div class="lid" style="left:455px; top:232px; width:195px; height:215px"><div></div></div>
+    <div id="mouthCover"></div>
+    <div id="mouth"><i></i></div>
+  </div>
+  <svg id="orbitFront" style="position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible"></svg>
+  <div id="nodesFront" class="layer"></div>
+  <div id="flyers" class="layer"></div>
+  <div id="fx" class="layer"></div>
+  <div id="bubbles" class="layer"></div>
+  <div id="wipe" class="layer"></div>
+</div>
+
+<script src="timeline_v3.js"></script>
+<script src="vo_env_v3.js" onerror="window.VO_ENV = null"></script>
+<script>
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  outCubic: p => 1 - Math.pow(1 - p, 3),
+  inCubic: p => p * p * p,
+  inOutCubic: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+  outBack: p => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+  outElastic: p => p === 0 || p === 1 ? p : Math.pow(2, -10 * p) * Math.sin((p * 10 - .75) * (2 * Math.PI) / 3) + 1,
+};
+const tw = (t, a, b, from, to, ease = E.outCubic) => lerp(from, to, ease(prog(t, a, b)));
+function rng(seed) { seed = (seed * 2654435761) % 2147483647 || 1; return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+function el(tag, cls, parent, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; }
+function put(e, { x = 0, y = 0, s = 1, sx, sy, r = 0, o = 1 }) {
+  e.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${(sx ?? s).toFixed(4)}, ${(sy ?? s).toFixed(4)})`;
+  e.style.opacity = clamp(o).toFixed(3);
+  e.style.visibility = o <= 0.001 ? "hidden" : "visible";
+}
+const vis = (e, on) => { e.style.display = on ? "" : "none"; };
+const swing = (u, amp, freq = 2.2, damp = 3) => u < 0 ? 0 : amp * Math.exp(-damp * u) * Math.sin(2 * Math.PI * freq * u);
+const $ = id => document.getElementById(id);
+const G = "#6CC24A", GD = "#3E8E2A", NAVY = "#0A1F44", BLUE = "#2A5BD7";
+const CHECK = c => `<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="${c}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const BULB = `<svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.6.5.8 1.1.8 1.8V17h6v-.9c0-.7.3-1.3.8-1.8A6.5 6.5 0 0 0 12 2.5z" fill="#fff"/><rect x="9" y="18.3" width="6" height="1.8" rx=".9" fill="#fff"/><rect x="10" y="21" width="4" height="1.6" rx=".8" fill="#fff"/></svg>`;
+const STAR = c => `<svg viewBox="-10 -10 20 20" width="44" height="44"><path d="M0-10C1 -2 2 -1 10 0C2 1 1 2 0 10C-1 2 -2 1 -10 0C-2 -1 -1 -2 0-10z" fill="${c}"/></svg>`;
+
+/* ---------- timeline + content ---------- */
+const TL = window.TL;
+const T = { intro: TL.intro, steps: TL.steps[0], recap: TL.recap, close: TL.closing, end: TL.end };
+const stepStart = i => TL.steps[i];
+const stepEnd = i => i < 7 ? TL.steps[i + 1] : TL.recap;
+
+const STEPS = [
+  { title: "Understand", what: "Know your users, their questions, and trusted information sources.",
+    why: "A clear purpose helps the hub give the right answers, not just store documents." },
+  { title: "Content", what: "Keep content accurate, up to date, and easy to find.",
+    why: "The AI agent can only give good answers when the content behind it is good." },
+  { title: "Metadata", what: "Add tags, owners, categories and review dates to content.",
+    why: "Context helps the AI agent find the right information faster and know what to trust." },
+  { title: "Format", what: "Use clear headings, simple language, and a logical structure.",
+    why: "Well-structured content helps the AI agent understand it and give better answers." },
+  { title: "Governance", what: "Assign owners and set review and access rules.",
+    why: "Good governance keeps information accurate, secure, and reliable." },
+  { title: "Automation", what: "Use automated workflows for reviews, approvals, and updates.",
+    why: "Less manual work, and content stays current as the hub grows." },
+  { title: "AI Agent", what: "Connect the agent to trusted content and define its purpose.",
+    why: "A well-configured agent gives reliable answers and a better user experience." },
+  { title: "Analytics", what: "Monitor usage, feedback, and unanswered questions.",
+    why: "Find gaps, improve content, and make the hub more valuable over time." },
+];
+
+/* ---------- icons (viewBox -100..100) ---------- */
+function gearPath(r, teeth, depth) {
+  let d = "";
+  for (let k = 0; k < teeth * 2; k++) {
+    const a0 = (k / (teeth * 2)) * Math.PI * 2, a1 = ((k + 1) / (teeth * 2)) * Math.PI * 2, rr = k % 2 ? r - depth : r;
+    const p = a => `${(rr * Math.cos(a)).toFixed(1)},${(rr * Math.sin(a)).toFixed(1)}`;
+    d += (k ? "L" : "M") + p(a0 + .06) + "L" + p(a1 - .06);
+  }
+  return d + "Z";
+}
+function iconSVG(i) {
+  const N = NAVY;
+  const body = [
+    // 0 Understand: magnifier over a question
+    `<g class="a0"><circle cx="-14" cy="-14" r="46" fill="#EAF2FF" stroke="${N}" stroke-width="13"/><text x="-14" y="6" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="62" fill="${G}">?</text>
+     <path d="M20 20L58 58" stroke="${N}" stroke-width="20" stroke-linecap="round"/></g>`,
+    // 1 Content: document + check
+    `<rect x="-50" y="-66" width="100" height="132" rx="14" fill="#fff" stroke="${N}" stroke-width="10"/>
+     <g class="a1"><rect x="-30" y="-40" width="60" height="10" rx="5" fill="${N}"/><rect x="-30" y="-16" width="60" height="10" rx="5" fill="${N}" opacity=".5"/><rect x="-30" y="8" width="40" height="10" rx="5" fill="${N}" opacity=".5"/></g>
+     <g class="a1b"><circle cx="44" cy="46" r="30" fill="${G}"/><path d="M30 46l10 10 18-20" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></g>`,
+    // 2 Metadata: tag
+    `<g class="a2"><path d="M-62 -40 L8 -40 L60 12 L12 60 L-62 -14 Z" fill="${G}" stroke="${N}" stroke-width="10" stroke-linejoin="round" transform="rotate(10)"/>
+     <circle cx="-34" cy="-18" r="12" fill="#fff" stroke="${N}" stroke-width="7"/><path d="M-10 4h40M-2 22h26" stroke="#fff" stroke-width="9" stroke-linecap="round" transform="rotate(55 10 12)"/></g>`,
+    // 3 Format: heading + lines
+    `<rect x="-60" y="-62" width="120" height="124" rx="16" fill="#EAF2FF"/>
+     <rect class="f0" x="-44" y="-44" width="88" height="22" rx="8" fill="${G}"/>
+     <rect class="f1" x="-44" y="-8" width="88" height="11" rx="5.5" fill="${N}"/>
+     <rect class="f2" x="-44" y="14" width="70" height="11" rx="5.5" fill="${N}"/>
+     <rect class="f3" x="-44" y="36" width="80" height="11" rx="5.5" fill="${N}"/>`,
+    // 4 Governance: shield + check
+    `<path d="M0 -70 L56 -46 V4 C56 40 30 60 0 72 C-30 60 -56 40 -56 4 V-46 Z" fill="${N}"/>
+     <path d="M0 -52 L40 -35 V4 C40 30 22 46 0 55 Z" fill="#16336B"/>
+     <path class="a4" d="M-24 2 L-6 20 L28 -16" fill="none" stroke="${G}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="90" stroke-dashoffset="0"/>`,
+    // 5 Automation: gears
+    `<g class="g1" transform="translate(-22 -14)"><path d="${gearPath(46, 10, 12)}" fill="${N}"/><circle r="15" fill="#fff"/></g>
+     <g class="g2" transform="translate(40 40)"><path d="${gearPath(30, 8, 9)}" fill="${G}"/><circle r="10" fill="#fff"/></g>`,
+    // 6 AI agent: chat bubble + sparkle
+    `<path d="M-62 -42 a20 20 0 0 1 20 -20 h84 a20 20 0 0 1 20 20 v54 a20 20 0 0 1 -20 20 h-46 l-30 26 v-26 h-8 a20 20 0 0 1 -20 -20 Z" fill="${N}"/>
+     <circle class="d0" cx="-26" cy="-14" r="10" fill="${G}"/><circle class="d1" cx="0" cy="-14" r="10" fill="${G}"/><circle class="d2" cx="26" cy="-14" r="10" fill="${G}"/>
+     <path class="st" d="M58 -70 C60 -58 62 -56 74 -54 C62 -52 60 -50 58 -38 C56 -50 54 -52 42 -54 C54 -56 56 -58 58 -70z" fill="${G}"/>`,
+    // 7 Analytics: bars + arrow
+    `<path d="M-64 62 H66" stroke="${N}" stroke-width="9" stroke-linecap="round"/>
+     <rect class="b0" x="-54" y="10" width="28" height="46" rx="6" fill="${N}" opacity=".55"/>
+     <rect class="b1" x="-14" y="-16" width="28" height="72" rx="6" fill="${N}" opacity=".8"/>
+     <rect class="b2" x="26" y="-44" width="28" height="100" rx="6" fill="${N}"/>
+     <path class="ar" d="M-58 -14 L-20 -46 L6 -26 L52 -66" fill="none" stroke="${G}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+     <path class="ar" d="M30 -68 L54 -68 L54 -44" fill="none" stroke="${G}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>`,
+  ][i];
+  return `<svg viewBox="-100 -100 200 200">${body}</svg>`;
+}
+function animIcon(i, root, u) {
+  const q = s => root.querySelectorAll(s);
+  const setT = (s, tr) => q(s).forEach(e => e.setAttribute("transform", tr));
+  if (i === 0) setT(".a0", `translate(${(14 * Math.sin(u * 3.2)).toFixed(1)} ${(8 * Math.cos(u * 3.2)).toFixed(1)}) rotate(${(6 * Math.sin(u * 3.2)).toFixed(1)})`);
+  if (i === 1) { const p = E.outBack(prog(u, .7, 1.05)); setT(".a1b", `translate(44 46) scale(${p.toFixed(3)}) translate(-44 -46)`); }
+  if (i === 2) setT(".a2", `rotate(${(swing(u - .35, 16, 1.4, 1.2)).toFixed(2)} -50 -40)`);
+  if (i === 3) ["f0", "f1", "f2", "f3"].forEach((c, k) => setT("." + c, `translate(-44 0) scale(${E.outCubic(prog(u, .35 + k * .18, .6 + k * .18)).toFixed(3)} 1) translate(44 0)`));
+  if (i === 4) q(".a4").forEach(e => e.setAttribute("stroke-dashoffset", (90 * (1 - E.outCubic(prog(u, .55, 1.0)))).toFixed(1)));
+  if (i === 5) { setT(".g1", `translate(-22 -14) rotate(${(u * 70).toFixed(1)})`); setT(".g2", `translate(40 40) rotate(${(-u * 70 * 46 / 30 + 12).toFixed(1)})`); }
+  if (i === 6) { ["d0", "d1", "d2"].forEach((c, k) => setT("." + c, `translate(0 ${(-9 * Math.max(0, Math.sin(u * 7 - k * .9))).toFixed(1)})`));
+    setT(".st", `translate(58 -54) scale(${(1 + .25 * Math.sin(u * 6)).toFixed(3)}) rotate(${(u * 40).toFixed(1)}) translate(-58 54)`); }
+  if (i === 7) { ["b0", "b1", "b2"].forEach((c, k) => setT("." + c, `translate(0 56) scale(1 ${E.outBack(prog(u, .3 + k * .15, .7 + k * .15)).toFixed(3)}) translate(0 -56)`));
+    q(".ar").forEach(e => { e.setAttribute("stroke-dasharray", "200"); e.setAttribute("stroke-dashoffset", (200 * (1 - E.outCubic(prog(u, .8, 1.3)))).toFixed(1)); }); }
+}
+
+/* ---------- background ---------- */
+const glows = [{ c: "rgba(108,194,74,.30)", w: 760, x: 1350, y: -260 }, { c: "rgba(42,91,215,.5)", w: 900, x: -300, y: 450 }, { c: "rgba(108,194,74,.18)", w: 620, x: 1450, y: 760 }]
+  .map(b => { const e = el("div", "glow", $("glows")); e.style.width = e.style.height = b.w + "px"; e.style.background = b.c; return { ...b, e }; });
+const R = rng(7);
+const streaks = Array.from({ length: 7 }, (_, i) => { const e = el("div", "streak", $("streaks")); return { e, y: 80 + R() * 920, sp: 260 + R() * 260, ph: R() * 3000, o: .25 + R() * .35 }; });
+const decos = [];
+for (let i = 0; i < 30; i++) {
+  const kind = ["dot", "plus", "ring", "dot", "star"][i % 5];
+  const size = 8 + R() * 22, c = i % 3 === 0 ? G : "#FFFFFF";
+  const e = el("div", "deco", $("decos"));
+  e.style.width = e.style.height = size + "px";
+  if (kind === "ring") { e.style.border = `${Math.max(2.5, size / 6)}px solid ${c}`; e.style.borderRadius = "50%"; }
+  if (kind === "dot") { e.style.background = c; e.style.borderRadius = "50%"; }
+  if (kind === "plus") e.innerHTML = `<svg viewBox="0 0 10 10" width="${size}" height="${size}"><path d="M5 1v8M1 5h8" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  if (kind === "star") e.innerHTML = STAR(c).replace(/44/g, size.toFixed(0));
+  decos.push({ e, x: R() * 1920, y: R() * 1080, ph: R() * 6.28, sp: .15 + R() * .35, o: .12 + R() * .3 });
+}
+function renderBg(t) {
+  glows.forEach((b, i) => put(b.e, { x: b.x + 90 * Math.sin(t * .25 + i * 2), y: b.y + 60 * Math.cos(t * .21 + i), o: 1 }));
+  streaks.forEach(s => put(s.e, { x: ((t * s.sp + s.ph) % 3200) - 1000, y: s.y, r: -12, o: s.o }));
+  decos.forEach(d => put(d.e, { x: d.x + 26 * Math.sin(t * d.sp + d.ph), y: ((d.y - t * 16 * d.sp * 3) % 1180 + 1180) % 1180 - 50, r: t * 30 * d.sp, o: d.o * (.6 + .4 * Math.sin(t * 2 + d.ph)) }));
+  $("grid").style.backgroundPosition = `${(t * 8) % 48}px ${(t * 12) % 48}px`;
+}
+
+/* ---------- EKA ---------- */
+const EKA_H = 1497;
+const BLINKS = [2.6, 6.4, 9.6, 13.4, 16.1, 19.9, 23.3, 26.1, 29.7, 33.6, 36.2, 40.1, 44.6, 47.2, 50.6, 54.1, 57.2];
+function hop(t, t0, h = 70, dur = .5) {
+  const u = t - t0;
+  if (u < -.1 || u > dur + .16) return { dy: 0, sx: 1, sy: 1 };
+  if (u < 0) { const p = prog(u, -.1, 0); return { dy: 0, sx: 1 + .06 * p, sy: 1 - .07 * p }; }
+  if (u < dur) { const p = u / dur; return { dy: -4 * h * p * (1 - p), sx: .97, sy: 1.04 }; }
+  const p = prog(u, dur, dur + .16); const k = Math.sin(p * Math.PI);
+  return { dy: 0, sx: 1 + .07 * k, sy: 1 - .09 * k };
+}
+// Base placement (no hops) so the orbit can follow EKA smoothly.
+function ekaBase(t) {
+  if (t < T.recap) {
+    const s = .52;
+    return { x: 400, y: 1040, s };
+  }
+  if (t < T.close) {
+    const p = E.inOutCubic(prog(t, T.recap - .1, T.recap + .7));
+    return { x: lerp(400, 960, p), y: lerp(1040, 1020, p), s: lerp(.52, .44, p) };
+  }
+  const p = E.inOutCubic(prog(t, T.close, T.close + .8));
+  return { x: lerp(960, 1480, p), y: lerp(1020, 1060, p), s: lerp(.44, .62, p) };
+}
+function ekaPose(t) {
+  const B = ekaBase(t);
+  const P = { x: B.x, y: B.y, s: B.s, r: 0, sx: 1, sy: 1, dy: 0, arm: 0, glow: .35, halo: 0 };
+  const idle = Math.sin(t * 2 * Math.PI / 1.6);
+  P.dy = -7 * idle; P.r = 1.4 * Math.sin(t * 1.3);
+  P.arm = 3 * Math.sin(t * 2.6);
+  const hops = [], jabs = [];
+  if (t < T.steps) {
+    const p = prog(t, .2, .75);
+    P.dy = t < .75 ? lerp(-1500, 0, E.inCubic(p)) : P.dy * prog(t, 1.1, 1.5);
+    if (t >= .75 && t < 1.02) { const k = Math.sin(prog(t, .75, 1.02) * Math.PI); P.sx = 1 + .14 * k; P.sy = 1 - .16 * k; }
+    if (t < .75) P.r = 0;
+    jabs.push(1.1, 1.6, 2.9, 4.4);
+    hops.push(3.4, 5.6);
+    P.glow = .35 + .5 * prog(t, 4.8, 6.2); P.halo = .5 * prog(t, 4.8, 6.2) * (1 - prog(t, 6.6, 7.4));
+  } else if (t < T.recap) {
+    for (let i = 0; i < 8; i++) { hops.push(stepStart(i) + .04); jabs.push(stepStart(i) + .6, stepStart(i) + 2.0); }
+    const a7 = stepStart(6), e7 = stepEnd(6);
+    const big = prog(t, a7, a7 + .5) * (1 - prog(t, e7 - .5, e7));
+    P.s += .06 * E.outBack(clamp(big)); P.glow = .35 + .65 * big; P.halo = big;
+    hops.push(a7 + 1.2, a7 + 1.75);
+  } else if (t < T.close) {
+    hops.push(T.recap + .9, T.recap + 2.1, T.recap + 3.3);
+    jabs.push(T.recap + .4, T.recap + 1.6, T.recap + 2.8);
+    P.glow = .8; P.halo = prog(t, T.recap + .4, T.recap + 1) * .8;
+  } else {
+    jabs.push(T.close + 1.0, T.close + 2.6, T.close + 4.2);
+    hops.push(T.close + 5.9, T.close + 6.5);
+    P.glow = .5 + .5 * Math.max(0, Math.sin(t * 4)); P.halo = .6;
+  }
+  hops.forEach(h0 => { const h = hop(t, h0, (t >= T.recap) ? 100 : 60); P.dy += h.dy; P.sx *= h.sx; P.sy *= h.sy; });
+  jabs.forEach(j => { const u = t - j; if (u > 0 && u < .7) P.arm += -16 * Math.sin(Math.PI * Math.min(1, u / .25)) * (u < .25 ? 1 : 0) + swing(u - .25, -7, 3, 6); });
+  return P;
+}
+function voLevel(t) {
+  const V = window.VO_ENV; if (!V) return 0;
+  const f = t * V.fps, i = Math.floor(f), k = f - i;
+  const a = V.v[i] || 0, b = V.v[i + 1] || 0; return a + (b - a) * k;
+}
+function renderEka(t) {
+  const P = ekaPose(t);
+  const eka = $("eka");
+  eka.style.left = (P.x - 441) + "px"; eka.style.top = (P.y - EKA_H) + "px";
+  put(eka, { y: P.dy, r: P.r, sx: P.s * P.sx, sy: P.s * P.sy, o: 1 });
+  $("ekaArm").style.transform = `rotate(${P.arm.toFixed(2)}deg)`;
+  const lift = clamp(-P.dy / 400);
+  const sh = $("ekaShadow"); sh.style.left = (P.x - 220) + "px"; sh.style.top = (P.y - 22) + "px";
+  put(sh, { sx: P.s * 1.6 * (1 - .45 * lift), sy: P.s * 1.6 * (1 - .45 * lift), o: (1 - .7 * lift) * (P.dy > -1200 ? 1 : 0) });
+  const halo = $("ekaHalo"); halo.style.left = (P.x - 380) + "px"; halo.style.top = (P.y - 640 * P.s / .55 - 380) + "px";
+  put(halo, { s: (.9 + .1 * Math.sin(t * 5)) * P.s / .55, o: P.halo });
+  let b = 0;
+  BLINKS.forEach(t0 => { const u = t - t0; if (u >= 0 && u < .2) b = u < .07 ? u / .07 : 1 - (u - .07) / .13; });
+  document.querySelectorAll(".lid > div").forEach(l => l.style.transform = `scaleY(${b.toFixed(3)})`);
+  $("chestGlow").style.opacity = clamp(P.glow * (.75 + .25 * Math.sin(t * 6)));
+  const v = clamp(voLevel(t) * 1.4);
+  $("mouthCover").style.opacity = v > .04 ? 1 : 0;
+  $("mouth").style.opacity = v > .04 ? 1 : 0;
+  $("mouth").style.height = (14 + 64 * v).toFixed(1) + "px";
+  const mw = 74 + 18 * v;
+  $("mouth").style.width = mw.toFixed(1) + "px"; $("mouth").style.left = (401 - mw / 2).toFixed(1) + "px";
+}
+
+/* ---------- orbit: the eight essentials collect around EKA ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent = $("orbitSvg")) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+// Tilted orbit around EKA's waist: back half is drawn behind EKA, front half in front.
+const oBack = svgEl("ellipse", { fill: "none", stroke: "rgba(255,255,255,.22)", "stroke-width": 4, "stroke-dasharray": "4 14", "stroke-linecap": "round" });
+const oFront = svgEl("path", { fill: "none", stroke: G, "stroke-width": 6, "stroke-linecap": "round" }, $("orbitFront"));
+const oFrontGlow = svgEl("path", { fill: "none", stroke: "rgba(108,194,74,.35)", "stroke-width": 18, "stroke-linecap": "round" }, $("orbitFront"));
+const nodes = STEPS.map((S, i) => {
+  const n = el("div", "node", $("nodesBack"), `<div class="empty">${i + 1}</div><div class="lit">${iconSVG(i)}</div><div class="lab">${S.title}</div>`);
+  return { n, empty: n.querySelector(".empty"), lit: n.querySelector(".lit"), lab: n.querySelector(".lab"), front: false };
+});
+function orbitGeom(t) {
+  const B = ekaBase(t);
+  const cx = B.x, cy = B.y - 600 * B.s;
+  let rx = 330, ry = 92, o = prog(t, 4.6, 5.0);
+  const spin = t * 13;
+  if (t >= T.recap - .1) { const p = E.inOutCubic(prog(t, T.recap - .1, T.recap + .8)); rx = lerp(330, 600, p); ry = lerp(92, 140, p); }
+  if (t >= T.close) { const p = E.inCubic(prog(t, T.close, T.close + .8)); rx = lerp(600, 1500, p); ry = lerp(140, 420, p); o = 1 - prog(t, T.close + .2, T.close + .8); }
+  return { cx, cy, rx, ry, o, spin };
+}
+const nodePos = (g, i) => { const a = (90 + i * 45 - g.spin) * Math.PI / 180; const d = Math.sin(a); return { x: g.cx + g.rx * Math.cos(a), y: g.cy + g.ry * d, d }; };
+const litAt = i => stepEnd(i) - .12;   // when the flying icon lands on its node
+function renderOrbit(t) {
+  const g = orbitGeom(t);
+  oBack.setAttribute("cx", g.cx); oBack.setAttribute("cy", g.cy); oBack.setAttribute("rx", g.rx); oBack.setAttribute("ry", g.ry);
+  oBack.setAttribute("stroke-dashoffset", (-t * 30).toFixed(1));
+  oBack.style.opacity = g.o;
+  let done = 0; for (let i = 0; i < 8; i++) done += prog(t, litAt(i), litAt(i) + .35);
+  const front = `M${g.cx - g.rx} ${g.cy} A${g.rx} ${g.ry} 0 0 0 ${g.cx + g.rx} ${g.cy}`;
+  oFront.setAttribute("d", front); oFrontGlow.setAttribute("d", front);
+  oFront.style.opacity = g.o * (.25 + .75 * done / 8);
+  oFrontGlow.style.opacity = g.o * (done / 8) * (.6 + .4 * Math.sin(t * 5));
+  nodes.forEach((N, i) => {
+    const p = nodePos(g, i);
+    const wantFront = p.d > 0;
+    if (wantFront !== N.front) { (wantFront ? $("nodesFront") : $("nodesBack")).appendChild(N.n); N.front = wantFront; }
+    const depth = .78 + .3 * (p.d + 1) / 2;
+    const appear = E.outBack(prog(t, 4.7 + i * .12, 5.1 + i * .12));
+    const land = t - litAt(i);
+    const lit = land >= 0;
+    const bump = lit ? 1 + .4 * Math.exp(-6 * land) * Math.sin(Math.min(Math.PI, land * 9)) : 1;
+    put(N.n, { x: p.x, y: p.y, s: appear * bump * depth, o: g.o * (t < 4.7 ? 0 : 1) * (.65 + .35 * (p.d + 1) / 2) });
+    N.empty.style.opacity = lit ? 0 : 1;
+    N.lit.style.opacity = lit ? 1 : 0;
+    N.lab.style.opacity = (prog(t, T.recap + .5 + i * .08, T.recap + .8 + i * .08) * (t < T.close ? 1 : 0)).toFixed(3);
+  });
+}
+
+/* ---------- intro ---------- */
+const sIntro = $("sIntro");
+const iKick = el("div", "abs", sIntro, "WHAT DOES IT TAKE?");
+iKick.style.cssText += "left:880px;top:200px;font:700 34px 'Space Grotesk';letter-spacing:.22em;color:#6CC24A;white-space:nowrap";
+const iLines = [
+  { html: "To build a", top: 262, size: 92 },
+  { html: `<span class="hl"><i></i>Knowledge Hub</span>`, top: 372, size: 128 },
+  { html: "with an AI Agent", top: 530, size: 112 },
+].map((L, k) => { const e = el("div", "abs", sIntro, L.html); e.style.cssText += `left:880px;top:${L.top}px;font:600 ${L.size}px/1.05 Fredoka;white-space:nowrap;transform-origin:0 70%`; return e; });
+const iSub = el("div", "abs", sIntro, `<span style="color:#6CC24A">8</span> essentials, explained in 60 seconds!`);
+iSub.style.cssText += "left:884px;top:702px;font:500 44px Inter;color:#D5E2F7;white-space:nowrap";
+const iChips = ["Users", "Content", "Trust", "AI Agent"].map((s, k) => { const e = el("div", "abs", sIntro, s);
+  e.style.cssText += `left:${884 + [0, 190, 420, 590][k]}px;top:800px;padding:12px 28px;border-radius:40px;border:3px solid rgba(108,194,74,.7);background:rgba(108,194,74,.14);font:600 34px Fredoka;white-space:nowrap`; return e; });
+function renderIntro(t) {
+  const out = prog(t, 6.7, 7.3);
+  put(iKick, { x: tw(t, 1.2, 1.6, 60, 0) - 300 * E.inCubic(out), o: prog(t, 1.2, 1.5) * (1 - out) });
+  iLines.forEach((e, k) => { const a = 1.5 + k * .45; put(e, { x: -300 * E.inCubic(out) * (1 + k * .2), y: tw(t, a, a + .5, 40, 0), s: E.outBack(prog(t, a, a + .45)), o: prog(t, a, a + .15) * (1 - out) }); });
+  put(iLines[1].querySelector("i"), { sx: E.outCubic(prog(t, 2.3, 2.75)), sy: 1, o: 1 });
+  put(iSub, { y: tw(t, 3.2, 3.6, 30, 0), x: -300 * E.inCubic(out), o: prog(t, 3.2, 3.5) * (1 - out) });
+  iChips.forEach((e, k) => put(e, { s: E.outBack(prog(t, 3.9 + k * .2, 4.25 + k * .2)), x: -300 * E.inCubic(out), o: prog(t, 3.9 + k * .2, 4.0 + k * .2) * (1 - out) }));
+}
+
+/* ---------- steps ---------- */
+const sSteps = $("sSteps");
+const scenes = STEPS.map((S, i) => {
+  const w = el("div", "layer", sSteps);
+  const big = el("div", "bigNum", w, String(i + 1).padStart(2, "0"));
+  const disc = el("div", "iconDisc", w, iconSVG(i));
+  const kick = el("div", "kicker", w, `STEP ${i + 1} OF 8`);
+  const title = el("div", "title", w, S.title);
+  const sw = el("div", "abs", w, `<svg class="swoosh" viewBox="0 0 600 40" style="position:absolute;left:0;top:0"><path d="M6 26 C150 6 330 4 590 18" fill="none" stroke="${G}" stroke-width="12" stroke-linecap="round" stroke-dasharray="620" stroke-dashoffset="620"/></svg>`);
+  sw.style.cssText += "left:1196px;top:322px;width:600px;height:40px";
+  const what = el("div", "what", w, S.what.split(" ").map(x => `<span>${x} </span>`).join(""));
+  const why = el("div", "why", w, `<div class="bulb">${BULB}</div><div class="lab">WHY IT MATTERS</div><div class="txt">${S.why}</div>`);
+  return { w, big, disc, kick, title, swp: sw.querySelector("path"), words: [...what.querySelectorAll("span")], why, whyTxt: why.querySelector(".txt"), bulb: why.querySelector(".bulb") };
+});
+// The icon that flies from the step's disc to its node on the orbit.
+const flyers = STEPS.map((S, i) => { const f = el("div", "abs", $("flyers"), iconSVG(i));
+  f.style.cssText += "width:280px;height:280px;border-radius:50%;background:#fff;margin:-140px 0 0 -140px;box-shadow:0 0 0 8px #6CC24A,0 0 50px rgba(108,194,74,.8)"; return f; });
+const DISC_C = { x: 1010, y: 270 };
+function renderSteps(t) {
+  scenes.forEach((S, i) => {
+    const a = stepStart(i), b = stepEnd(i), u = t - a, on = t >= a - .05 && t < b;
+    vis(S.w, on);
+    const f = flyers[i];
+    // fly: b-0.6 .. litAt(i)
+    const fp = prog(t, b - .6, litAt(i));
+    if (fp > 0 && fp < 1) {
+      const g = orbitGeom(t), n = nodePos(g, i), e = E.inOutCubic(fp);
+      const x = lerp(DISC_C.x, n.x, e), y = lerp(DISC_C.y, n.y, e) - 160 * Math.sin(Math.PI * e);
+      put(f, { x, y, s: lerp(1, 112 / 280, e), r: 360 * e, o: 1 });
+    } else put(f, { o: 0 });
+    if (!on) return;
+    const out = prog(t, b - .55, b - .1), oe = E.inCubic(out);
+    put(S.big, { x: tw(u, 0, .7, 200, 0) - 200 * oe, o: prog(u, 0, .5) * (1 - out) });
+    put(S.disc, { s: E.outBack(prog(u, .05, .45)) * (1 + .04 * Math.sin(u * 4)), r: tw(u, .05, .45, -90, 0), o: (fp > 0 ? 0 : 1) });
+    animIcon(i, S.disc, u);
+    put(S.kick, { x: tw(u, .1, .45, 80, 0) - 260 * oe, o: prog(u, .1, .3) * (1 - out) });
+    put(S.title, { x: tw(u, .15, .6, 160, 0, E.outBack) - 320 * oe, o: prog(u, .15, .3) * (1 - out) });
+    S.swp.setAttribute("stroke-dashoffset", (620 * (1 - E.outCubic(prog(u, .45, .85)))).toFixed(1));
+    S.swp.parentNode.style.opacity = 1 - out;
+    S.words.forEach((wd, k) => { const s0 = .5 + k * .07; put(wd, { y: tw(u, s0, s0 + .3, 36, 0, E.outBack), x: -260 * oe, o: prog(u, s0, s0 + .15) * (1 - out) }); });
+    put(S.why, { sx: E.outBack(prog(u, 1.8, 2.2)), sy: 1, x: -260 * oe, o: prog(u, 1.8, 1.95) * (1 - out) });
+    put(S.whyTxt, { x: tw(u, 2.05, 2.45, 30, 0), o: prog(u, 2.05, 2.35) });
+    put(S.bulb, { s: E.outBack(prog(u, 1.95, 2.3)) * (1 + .1 * Math.max(0, Math.sin((u - 2.3) * 8)) * (1 - prog(u, 2.3, 3.1))), r: tw(u, 1.95, 2.3, -60, 0) });
+  });
+}
+
+/* ---------- recap ---------- */
+const sRecap = $("sRecap");
+const rHead = el("div", "abs", sRecap, `That's what it takes to build a <span style="color:#6CC24A">Knowledge Hub</span> with an AI Agent!`);
+rHead.style.cssText += "left:0;width:1920px;top:58px;text-align:center;font:600 56px Fredoka;white-space:nowrap";
+const FOUND = [["Trusted content", 190, 180], ["Clear governance", 735, 180], ["Continuous improvement", 1240, 180]].map(([s, x, y]) => {
+  const f = el("div", "found", sRecap, `<i>${CHECK("#0A1F44")}</i>${s}`); f.style.left = x + "px"; f.style.top = y + "px"; return f; });
+const sparks = Array.from({ length: 14 }, (_, k) => { const s = el("div", "spark", $("fx"), STAR(k % 2 ? G : "#fff")); return s; });
+function renderRecap(t) {
+  const u = t - T.recap;
+  if (!FOUND.placed) { FOUND.forEach((f, k) => f.style.left = ([420, 960, 1500][k] - f.offsetWidth / 2) + "px"); FOUND.placed = true; }
+  put(rHead, { y: tw(u, .1, .5, -40, 0), s: E.outBack(prog(u, .1, .5)), o: prog(u, .1, .3) });
+  // the three foundations pop in with the voice
+  const at = TL.found || [.35, 1.45, 2.6];
+  FOUND.forEach((f, k) => put(f, { s: E.outBack(prog(u, at[k], at[k] + .35)), r: tw(u, at[k], at[k] + .4, k % 2 ? 8 : -8, 0), y: 6 * Math.sin(u * 3 + k), o: prog(u, at[k], at[k] + .1) }));
+}
+function renderSparks(t) {
+  const R2 = rng(3);
+  const inStep7 = t >= stepStart(6) && t < stepEnd(6), inRecap = t >= T.recap && t < T.close;
+  sparks.forEach((s, k) => {
+    const ph = R2(), ang = R2() * 6.28, rad = 200 + R2() * 260;
+    if (!(inStep7 || inRecap)) return put(s, { o: 0 });
+    const B = ekaBase(t), cx = B.x, cy = B.y - 800 * B.s;
+    const cyc = ((t * .9 + ph) % 1);
+    put(s, { x: cx + rad * Math.cos(ang + t * .4) - 22, y: cy + rad * Math.sin(ang + t * .4) - 22, s: Math.sin(cyc * Math.PI) * (.6 + .6 * ph), r: t * 90, o: Math.sin(cyc * Math.PI) });
+  });
+}
+
+/* ---------- closing ---------- */
+const sClose = $("sClose");
+const cL = [
+  { html: "When these foundations are in place,", top: 190, f: "500 50px Inter", c: "#D5E2F7" },
+  { html: "your AI agent delivers", top: 290, f: "600 92px Fredoka" },
+  { html: `<span class="hl"><i></i>accurate knowledge</span>`, top: 400, f: "600 104px Fredoka" },
+  { html: "& helps people", top: 540, f: "600 92px Fredoka" },
+  { html: `work <span style="color:#6CC24A">smarter!</span>`, top: 645, f: "600 92px Fredoka" },
+].map(L => { const e = el("div", "abs", sClose, L.html); e.style.cssText += `left:140px;top:${L.top}px;font:${L.f};color:${L.c || "#fff"};white-space:nowrap;transform-origin:0 70%`; return e; });
+const cTag = el("div", "abs", sClose, `<span style="color:#6CC24A">Trusted content</span> · Clear governance · Continuous improvement`);
+cTag.style.cssText += "left:144px;top:830px;font:700 34px 'Space Grotesk';letter-spacing:.06em;color:#fff;white-space:nowrap";
+const cFade = el("div", "layer", $("wipe")); cFade.style.background = "#050F2A"; cFade.style.opacity = 0;
+const CONF = Array.from({ length: 70 }, (_, k) => { const R3 = rng(100 + k); const e = el("div", "conf", $("fx"));
+  e.style.background = [G, "#fff", BLUE, "#A4DB8A"][k % 4]; return { e, x: R3() * 1920, d: R3() * .8, sp: 420 + R3() * 380, sw: R3() * 6.28, rot: (R3() - .5) * 900 }; });
+function renderClose(t) {
+  const u = t - T.close;
+  cL.forEach((e, k) => { const a = .5 + k * .32; put(e, { x: tw(u, a, a + .5, -80, 0, E.outBack), o: prog(u, a, a + .2) }); });
+  put(cL[2].querySelector("i"), { sx: E.outCubic(prog(u, 1.4, 1.9)), sy: 1, o: 1 });
+  put(cTag, { y: tw(u, 3.0, 3.4, 30, 0), o: prog(u, 3.0, 3.3) });
+}
+function renderConfetti(t) {
+  CONF.forEach(c => {
+    const u = t - (T.close + .3 + c.d);
+    if (u < 0 || t >= T.end) return put(c.e, { o: 0 });
+    put(c.e, { x: c.x + 40 * Math.sin(u * 3 + c.sw), y: -40 + u * c.sp, r: u * c.rot, sx: Math.cos(u * 6 + c.sw), sy: 1, o: 1 - prog(u, 2.6, 3.2) });
+  });
+}
+
+/* ---------- bubbles ---------- */
+const BUBBLES = [
+  { text: "Hi, I'm <b>EKA</b>!", a: .95, b: 3.9, x: 470, y: 150 },
+  { text: "That's me!", a: TL.me || stepStart(6) + 1.0, b: (TL.me || stepStart(6) + 1.0) + 2.6, x: 440, y: 150 },
+  { text: "Woohoo!", a: T.end - 2.3, b: T.end - .5, x: 1150, y: 260, left: true },
+];
+BUBBLES.forEach(B => { B.e = el("div", "bubble" + (B.left ? " lft" : ""), $("bubbles"), B.text); B.e.style.left = B.x + "px"; B.e.style.top = B.y + "px"; });
+function renderBubbles(t) {
+  BUBBLES.forEach(B => {
+    const on = t >= B.a && t < B.b;
+    if (!on) return put(B.e, { o: 0 });
+    put(B.e, { s: E.outBack(prog(t, B.a, B.a + .35)) * (1 - E.inCubic(prog(t, B.b - .25, B.b))), r: swing(t - B.a, 4, 2, 4), o: 1 });
+  });
+}
+
+/* ---------- wipes ---------- */
+const WIPES = [T.steps, T.recap, T.close];
+const bands = ["#6CC24A", "#FFFFFF", "#16336B"].map(c => { const b = el("div", "band", $("wipe")); b.style.background = c; return b; });
+function renderWipe(t) {
+  bands.forEach((b, k) => {
+    let x = 4000;
+    WIPES.forEach(B => {
+      const lead = (2 - k) * .07, a = B - .42 - lead, m = B - .04, c = B + .04 + lead * .6, d = B + .44 + lead * .6;
+      if (t >= a && t <= d) x = t < m ? lerp(2000, -260, E.outCubic(prog(t, a, m))) : t < c ? -260 : lerp(-260, -2900, E.inCubic(prog(t, c, d)));
+    });
+    b.style.transform = `translateX(${x.toFixed(1)}px) skewX(-14deg)`;
+  });
+}
+
+/* ---------- master ---------- */
+function render(t) {
+  renderBg(t);
+  vis(sIntro, t < T.steps); vis(sSteps, t >= T.steps - .1 && t < T.recap); vis(sRecap, t >= T.recap && t < T.close); vis(sClose, t >= T.close);
+  if (t < T.steps) renderIntro(t);
+  renderSteps(t);
+  if (t >= T.recap && t < T.close) renderRecap(t);
+  if (t >= T.close) renderClose(t);
+  renderOrbit(t);
+  renderEka(t);
+  renderSparks(t);
+  renderBubbles(t);
+  renderConfetti(t);
+  renderWipe(t);
+  cFade.style.opacity = prog(t, T.end - .5, T.end).toFixed(3);
+}
+window.render = render;
+window.DURATION = T.end;
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = r; i.onerror = r; }))])
+  .then(() => Promise.all(["600 40px Fredoka", "500 40px Fredoka", "700 40px Fredoka", "700 40px 'Space Grotesk'", "500 40px Inter", "600 40px Inter"].map(f => document.fonts.load(f))))
+  .then(() => { render(0); return true; });
+if (location.hash === "#play") { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % T.end); requestAnimationFrame(loop); }; window.ready.then(loop); }
+</script>
+</body>
+</html>
