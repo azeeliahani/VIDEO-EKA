@@ -8,10 +8,13 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const URL = "file://" + path.join(ROOT, "src/video.html");
+// VIDEO=v2 renders the Enterprise Knowledge Hub version (src/hub_v2.html -> output/v2/).
+const V2 = process.env.VIDEO === "v2";
+const URL = "file://" + path.join(ROOT, V2 ? "src/hub_v2.html" : "src/video.html");
+const NAME = V2 ? "eka_enterprise_knowledge_hub_60s" : "eka_knowledge_hub_60s";
 const FPS = 30;
 const WORKERS = Number(process.env.WORKERS || 4);
-const OUT = path.join(ROOT, "output");
+const OUT = path.join(ROOT, "output", V2 ? "v2" : "");
 
 async function openPage(browser) {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
@@ -52,6 +55,7 @@ async function renderSegment(browser, idx, from, to, file) {
 async function full() {
   const browser = await chromium.launch();
   const total = await (async () => { const p = await openPage(browser); const d = await p.evaluate(() => window.DURATION); await p.close(); return Math.round(d * FPS); })();
+  fs.mkdirSync(OUT, { recursive: true });
   const segDir = path.join(OUT, "segments");
   fs.mkdirSync(segDir, { recursive: true });
   const per = Math.ceil(total / WORKERS);
@@ -69,11 +73,11 @@ async function full() {
 
   const list = path.join(segDir, "list.txt");
   fs.writeFileSync(list, segs.map(s => `file '${s}'`).join("\n"));
-  const silent = path.join(OUT, "eka_knowledge_hub_60s_noaudio.mp4");
+  const silent = path.join(OUT, `${NAME}_noaudio.mp4`);
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", list, "-c", "copy", silent], { stdio: "inherit" });
-  const mix = path.join(OUT, "mix.wav");
+  const mix = path.join(OUT, process.env.MIX || "mix.wav");
   if (fs.existsSync(mix)) {
-    const final = path.join(OUT, "eka_knowledge_hub_60s.mp4");
+    const final = path.join(OUT, `${NAME}.mp4`);
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", silent, "-i", mix, "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", final], { stdio: "inherit" });
     console.log("wrote", final);
   }

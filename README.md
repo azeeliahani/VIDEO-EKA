@@ -1,4 +1,21 @@
-# EKA explainer: Building an AI-Powered Knowledge Hub
+# EKA explainers
+
+## v2: Building an Enterprise Knowledge Hub (dark blue, white and green)
+
+**Video:** `output/v2/eka_enterprise_knowledge_hub_60s.mp4` (1920×1080, 30 fps, music and SFX)
+
+- EKA in the pointing pose. EKA's forearm "points" at each new idea. EKA also blinks, hops, glows, and lip-syncs to the voice-over once one is supplied.
+- 0–5 s intro, then 8 blocks × 5 s. Each block card shows *what to do* and a **Why it matters** panel, with its own animated icon. A tracker along the bottom shows progress.
+- 45–52.5 s: the blocks stack into the hub, and the three foundations appear (trusted content, clear governance, continuous improvement).
+- 52.5–60 s: closing message, *Copilot delivers accurate knowledge & helps people work smarter.*
+- The scene timings are in `src/timeline_v2.js`. The animation is in `src/hub_v2.html`, and the audio comes from `scripts/make_audio_v2.py`.
+- The voice-over script and the steps to add it are in [VOICEOVER_SCRIPT_V2.md](VOICEOVER_SCRIPT_V2.md).
+
+Rebuild: `python3 scripts/make_cutout_v2.py && python3 scripts/make_audio_v2.py && VIDEO=v2 node scripts/render.js`
+
+---
+
+## v1: Building an AI-Powered Knowledge Hub
 
 A 60-second motion graphic explainer for beginners, presented by **EKA** the robot.
 It turns the *"Eight building blocks of an AI-powered knowledge hub"* slide into an animated story.
