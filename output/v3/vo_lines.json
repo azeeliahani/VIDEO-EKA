@@ -1,0 +1,68 @@
+[
+ {
+  "start": 0.8,
+  "dur": 5.35,
+  "speed": 1.15,
+  "text": "Hi, I'm Eka! Ever wondered what it takes to build a knowledge hub with an AI agent? Let's find out!"
+ },
+ {
+  "start": 7.7,
+  "dur": 4.03,
+  "speed": 1.15,
+  "text": "Step one: Understand! Know your users, their questions, and trusted sources."
+ },
+ {
+  "start": 12.7,
+  "dur": 3.45,
+  "speed": 1.15,
+  "text": "Two: Content! Accurate, up-to-date content means great answers!"
+ },
+ {
+  "start": 17.7,
+  "dur": 3.7,
+  "speed": 1.15,
+  "text": "Three: Metadata! Tags, owners and review dates show what can be trusted!"
+ },
+ {
+  "start": 22.7,
+  "dur": 3.99,
+  "speed": 1.15,
+  "text": "Four: Format! Clear headings and simple language make it easy to understand!"
+ },
+ {
+  "start": 27.7,
+  "dur": 4.25,
+  "speed": 1.15,
+  "text": "Five: Governance! Owners and access rules keep knowledge safe and reliable!"
+ },
+ {
+  "start": 32.7,
+  "dur": 4.33,
+  "speed": 1.15,
+  "text": "Six: Automation! Workflows handle reviews and updates, so content stays fresh!"
+ },
+ {
+  "start": 37.7,
+  "dur": 4.49,
+  "speed": 1.18,
+  "text": "Seven: the AI agent! That's me! Linked to trusted content, with a clear purpose!"
+ },
+ {
+  "start": 42.7,
+  "dur": 3.63,
+  "speed": 1.15,
+  "text": "Eight: Analytics! Track usage and feedback, so the hub keeps getting better!"
+ },
+ {
+  "start": 47.8,
+  "dur": 2.95,
+  "speed": 1.15,
+  "text": "Trusted content! Clear governance! Continuous improvement!"
+ },
+ {
+  "start": 52.9,
+  "dur": 5.23,
+  "speed": 1.15,
+  "text": "Get these right, and your AI agent delivers accurate knowledge, helping everyone work smarter! Woohoo!"
+ }
+]
