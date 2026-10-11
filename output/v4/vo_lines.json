@@ -1,0 +1,62 @@
+[
+ {
+  "start": 0.8,
+  "dur": 4.64,
+  "speed": 1.15,
+  "text": "Uh-oh! Why do so many knowledge hubs fail? Let's spot the seven sneaky traps, so yours won't!"
+ },
+ {
+  "start": 7.7,
+  "dur": 4.43,
+  "speed": 1.19,
+  "text": "Trap one: Technology first! The agent launches too early, and answers disappoint."
+ },
+ {
+  "start": 12.7,
+  "dur": 3.66,
+  "speed": 1.15,
+  "text": "Trap two: No owners! Documents get old, and nobody updates them."
+ },
+ {
+  "start": 17.7,
+  "dur": 4.11,
+  "speed": 1.15,
+  "text": "Trap three: Garbage in, garbage out! Duplicates compete, so answers conflict."
+ },
+ {
+  "start": 22.7,
+  "dur": 4.15,
+  "speed": 1.15,
+  "text": "Trap four: Metadata as an afterthought! Messy tags make content hard to trust."
+ },
+ {
+  "start": 27.7,
+  "dur": 4.28,
+  "speed": 1.15,
+  "text": "Trap five: Governance only on paper! Rules exist, but nobody follows them."
+ },
+ {
+  "start": 32.7,
+  "dur": 4.19,
+  "speed": 1.15,
+  "text": "Trap six: No feedback loop! Unanswered questions pile up, and gaps stay open."
+ },
+ {
+  "start": 37.7,
+  "dur": 3.81,
+  "speed": 1.15,
+  "text": "Trap seven: Weak change management! People still ask colleagues instead."
+ },
+ {
+  "start": 42.8,
+  "dur": 7.66,
+  "speed": 1.15,
+  "text": "So, how do you dodge them? Content first! Clear owners! Clean sources! Required tags! Automated rules! A feedback loop! And show the value!"
+ },
+ {
+  "start": 52.9,
+  "dur": 4.35,
+  "speed": 1.15,
+  "text": "Dodge these traps, and your hub becomes the place everyone trusts! Let's build it right!"
+ }
+]
