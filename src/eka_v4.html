@@ -1,0 +1,607 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Why Knowledge Hubs Fail</title>
+<style>
+  @font-face { font-family: "Fredoka"; font-weight: 500; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 600; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 700; src: url("../node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 700; src: url("../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2") format("woff2"); }
+
+  :root {
+    --navy: #0A1F44;
+    --navy-deep: #050F2A;
+    --navy-mid: #16336B;
+    --blue: #2A5BD7;
+    --green: #6CC24A;
+    --green-dark: #3E8E2A;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--navy); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: "Inter", sans-serif; color: var(--white); }
+  .abs { position: absolute; left: 0; top: 0; }
+  .layer { position: absolute; inset: 0; }
+
+  #bg { background: radial-gradient(1400px 1000px at 65% 35%, #163A7E 0%, var(--navy) 52%, var(--navy-deep) 100%); }
+  #grid { background-image: radial-gradient(rgba(255,255,255,.11) 1.6px, transparent 2px); background-size: 48px 48px; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(90px); }
+  .streak { position: absolute; width: 900px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, rgba(108,194,74,0), rgba(108,194,74,.7), rgba(255,255,255,0)); }
+  .deco { position: absolute; }
+
+  /* EKA rig */
+  #eka { position: absolute; width: 883px; height: 1517px; transform-origin: 441px 1497px; }
+  #eka img { position: absolute; left: 0; top: 0; width: 883px; height: 1517px; }
+  #ekaArm { transform-origin: 700px 807px; }
+  .lid { position: absolute; border-radius: 50%; overflow: hidden; }
+  .lid > div { width: 100%; height: 100%; background: linear-gradient(#e9ecef, #f6f7f6 80%, #cfd8e0); transform-origin: 50% 0; transform: scaleY(0); }
+  #mouthCover { position: absolute; left: 326px; top: 468px; width: 150px; height: 56px; border-radius: 50%; background: #f7f8f6; filter: blur(2px); }
+  #mouth { position: absolute; left: 368px; top: 494px; width: 66px; height: 10px; border-radius: 10px 10px 40px 40px; background: #08162F;
+    border: 4px solid #5BC23A; transform-origin: 50% 0; overflow: hidden; }
+  #mouth i { position: absolute; left: 14px; right: 14px; bottom: -6px; height: 16px; border-radius: 50%; background: #4FB82F; }
+  #chestGlow { position: absolute; left: 280px; top: 650px; width: 140px; height: 90px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(170,255,150,.95), rgba(90,220,90,.35) 60%, rgba(90,220,90,0)); mix-blend-mode: screen; }
+  #ekaShadow { position: absolute; width: 440px; height: 50px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); }
+  #ekaHalo { position: absolute; width: 760px; height: 760px; border-radius: 50%; background: radial-gradient(closest-side, rgba(108,194,74,.4), rgba(108,194,74,0)); }
+
+  /* orbit of the eight essentials */
+  #orbitSvg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .node { position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; }
+  .node .empty { position: absolute; inset: 0; border-radius: 50%; border: 3px dashed rgba(255,255,255,.45); background: rgba(10,31,68,.55);
+    display: flex; align-items: center; justify-content: center; font: 700 40px "Space Grotesk"; color: rgba(255,255,255,.7); }
+  .node .lit { position: absolute; inset: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px var(--green), 0 0 40px rgba(108,194,74,.75); overflow: hidden; }
+  .node .lit svg { width: 112px; height: 112px; }
+  .node .lab { position: absolute; left: 50%; top: 122px; transform: translateX(-50%); white-space: nowrap; font: 600 22px "Fredoka"; color: #fff;
+    background: rgba(5,15,42,.75); padding: 3px 12px; border-radius: 14px; }
+
+  /* step scene */
+  .bigNum { position: absolute; left: 1330px; top: 380px; font: 700 560px/1 "Space Grotesk"; color: transparent; -webkit-text-stroke: 4px rgba(255,255,255,.07); letter-spacing: -.04em; }
+  .iconDisc { position: absolute; left: 870px; top: 130px; width: 280px; height: 280px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 10px rgba(108,194,74,.35), 0 30px 60px rgba(0,0,0,.35); }
+  .iconDisc svg { position: absolute; inset: 0; width: 280px; height: 280px; overflow: visible; }
+  .kicker { position: absolute; left: 1196px; top: 150px; font: 700 30px "Space Grotesk"; letter-spacing: .2em; color: var(--green); white-space: nowrap; }
+  .title { position: absolute; left: 1190px; top: 196px; font: 600 112px/1 "Fredoka"; color: #fff; white-space: nowrap; }
+  .swoosh { position: absolute; left: 1196px; top: 330px; width: 600px; height: 40px; overflow: visible; }
+  .what { position: absolute; left: 870px; top: 470px; width: 990px; font: 600 50px/1.28 "Inter"; color: #fff; }
+  .what span { display: inline-block; white-space: pre; }
+  .why { position: absolute; left: 870px; top: 668px; width: 990px; padding: 28px 40px 32px 132px; border-radius: 34px;
+    background: linear-gradient(100deg, rgba(108,194,74,.28), rgba(108,194,74,.10)); border: 3px solid rgba(108,194,74,.75); transform-origin: 0 50%; }
+  .why .lab { font: 700 24px "Space Grotesk"; letter-spacing: .18em; color: var(--green); margin-bottom: 10px; }
+  .why .txt { font: 500 39px/1.3 "Inter"; color: #fff; }
+  .why .bulb { position: absolute; left: 30px; top: 30px; width: 76px; height: 76px; border-radius: 50%; background: var(--green);
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(108,194,74,.7); }
+
+  .bubble { position: absolute; background: #fff; border-radius: 34px; padding: 18px 32px; font: 600 46px "Fredoka"; color: var(--navy);
+    box-shadow: 0 14px 34px rgba(0,0,0,.35); white-space: nowrap; transform-origin: 0% 100%; }
+  .bubble::after { content: ""; position: absolute; left: 34px; bottom: -22px; border: 16px solid transparent; border-top: 22px solid #fff; border-bottom: 0; }
+  .bubble b { color: var(--green-dark); }
+  .bubble.lft { transform-origin: 100% 100%; }
+  .bubble.lft::after { left: auto; right: 34px; }
+
+  .hl { position: relative; display: inline-block; color: var(--navy); }
+  .hl > i { position: absolute; left: -14px; right: -14px; top: 6%; bottom: 0; background: var(--green); border-radius: 18px; transform-origin: 0 50%; z-index: -1; }
+  .word { display: inline-block; white-space: pre; }
+  .found { position: absolute; padding: 16px 32px 16px 80px; border-radius: 44px; background: #fff; color: var(--navy); font: 600 40px "Fredoka"; white-space: nowrap;
+    box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+  .found i { position: absolute; left: 18px; top: 50%; margin-top: -24px; width: 48px; height: 48px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; }
+  .conf { position: absolute; width: 18px; height: 28px; border-radius: 4px; }
+  .spark { position: absolute; width: 44px; height: 44px; }
+  .band { position: absolute; top: -200px; height: 1480px; width: 2500px; }
+
+  /* trap scene */
+  .iconDisc.warn { box-shadow: 0 0 0 10px rgba(255,176,32,.45), 0 30px 60px rgba(0,0,0,.35); }
+  .ringOk { position: absolute; inset: -10px; border-radius: 50%; box-shadow: 0 0 0 10px #6CC24A, 0 0 50px rgba(108,194,74,.8); }
+  .badge { position: absolute; left: 196px; top: 190px; width: 96px; height: 96px; border-radius: 50%; background: var(--green); border: 6px solid #fff;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+  .badge svg { width: 54px; height: 54px; }
+  .warnTri { position: absolute; left: -6px; top: -6px; width: 88px; height: 80px; }
+  .tTitle { position: absolute; left: 1170px; top: 196px; width: 700px; font: 600 80px/1.0 "Fredoka"; color: #fff; }
+  .tKick { position: absolute; left: 1174px; top: 146px; font: 700 30px "Space Grotesk"; letter-spacing: .2em; color: #FFB020; white-space: nowrap; }
+  .lab2 { position: absolute; left: 870px; font: 700 24px "Space Grotesk"; letter-spacing: .18em; white-space: nowrap; }
+  .happens { position: absolute; left: 870px; top: 498px; width: 990px; font: 500 46px/1.28 "Inter"; color: #fff; }
+  .happens span { display: inline-block; white-space: pre; }
+  .dodge { position: absolute; left: 870px; top: 696px; width: 990px; padding: 26px 40px 30px 132px; border-radius: 34px;
+    background: linear-gradient(100deg, #6CC24A, #4FAF33); color: var(--navy); transform-origin: 0 50%; box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+  .dodge .lab { font: 700 24px "Space Grotesk"; letter-spacing: .18em; color: #0A1F44; opacity: .75; margin-bottom: 8px; }
+  .dodge .txt { font: 600 44px/1.2 "Fredoka"; color: #0A1F44; }
+  .dodge .ico { position: absolute; left: 30px; top: 30px; width: 76px; height: 76px; border-radius: 50%; background: #0A1F44;
+    display: flex; align-items: center; justify-content: center; }
+  .stamp { position: absolute; left: 1540px; top: 372px; padding: 10px 26px; border: 7px solid #6CC24A; border-radius: 18px; color: #6CC24A;
+    font: 700 54px "Space Grotesk"; letter-spacing: .08em; white-space: nowrap; background: rgba(5,15,42,.6); }
+  .row { position: absolute; left: 880px; height: 84px; display: flex; align-items: center; font: 600 48px "Fredoka"; color: #fff; white-space: nowrap; }
+  .row i { width: 60px; height: 60px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; margin-right: 26px; flex: none;
+    box-shadow: 0 0 24px rgba(108,194,74,.6); }
+  .row s { text-decoration: none; font: 500 30px "Inter"; color: #9fb3d6; margin-left: 22px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="glows" class="layer"></div>
+  <div id="grid" class="layer"></div>
+  <div id="streaks" class="layer"></div>
+  <div id="decos" class="layer"></div>
+
+  <div id="sIntro" class="layer"></div>
+  <div id="sTraps" class="layer"></div>
+  <div id="sRecap" class="layer"></div>
+  <div id="sClose" class="layer"></div>
+
+  <svg id="orbitSvg"></svg>
+  <div id="nodesBack" class="layer"></div>
+
+  <div id="ekaHalo"></div>
+  <div id="ekaShadow"></div>
+  <div id="eka">
+    <img id="ekaBody" src="../assets/eka2_body.png">
+    <img id="ekaArm" src="../assets/eka2_arm.png">
+    <div id="chestGlow"></div>
+    <div class="lid" style="left:160px; top:287px; width:172px; height:190px"><div></div></div>
+    <div class="lid" style="left:455px; top:232px; width:195px; height:215px"><div></div></div>
+    <div id="mouthCover"></div>
+    <div id="mouth"><i></i></div>
+  </div>
+  <svg id="orbitFront" style="position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible"></svg>
+  <div id="nodesFront" class="layer"></div>
+  <div id="flyers" class="layer"></div>
+  <div id="fx" class="layer"></div>
+  <div id="bubbles" class="layer"></div>
+  <div id="wipe" class="layer"></div>
+</div>
+
+<script src="timeline_v4.js"></script>
+<script src="vo_env_v4.js" onerror="window.VO_ENV = null"></script>
+<script>
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  outCubic: p => 1 - Math.pow(1 - p, 3),
+  inCubic: p => p * p * p,
+  inOutCubic: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+  outBack: p => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+  outElastic: p => p === 0 || p === 1 ? p : Math.pow(2, -10 * p) * Math.sin((p * 10 - .75) * (2 * Math.PI) / 3) + 1,
+};
+const tw = (t, a, b, from, to, ease = E.outCubic) => lerp(from, to, ease(prog(t, a, b)));
+function rng(seed) { seed = (seed * 2654435761) % 2147483647 || 1; return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+function el(tag, cls, parent, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; }
+function put(e, { x = 0, y = 0, s = 1, sx, sy, r = 0, o = 1 }) {
+  e.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${(sx ?? s).toFixed(4)}, ${(sy ?? s).toFixed(4)})`;
+  e.style.opacity = clamp(o).toFixed(3);
+  e.style.visibility = o <= 0.001 ? "hidden" : "visible";
+}
+const vis = (e, on) => { e.style.display = on ? "" : "none"; };
+const swing = (u, amp, freq = 2.2, damp = 3) => u < 0 ? 0 : amp * Math.exp(-damp * u) * Math.sin(2 * Math.PI * freq * u);
+const $ = id => document.getElementById(id);
+const G = "#6CC24A", GD = "#3E8E2A", NAVY = "#0A1F44", BLUE = "#2A5BD7";
+const CHECK = c => `<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="${c}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const BULB = `<svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.6.5.8 1.1.8 1.8V17h6v-.9c0-.7.3-1.3.8-1.8A6.5 6.5 0 0 0 12 2.5z" fill="#fff"/><rect x="9" y="18.3" width="6" height="1.8" rx=".9" fill="#fff"/><rect x="10" y="21" width="4" height="1.6" rx=".8" fill="#fff"/></svg>`;
+const STAR = c => `<svg viewBox="-10 -10 20 20" width="44" height="44"><path d="M0-10C1 -2 2 -1 10 0C2 1 1 2 0 10C-1 2 -2 1 -10 0C-2 -1 -1 -2 0-10z" fill="${c}"/></svg>`;
+
+/* ---------- timeline + content ---------- */
+const TL = window.TL;
+const NT = TL.traps.length;
+const T = { intro: TL.intro, traps: TL.traps[0], recap: TL.recap, close: TL.closing, end: TL.end };
+const trapStart = i => TL.traps[i];
+const trapEnd = i => i < NT - 1 ? TL.traps[i + 1] : TL.recap;
+const AMBER = "#FFB020";
+
+const TRAPS = [
+  { title: "Technology-first thinking", happens: "The agent launches before the content is ready, so early answers disappoint.",
+    fix: "Get the content right first, then launch the agent.", short: "Content first", dodge: "fix before you launch" },
+  { title: "No content ownership", happens: "Documents get old, and nobody is accountable for updating them.",
+    fix: "Give every piece of content a named owner.", short: "Clear owners", dodge: "a name on every page" },
+  { title: "Garbage in, garbage out", happens: "Duplicates and old versions compete, so answers conflict.",
+    fix: "Merge duplicates and keep one source of truth.", short: "Clean sources", dodge: "one source of truth" },
+  { title: "Metadata as an afterthought", happens: "Optional, inconsistent tags make content hard to filter or trust.",
+    fix: "Make key tags required, and keep them consistent.", short: "Required tags", dodge: "consistent and required" },
+  { title: "Governance only on paper", happens: "Rules exist, but depend on people remembering to follow them.",
+    fix: "Build the rules into automated workflows.", short: "Automated rules", dodge: "built into workflows" },
+  { title: "No feedback loop", happens: "Nobody tracks unanswered questions, so the gaps stay open.",
+    fix: "Track feedback and close the gaps, regularly.", short: "A feedback loop", dodge: "track it, fix it" },
+  { title: "Weak change management", happens: "People keep asking colleagues, because the hub's value was never shown.",
+    fix: "Show quick wins, train people, and celebrate the hub.", short: "Show the value", dodge: "wins, training, buzz" },
+];
+
+/* ---------- icons (viewBox -100..100) ---------- */
+function iconSVG(i) {
+  const N = NAVY, A = AMBER;
+  const body = [
+    // 0 rocket launching too early
+    `<g class="r0"><path d="M0 -74 C26 -50 30 -10 24 28 H-24 C-30 -10 -26 -50 0 -74Z" fill="#fff" stroke="${N}" stroke-width="9" stroke-linejoin="round"/>
+     <circle cx="0" cy="-22" r="14" fill="${G}" stroke="${N}" stroke-width="7"/>
+     <path d="M-24 6 L-46 34 L-22 30 Z M24 6 L46 34 L22 30 Z" fill="${N}"/>
+     <path class="fl" d="M-14 32 Q0 76 14 32 Z" fill="${A}"/></g>
+     <circle class="sm0" cx="-40" cy="64" r="14" fill="#C9D3E6"/><circle class="sm1" cx="38" cy="66" r="11" fill="#C9D3E6"/>`,
+    // 1 old document, no owner
+    `<path d="M-50 -66 H26 L50 -42 V66 H-50 Z" fill="#F4E9D2" stroke="${N}" stroke-width="9" stroke-linejoin="round"/>
+     <path d="M26 -66 V-42 H50" fill="none" stroke="${N}" stroke-width="7" stroke-linejoin="round"/>
+     <path d="M-32 -30 H22 M-32 -8 H22 M-32 14 H4" stroke="${N}" stroke-width="8" stroke-linecap="round" opacity=".45"/>
+     <path d="M-50 -66 L-20 -36 M-50 -40 L-26 -30 M-24 -66 L-30 -40" stroke="#9AA6BB" stroke-width="3"/>
+     <g class="q1"><circle cx="38" cy="46" r="30" fill="${A}" stroke="${N}" stroke-width="6"/><text x="38" y="62" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="46" fill="${N}">?</text></g>`,
+    // 2 garbage in, garbage out
+    `<g class="p2"><rect x="-36" y="-82" width="34" height="42" rx="4" fill="#fff" stroke="${N}" stroke-width="6" transform="rotate(-18 -19 -61)"/>
+     <rect x="4" y="-86" width="34" height="42" rx="4" fill="#fff" stroke="${N}" stroke-width="6" transform="rotate(16 21 -65)"/></g>
+     <path d="M-50 -24 H50 L40 70 H-40 Z" fill="${N}"/>
+     <path d="M-20 -6 L-16 54 M0 -6 V54 M20 -6 L16 54" stroke="#36558F" stroke-width="7" stroke-linecap="round"/>
+     <g class="lid2"><rect x="-60" y="-40" width="120" height="16" rx="8" fill="${A}"/><rect x="-14" y="-52" width="28" height="12" rx="5" fill="${A}"/></g>`,
+    // 3 messy tags
+    `<g class="t30"><path d="M-70 -46 L-20 -46 L6 -20 L-20 6 L-70 6 Z" fill="${A}" stroke="${N}" stroke-width="7" stroke-linejoin="round"/><circle cx="-54" cy="-20" r="7" fill="#fff"/></g>
+     <g class="t31"><path d="M-10 -10 L40 -10 L66 16 L40 42 L-10 42 Z" fill="${G}" stroke="${N}" stroke-width="7" stroke-linejoin="round"/><circle cx="6" cy="16" r="7" fill="#fff"/></g>
+     <g class="t32"><path d="M-60 26 L-10 26 L16 52 L-10 78 L-60 78 Z" fill="#7FA6F0" stroke="${N}" stroke-width="7" stroke-linejoin="round"/><circle cx="-44" cy="52" r="7" fill="#fff"/></g>
+     <text class="t33" x="46" y="-40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="56" fill="${A}">?</text>`,
+    // 4 governance only on paper (rule sheet blowing away)
+    `<g class="pp4"><path d="M-46 -64 H46 V54 Q0 40 -46 64 Z" fill="#fff" stroke="${N}" stroke-width="9" stroke-linejoin="round"/>
+     <text x="0" y="-30" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="24" fill="${N}">RULES</text>
+     <path d="M-28 -8 H28 M-28 12 H28 M-28 32 H10" stroke="${N}" stroke-width="7" stroke-linecap="round" opacity=".45"/></g>
+     <path class="w4" d="M-92 -20 Q-70 -30 -56 -16 M-96 20 Q-74 10 -60 24" fill="none" stroke="#7FA6F0" stroke-width="7" stroke-linecap="round"/>`,
+    // 5 broken feedback loop
+    `<path d="M40 -46 A62 62 0 1 0 58 22" fill="none" stroke="${N}" stroke-width="16" stroke-linecap="round"/>
+     <path d="M26 -62 L46 -44 L22 -28" fill="none" stroke="${N}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+     <g class="q50"><circle cx="66" cy="-6" r="16" fill="${A}"/><text x="66" y="4" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="28" fill="${N}">?</text></g>
+     <g class="q51"><circle cx="66" cy="-6" r="13" fill="${A}"/><text x="66" y="3" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="${N}">?</text></g>
+     <circle cx="-4" cy="0" r="14" fill="${G}"/>`,
+    // 6 people asking each other instead of the hub
+    `<circle cx="-46" cy="-6" r="20" fill="${N}"/><path d="M-78 64 C-78 22 -14 22 -14 64 Z" fill="${N}"/>
+     <circle cx="46" cy="-6" r="20" fill="#36558F"/><path d="M14 64 C14 22 78 22 78 64 Z" fill="#36558F"/>
+     <g class="b60"><rect x="-74" y="-82" width="70" height="44" rx="14" fill="${A}"/><path d="M-50 -40 L-56 -26 L-38 -40Z" fill="${A}"/><text x="-39" y="-50" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="30" fill="${N}">?</text></g>
+     <g class="b61"><rect x="4" y="-82" width="70" height="44" rx="14" fill="#fff" stroke="${N}" stroke-width="4"/><path d="M50 -40 L56 -26 L38 -40Z" fill="#fff"/><text x="39" y="-50" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="26" fill="${N}">…</text></g>`,
+  ][i];
+  return `<svg viewBox="-100 -100 200 200">${body}</svg>`;
+}
+function animIcon(i, root, u, calm) {
+  // calm: 0 = trap in action, 1 = dodged (settles down)
+  const q = s => root.querySelectorAll(s);
+  const setT = (s, tr) => q(s).forEach(e => e.setAttribute("transform", tr));
+  const k = 1 - calm;
+  if (i === 0) { setT(".r0", `translate(${(4 * k * Math.sin(u * 40)).toFixed(1)} ${(-30 * calm).toFixed(1)}) rotate(${(8 * k * Math.sin(u * 7)).toFixed(1)})`);
+    setT(".fl", `translate(0 32) scale(1 ${(.6 + .5 * Math.abs(Math.sin(u * 13)) * (k * .6 + .4)).toFixed(2)}) translate(0 -32)`);
+    ["sm0", "sm1"].forEach((c, j) => setT("." + c, `translate(${(j ? 1 : -1) * 6 * ((u * 1.3 + j * .5) % 1)} ${(-10 * ((u * 1.3 + j * .5) % 1)).toFixed(1)}) scale(${(.6 + .8 * ((u * 1.3 + j * .5) % 1)).toFixed(2)})`)); }
+  if (i === 1) setT(".q1", `translate(38 46) rotate(${(k * 14 * Math.sin(u * 6)).toFixed(1)}) scale(${(1 + .1 * k * Math.sin(u * 9)).toFixed(2)}) translate(-38 -46)`);
+  if (i === 2) { const lift = k * Math.max(0, Math.sin(u * 5)); setT(".lid2", `translate(0 ${(-22 * lift).toFixed(1)}) rotate(${(-12 * lift).toFixed(1)} -60 -32)`);
+    setT(".p2", `translate(0 ${(40 - 46 * lift - 40 * calm).toFixed(1)})`); }
+  if (i === 3) { ["t30", "t31", "t32"].forEach((c, j) => setT("." + c, `rotate(${(k * 18 * Math.sin(u * 4 + j * 2)).toFixed(1)}) translate(${(k * 6 * Math.sin(u * 5 + j)).toFixed(1)} 0)`));
+    setT(".t33", `translate(0 ${(-6 * Math.abs(Math.sin(u * 4))).toFixed(1)})`); q(".t33").forEach(e => e.style.opacity = k); }
+  if (i === 4) { setT(".pp4", `translate(${(k * 10 * Math.sin(u * 3)).toFixed(1)} ${(k * 6 * Math.cos(u * 4)).toFixed(1)}) rotate(${(k * 12 * Math.sin(u * 3.4)).toFixed(1)})`);
+    q(".w4").forEach(e => e.style.opacity = k); }
+  if (i === 5) ["q50", "q51"].forEach((c, j) => { const p = (u * .9 + j * .5) % 1; setT("." + c, `translate(${(14 * p).toFixed(1)} ${(-70 * p).toFixed(1)})`); q("." + c).forEach(e => e.style.opacity = (k * Math.sin(p * Math.PI)).toFixed(2)); });
+  if (i === 6) ["b60", "b61"].forEach((c, j) => { const on = Math.sin(u * 4 + j * Math.PI) > 0; setT("." + c, `translate(0 ${on ? -6 : 0})`); q("." + c).forEach(e => e.style.opacity = (on ? 1 : .35) * (k * .8 + .2)); });
+}
+/* ---------- background ---------- */
+const glows = [{ c: "rgba(108,194,74,.30)", w: 760, x: 1350, y: -260 }, { c: "rgba(42,91,215,.5)", w: 900, x: -300, y: 450 }, { c: "rgba(108,194,74,.18)", w: 620, x: 1450, y: 760 }]
+  .map(b => { const e = el("div", "glow", $("glows")); e.style.width = e.style.height = b.w + "px"; e.style.background = b.c; return { ...b, e }; });
+const R = rng(7);
+const streaks = Array.from({ length: 7 }, (_, i) => { const e = el("div", "streak", $("streaks")); return { e, y: 80 + R() * 920, sp: 260 + R() * 260, ph: R() * 3000, o: .25 + R() * .35 }; });
+const decos = [];
+for (let i = 0; i < 30; i++) {
+  const kind = ["dot", "plus", "ring", "dot", "star"][i % 5];
+  const size = 8 + R() * 22, c = i % 3 === 0 ? G : "#FFFFFF";
+  const e = el("div", "deco", $("decos"));
+  e.style.width = e.style.height = size + "px";
+  if (kind === "ring") { e.style.border = `${Math.max(2.5, size / 6)}px solid ${c}`; e.style.borderRadius = "50%"; }
+  if (kind === "dot") { e.style.background = c; e.style.borderRadius = "50%"; }
+  if (kind === "plus") e.innerHTML = `<svg viewBox="0 0 10 10" width="${size}" height="${size}"><path d="M5 1v8M1 5h8" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  if (kind === "star") e.innerHTML = STAR(c).replace(/44/g, size.toFixed(0));
+  decos.push({ e, x: R() * 1920, y: R() * 1080, ph: R() * 6.28, sp: .15 + R() * .35, o: .12 + R() * .3 });
+}
+function renderBg(t) {
+  glows.forEach((b, i) => put(b.e, { x: b.x + 90 * Math.sin(t * .25 + i * 2), y: b.y + 60 * Math.cos(t * .21 + i), o: 1 }));
+  streaks.forEach(s => put(s.e, { x: ((t * s.sp + s.ph) % 3200) - 1000, y: s.y, r: -12, o: s.o }));
+  decos.forEach(d => put(d.e, { x: d.x + 26 * Math.sin(t * d.sp + d.ph), y: ((d.y - t * 16 * d.sp * 3) % 1180 + 1180) % 1180 - 50, r: t * 30 * d.sp, o: d.o * (.6 + .4 * Math.sin(t * 2 + d.ph)) }));
+  $("grid").style.backgroundPosition = `${(t * 8) % 48}px ${(t * 12) % 48}px`;
+}
+
+/* ---------- EKA ---------- */
+const EKA_H = 1497;
+const BLINKS = [3.1, 6.6, 9.4, 13.9, 16.8, 20.1, 24.6, 26.9, 30.4, 34.1, 36.6, 40.9, 44.3, 47.8, 50.9, 54.6, 57.6];
+function hop(t, t0, h = 70, dur = .5) {
+  const u = t - t0;
+  if (u < -.1 || u > dur + .16) return { dy: 0, sx: 1, sy: 1 };
+  if (u < 0) { const p = prog(u, -.1, 0); return { dy: 0, sx: 1 + .06 * p, sy: 1 - .07 * p }; }
+  if (u < dur) { const p = u / dur; return { dy: -4 * h * p * (1 - p), sx: .97, sy: 1.04 }; }
+  const p = prog(u, dur, dur + .16); const k = Math.sin(p * Math.PI);
+  return { dy: 0, sx: 1 + .07 * k, sy: 1 - .09 * k };
+}
+// Base placement (no hops) so the orbit can follow EKA smoothly.
+function ekaBase(t) {
+  if (t < T.close) return { x: 400, y: 1040, s: .52 };
+  const p = E.inOutCubic(prog(t, T.close, T.close + .8));
+  return { x: lerp(400, 1480, p), y: lerp(1040, 1060, p), s: lerp(.52, .62, p) };
+}
+const DODGE_U = 2.3;   // seconds into each trap when the fix ("dodge") appears
+function ekaPose(t) {
+  const B = ekaBase(t);
+  const P = { x: B.x, y: B.y, s: B.s, r: 0, sx: 1, sy: 1, dy: 0, arm: 0, glow: .35, halo: 0 };
+  const idle = Math.sin(t * 2 * Math.PI / 1.6);
+  P.dy = -7 * idle; P.r = 1.4 * Math.sin(t * 1.3);
+  P.arm = 3 * Math.sin(t * 2.6);
+  const hops = [], jabs = [];
+  if (t < T.traps) {
+    const p = prog(t, .2, .75);
+    P.dy = t < .75 ? lerp(-1500, 0, E.inCubic(p)) : P.dy * prog(t, 1.1, 1.5);
+    if (t >= .75 && t < 1.02) { const k = Math.sin(prog(t, .75, 1.02) * Math.PI); P.sx = 1 + .14 * k; P.sy = 1 - .16 * k; }
+    if (t < .75) P.r = 0;
+    jabs.push(1.6, 2.9, 4.4);
+    hops.push(5.6);
+    P.r += swing(t - 1.0, 7, 3, 2.5);   // "uh-oh" wobble
+    P.glow = .35 + .5 * prog(t, 4.8, 6.2);
+  } else if (t < T.recap) {
+    for (let i = 0; i < NT; i++) {
+      const a = trapStart(i);
+      P.r += swing(t - a - .35, 6, 3.2, 3);          // startled by the trap
+      jabs.push(a + .6, a + DODGE_U + .05);
+      hops.push(a + DODGE_U + .25);                    // dodged it!
+      const g = prog(t, a + DODGE_U, a + DODGE_U + .3) * (1 - prog(t, a + DODGE_U + 1.2, a + DODGE_U + 1.8));
+      P.glow = Math.max(P.glow, .35 + .65 * g); P.halo = Math.max(P.halo, .7 * g);
+    }
+  } else if (t < T.close) {
+    (TL.fixes || []).forEach(f => jabs.push(T.recap + f));
+    hops.push(T.recap + .2, T.close - 1.4);
+    P.glow = .8; P.halo = .5 + .3 * prog(t, T.close - 2, T.close - 1);
+  } else {
+    jabs.push(T.close + 1.0, T.close + 2.6, T.close + 4.2);
+    hops.push(T.close + 5.6, T.close + 6.2);
+    P.glow = .5 + .5 * Math.max(0, Math.sin(t * 4)); P.halo = .6;
+  }
+  hops.forEach(h0 => { const h = hop(t, h0, (t >= T.recap) ? 100 : 75); P.dy += h.dy; P.sx *= h.sx; P.sy *= h.sy; });
+  jabs.forEach(j => { const u = t - j; if (u > 0 && u < .7) P.arm += -16 * Math.sin(Math.PI * Math.min(1, u / .25)) * (u < .25 ? 1 : 0) + swing(u - .25, -7, 3, 6); });
+  return P;
+}
+function voLevel(t) {
+  const V = window.VO_ENV; if (!V) return 0;
+  const f = t * V.fps, i = Math.floor(f), k = f - i;
+  const a = V.v[i] || 0, b = V.v[i + 1] || 0; return a + (b - a) * k;
+}
+function renderEka(t) {
+  const P = ekaPose(t);
+  const eka = $("eka");
+  eka.style.left = (P.x - 441) + "px"; eka.style.top = (P.y - EKA_H) + "px";
+  put(eka, { y: P.dy, r: P.r, sx: P.s * P.sx, sy: P.s * P.sy, o: 1 });
+  $("ekaArm").style.transform = `rotate(${P.arm.toFixed(2)}deg)`;
+  const lift = clamp(-P.dy / 400);
+  const sh = $("ekaShadow"); sh.style.left = (P.x - 220) + "px"; sh.style.top = (P.y - 22) + "px";
+  put(sh, { sx: P.s * 1.6 * (1 - .45 * lift), sy: P.s * 1.6 * (1 - .45 * lift), o: (1 - .7 * lift) * (P.dy > -1200 ? 1 : 0) });
+  const halo = $("ekaHalo"); halo.style.left = (P.x - 380) + "px"; halo.style.top = (P.y - 640 * P.s / .55 - 380) + "px";
+  put(halo, { s: (.9 + .1 * Math.sin(t * 5)) * P.s / .55, o: P.halo });
+  let b = 0;
+  BLINKS.forEach(t0 => { const u = t - t0; if (u >= 0 && u < .2) b = u < .07 ? u / .07 : 1 - (u - .07) / .13; });
+  document.querySelectorAll(".lid > div").forEach(l => l.style.transform = `scaleY(${b.toFixed(3)})`);
+  $("chestGlow").style.opacity = clamp(P.glow * (.75 + .25 * Math.sin(t * 6)));
+  const v = clamp(voLevel(t) * 1.4);
+  $("mouthCover").style.opacity = v > .04 ? 1 : 0;
+  $("mouth").style.opacity = v > .04 ? 1 : 0;
+  $("mouth").style.height = (14 + 64 * v).toFixed(1) + "px";
+  const mw = 74 + 18 * v;
+  $("mouth").style.width = mw.toFixed(1) + "px"; $("mouth").style.left = (401 - mw / 2).toFixed(1) + "px";
+}
+
+/* ---------- orbit: each dodged trap joins EKA's orbit ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs, parent = $("orbitSvg")) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+// Tilted orbit around EKA's waist: back half is drawn behind EKA, front half in front.
+const oBack = svgEl("ellipse", { fill: "none", stroke: "rgba(255,255,255,.22)", "stroke-width": 4, "stroke-dasharray": "4 14", "stroke-linecap": "round" });
+const oFront = svgEl("path", { fill: "none", stroke: G, "stroke-width": 6, "stroke-linecap": "round" }, $("orbitFront"));
+const oFrontGlow = svgEl("path", { fill: "none", stroke: "rgba(108,194,74,.35)", "stroke-width": 18, "stroke-linecap": "round" }, $("orbitFront"));
+const nodes = TRAPS.map((S, i) => {
+  const n = el("div", "node", $("nodesBack"), `<div class="empty" style="border-color:rgba(255,176,32,.7);color:#FFB020">!</div><div class="lit">${iconSVG(i)}</div><div class="lab">${S.short}</div>`);
+  return { n, empty: n.querySelector(".empty"), lit: n.querySelector(".lit"), lab: n.querySelector(".lab"), front: false };
+});
+function orbitGeom(t) {
+  const B = ekaBase(t);
+  const cx = B.x, cy = B.y - 600 * B.s;
+  let rx = 330, ry = 92, o = prog(t, 4.6, 5.0);
+  const spin = t * 13;
+    if (t >= T.close) { const p = E.inCubic(prog(t, T.close, T.close + .8)); rx = lerp(330, 1500, p); ry = lerp(92, 420, p); o = 1 - prog(t, T.close + .2, T.close + .8); }
+  return { cx, cy, rx, ry, o, spin };
+}
+const nodePos = (g, i) => { const a = (90 + i * 360 / NT - g.spin) * Math.PI / 180; const d = Math.sin(a); return { x: g.cx + g.rx * Math.cos(a), y: g.cy + g.ry * d, d }; };
+const litAt = i => trapEnd(i) - .12;   // when the flying icon lands on its node
+function renderOrbit(t) {
+  const g = orbitGeom(t);
+  oBack.setAttribute("cx", g.cx); oBack.setAttribute("cy", g.cy); oBack.setAttribute("rx", g.rx); oBack.setAttribute("ry", g.ry);
+  oBack.setAttribute("stroke-dashoffset", (-t * 30).toFixed(1));
+  oBack.style.opacity = g.o;
+  let done = 0; for (let i = 0; i < NT; i++) done += prog(t, litAt(i), litAt(i) + .35);
+  const front = `M${g.cx - g.rx} ${g.cy} A${g.rx} ${g.ry} 0 0 0 ${g.cx + g.rx} ${g.cy}`;
+  oFront.setAttribute("d", front); oFrontGlow.setAttribute("d", front);
+  oFront.style.opacity = g.o * (.25 + .75 * done / NT);
+  oFrontGlow.style.opacity = g.o * (done / NT) * (.6 + .4 * Math.sin(t * 5));
+  nodes.forEach((N, i) => {
+    const p = nodePos(g, i);
+    const wantFront = p.d > 0;
+    if (wantFront !== N.front) { (wantFront ? $("nodesFront") : $("nodesBack")).appendChild(N.n); N.front = wantFront; }
+    const depth = .78 + .3 * (p.d + 1) / 2;
+    const appear = E.outBack(prog(t, 4.7 + i * .14, 5.1 + i * .14));
+    const land = t - litAt(i);
+    const lit = land >= 0;
+    const bump = lit ? 1 + .4 * Math.exp(-6 * land) * Math.sin(Math.min(Math.PI, land * 9)) : 1;
+    put(N.n, { x: p.x, y: p.y, s: appear * bump * depth, o: g.o * (t < 4.7 ? 0 : 1) * (.65 + .35 * (p.d + 1) / 2) });
+    N.empty.style.opacity = lit ? 0 : 1;
+    N.lit.style.opacity = lit ? 1 : 0;
+    N.lab.style.opacity = 0;
+  });
+}
+
+/* ---------- intro ---------- */
+const sIntro = $("sIntro");
+const iKick = el("div", "abs", sIntro, "LESSONS LEARNED");
+iKick.style.cssText += "left:880px;top:200px;font:700 34px 'Space Grotesk';letter-spacing:.22em;color:#FFB020;white-space:nowrap";
+const iLines = [
+  { html: "Why many", top: 262, size: 100 },
+  { html: `<span class="hl"><i></i>knowledge hubs</span>`, top: 378, size: 128 },
+  { html: `fail <span style="display:inline-block;color:#FFB020" id="iWarn">⚠</span>`, top: 530, size: 120 },
+].map((L, k) => { const e = el("div", "abs", sIntro, L.html); e.style.cssText += `left:880px;top:${L.top}px;font:600 ${L.size}px/1.05 Fredoka;white-space:nowrap;transform-origin:0 70%`; return e; });
+const iSub = el("div", "abs", sIntro, `<span style="color:#FFB020">7</span> sneaky traps, and how to <span style="color:#6CC24A">dodge</span> them!`);
+iSub.style.cssText += "left:884px;top:712px;font:500 46px Inter;color:#D5E2F7;white-space:nowrap";
+function renderIntro(t) {
+  const out = prog(t, 6.7, 7.3);
+  put(iKick, { x: tw(t, 1.2, 1.6, 60, 0) - 300 * E.inCubic(out), o: prog(t, 1.2, 1.5) * (1 - out) });
+  iLines.forEach((e, k) => { const a = 1.5 + k * .45; put(e, { x: -300 * E.inCubic(out) * (1 + k * .2), y: tw(t, a, a + .5, 40, 0), s: E.outBack(prog(t, a, a + .45)), o: prog(t, a, a + .15) * (1 - out) }); });
+  put(iLines[1].querySelector("i"), { sx: E.outCubic(prog(t, 2.3, 2.75)), sy: 1, o: 1 });
+  put($("iWarn"), { s: E.outElastic(prog(t, 2.5, 3.3)), r: swing(t - 2.6, 18, 3, 2), o: prog(t, 2.5, 2.6) });
+  put(iSub, { y: tw(t, 3.4, 3.8, 30, 0), x: -300 * E.inCubic(out), o: prog(t, 3.4, 3.7) * (1 - out) });
+}
+
+/* ---------- traps ---------- */
+const sTraps = $("sTraps");
+const OKSVG = `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SHIELD = `<svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 2 L20 5.5 V11 C20 16 16.5 19.5 12 21.5 C7.5 19.5 4 16 4 11 V5.5 Z" fill="#6CC24A"/><path d="M8.5 11.5 l2.5 2.5 l4.5-5" fill="none" stroke="#0A1F44" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const TRI = `<svg viewBox="0 0 88 80" class="warnTri"><path d="M44 6 L84 74 H4 Z" fill="#FFB020" stroke="#050F2A" stroke-width="6" stroke-linejoin="round"/><path d="M44 30 V50" stroke="#050F2A" stroke-width="8" stroke-linecap="round"/><circle cx="44" cy="62" r="5" fill="#050F2A"/></svg>`;
+const scenes = TRAPS.map((S, i) => {
+  const w = el("div", "layer", sTraps);
+  const big = el("div", "bigNum", w, String(i + 1).padStart(2, "0"));
+  const disc = el("div", "iconDisc warn", w, iconSVG(i) + `<div class="ringOk"></div><div class="badge">${OKSVG}</div>`);
+  const tri = el("div", "abs", w, TRI); tri.style.cssText += "left:858px;top:118px;width:88px;height:80px";
+  const kick = el("div", "tKick", w, `TRAP ${i + 1} OF ${NT}`);
+  const title = el("div", "tTitle", w, S.title);
+  const hLab = el("div", "lab2", w, "WHAT ACTUALLY HAPPENS"); hLab.style.top = "450px"; hLab.style.color = AMBER;
+  const happens = el("div", "happens", w, S.happens.split(" ").map(x => `<span>${x} </span>`).join(""));
+  const dodge = el("div", "dodge", w, `<div class="ico">${SHIELD}</div><div class="lab">HOW TO DODGE IT</div><div class="txt">${S.fix}</div>`);
+  const stamp = el("div", "stamp", w, "DODGED!");
+  return { w, big, disc, tri, kick, title, hLab, happens, words: [...happens.querySelectorAll("span")], dodge, dTxt: dodge.querySelector(".txt"), dIco: dodge.querySelector(".ico"),
+    stamp, ringOk: disc.querySelector(".ringOk"), badge: disc.querySelector(".badge") };
+});
+const flyers = TRAPS.map((S, i) => { const f = el("div", "abs", $("flyers"), iconSVG(i));
+  f.style.cssText += "width:280px;height:280px;border-radius:50%;background:#fff;margin:-140px 0 0 -140px;box-shadow:0 0 0 8px #6CC24A,0 0 50px rgba(108,194,74,.8)"; return f; });
+const DISC_C = { x: 1010, y: 270 };
+function renderTraps(t) {
+  scenes.forEach((S, i) => {
+    const a = trapStart(i), b = trapEnd(i), u = t - a, on = t >= a - .05 && t < b;
+    vis(S.w, on);
+    const f = flyers[i];
+    const fp = prog(t, b - .6, litAt(i));
+    if (fp > 0 && fp < 1) {
+      const g = orbitGeom(t), n = nodePos(g, i), e = E.inOutCubic(fp);
+      const x = lerp(DISC_C.x, n.x, e), y = lerp(DISC_C.y, n.y, e) - 160 * Math.sin(Math.PI * e);
+      put(f, { x, y, s: lerp(1, 112 / 280, e), r: 360 * e, o: 1 });
+      animIcon(i, f, u, 1);
+    } else put(f, { o: 0 });
+    if (!on) return;
+    const out = prog(t, b - .55, b - .1), oe = E.inCubic(out);
+    const calm = prog(u, DODGE_U, DODGE_U + .4);
+    put(S.big, { x: tw(u, 0, .7, 200, 0) - 200 * oe, o: prog(u, 0, .5) * (1 - out) });
+    const shake = (1 - calm) * prog(u, .4, .6) * 5 * Math.sin(u * 38);
+    put(S.disc, { x: shake, s: E.outBack(prog(u, .05, .45)) * (1 + .04 * Math.sin(u * 4)) * (1 + .12 * Math.sin(Math.PI * prog(u, DODGE_U, DODGE_U + .35))), r: tw(u, .05, .45, -90, 0), o: (fp > 0 ? 0 : 1) });
+    animIcon(i, S.disc, u, calm);
+    S.ringOk.style.opacity = calm.toFixed(3);
+    put(S.badge, { s: E.outBack(prog(u, DODGE_U + .1, DODGE_U + .45)), r: tw(u, DODGE_U + .1, DODGE_U + .45, -120, 0), o: prog(u, DODGE_U + .1, DODGE_U + .15) });
+    put(S.tri, { s: E.outElastic(prog(u, .35, 1.0)) * (1 - E.inCubic(calm)), r: swing(u - .4, 16, 3, 2.5), o: prog(u, .35, .4) * (1 - calm) * (1 - out) });
+    put(S.kick, { x: tw(u, .1, .45, 80, 0) - 260 * oe, o: prog(u, .1, .3) * (1 - out) });
+    put(S.title, { x: tw(u, .15, .6, 160, 0, E.outBack) - 320 * oe, o: prog(u, .15, .3) * (1 - out) });
+    put(S.hLab, { x: tw(u, .45, .75, 40, 0) - 260 * oe, o: prog(u, .45, .6) * (1 - out) });
+    S.words.forEach((wd, k) => { const s0 = .55 + k * .06; put(wd, { y: tw(u, s0, s0 + .3, 36, 0, E.outBack), x: -260 * oe, o: prog(u, s0, s0 + .15) * (1 - out) }); });
+    put(S.dodge, { sx: E.outBack(prog(u, DODGE_U, DODGE_U + .4)), sy: 1, x: -260 * oe, o: prog(u, DODGE_U, DODGE_U + .12) * (1 - out) });
+    put(S.dTxt, { x: tw(u, DODGE_U + .2, DODGE_U + .55, 30, 0), o: prog(u, DODGE_U + .2, DODGE_U + .45) });
+    put(S.dIco, { s: E.outBack(prog(u, DODGE_U + .1, DODGE_U + .45)), r: tw(u, DODGE_U + .1, DODGE_U + .45, -60, 0) });
+    const st = prog(u, DODGE_U + .45, DODGE_U + .7);
+    put(S.stamp, { s: lerp(2.4, 1, E.outCubic(st)), r: -12, o: st * (1 - prog(u, DODGE_U + 1.7, DODGE_U + 2.0)) * (1 - out) });
+  });
+}
+
+/* ---------- recap: how to dodge every trap ---------- */
+const sRecap = $("sRecap");
+const rHead = el("div", "abs", sRecap, `How to <span style="color:#6CC24A">dodge</span> every trap`);
+rHead.style.cssText += "left:880px;top:96px;font:600 76px Fredoka;white-space:nowrap";
+const ROWS = TRAPS.map((S, k) => { const r = el("div", "row", sRecap, `<i>${CHECK("#0A1F44")}</i>${S.short}<s>${S.dodge}</s>`); r.style.top = (236 + k * 106) + "px"; return r; });
+const sparks = Array.from({ length: 14 }, (_, k) => el("div", "spark", $("fx"), STAR(k % 2 ? G : "#fff")));
+function renderRecap(t) {
+  const u = t - T.recap;
+  put(rHead, { x: tw(u, .1, .5, 80, 0, E.outBack), o: prog(u, .1, .3) });
+  const at = TL.fixes || TRAPS.map((_, k) => 1.6 + k * .9);
+  ROWS.forEach((r, k) => { put(r, { x: tw(u, at[k], at[k] + .4, 120, 0, E.outBack), o: prog(u, at[k], at[k] + .12) });
+    put(r.querySelector("i"), { s: E.outBack(prog(u, at[k] + .05, at[k] + .4)), r: tw(u, at[k], at[k] + .4, -90, 0) }); });
+}
+function renderSparks(t) {
+  const R2 = rng(3);
+  const on = t >= T.recap && t < T.close;
+  sparks.forEach((s, k) => {
+    const ph = R2(), ang = R2() * 6.28, rad = 200 + R2() * 220;
+    if (!on) return put(s, { o: 0 });
+    const B = ekaBase(t), cx = B.x, cy = B.y - 800 * B.s;
+    const cyc = ((t * .9 + ph) % 1);
+    put(s, { x: cx + rad * Math.cos(ang + t * .4) - 22, y: cy + rad * Math.sin(ang + t * .4) - 22, s: Math.sin(cyc * Math.PI) * (.6 + .6 * ph), r: t * 90, o: Math.sin(cyc * Math.PI) });
+  });
+}
+
+/* ---------- closing ---------- */
+const sClose = $("sClose");
+const cL = [
+  { html: "Dodge the traps,", top: 210, f: "600 96px Fredoka" },
+  { html: "and your hub becomes", top: 330, f: "600 80px Fredoka" },
+  { html: "the place", top: 440, f: "600 80px Fredoka" },
+  { html: `<span class="hl"><i></i>everyone trusts!</span>`, top: 548, f: "600 112px Fredoka" },
+].map(L => { const e = el("div", "abs", sClose, L.html); e.style.cssText += `left:140px;top:${L.top}px;font:${L.f};color:${L.c || "#fff"};white-space:nowrap;transform-origin:0 70%`; return e; });
+const cTag = el("div", "abs", sClose, `Content first · Clear owners · <span style="color:#6CC24A">Keep improving</span>`);
+cTag.style.cssText += "left:144px;top:760px;font:700 36px 'Space Grotesk';letter-spacing:.04em;color:#fff;white-space:nowrap";
+const cFade = el("div", "layer", $("wipe")); cFade.style.background = "#050F2A"; cFade.style.opacity = 0;
+const CONF = Array.from({ length: 70 }, (_, k) => { const R3 = rng(100 + k); const e = el("div", "conf", $("fx"));
+  e.style.background = [G, "#fff", BLUE, "#A4DB8A"][k % 4]; return { e, x: R3() * 1920, d: R3() * .8, sp: 420 + R3() * 380, sw: R3() * 6.28, rot: (R3() - .5) * 900 }; });
+function renderClose(t) {
+  const u = t - T.close;
+  cL.forEach((e, k) => { const a = .4 + k * .4; put(e, { x: tw(u, a, a + .5, -80, 0, E.outBack), o: prog(u, a, a + .2) }); });
+  put(cL[3].querySelector("i"), { sx: E.outCubic(prog(u, 1.9, 2.4)), sy: 1, o: 1 });
+  put(cTag, { y: tw(u, 3.0, 3.4, 30, 0), o: prog(u, 3.0, 3.3) });
+}
+function renderConfetti(t) {
+  CONF.forEach(c => {
+    const u = t - (T.close + 1.9 + c.d);
+    if (u < 0 || t >= T.end) return put(c.e, { o: 0 });
+    put(c.e, { x: c.x + 40 * Math.sin(u * 3 + c.sw), y: -40 + u * c.sp, r: u * c.rot, sx: Math.cos(u * 6 + c.sw), sy: 1, o: 1 - prog(u, 2.6, 3.2) });
+  });
+}
+
+/* ---------- bubbles ---------- */
+const BUBBLES = [
+  { text: "Uh-oh!", a: .95, b: 3.6, x: 470, y: 150 },
+  { text: "Let's build it <b>right</b>!", a: T.end - 3.0, b: T.end - .5, x: 1080, y: 250, left: true },
+];
+BUBBLES.forEach(B => { B.e = el("div", "bubble" + (B.left ? " lft" : ""), $("bubbles"), B.text); B.e.style.left = B.x + "px"; B.e.style.top = B.y + "px"; });
+function renderBubbles(t) {
+  BUBBLES.forEach(B => {
+    const on = t >= B.a && t < B.b;
+    if (!on) return put(B.e, { o: 0 });
+    put(B.e, { s: E.outBack(prog(t, B.a, B.a + .35)) * (1 - E.inCubic(prog(t, B.b - .25, B.b))), r: swing(t - B.a, 4, 2, 4), o: 1 });
+  });
+}
+
+/* ---------- wipes ---------- */
+const WIPES = [T.traps, T.recap, T.close];
+const bands = ["#6CC24A", "#FFFFFF", "#16336B"].map(c => { const b = el("div", "band", $("wipe")); b.style.background = c; return b; });
+function renderWipe(t) {
+  bands.forEach((b, k) => {
+    let x = 4000;
+    WIPES.forEach(B => {
+      const lead = (2 - k) * .07, a = B - .42 - lead, m = B - .04, c = B + .04 + lead * .6, d = B + .44 + lead * .6;
+      if (t >= a && t <= d) x = t < m ? lerp(2000, -260, E.outCubic(prog(t, a, m))) : t < c ? -260 : lerp(-260, -2900, E.inCubic(prog(t, c, d)));
+    });
+    b.style.transform = `translateX(${x.toFixed(1)}px) skewX(-14deg)`;
+  });
+}
+
+/* ---------- master ---------- */
+function render(t) {
+  renderBg(t);
+  vis(sIntro, t < T.traps); vis(sTraps, t >= T.traps - .1 && t < T.recap); vis(sRecap, t >= T.recap && t < T.close); vis(sClose, t >= T.close);
+  if (t < T.traps) renderIntro(t);
+  renderTraps(t);
+  if (t >= T.recap && t < T.close) renderRecap(t);
+  if (t >= T.close) renderClose(t);
+  renderOrbit(t);
+  renderEka(t);
+  renderSparks(t);
+  renderBubbles(t);
+  renderConfetti(t);
+  renderWipe(t);
+  cFade.style.opacity = prog(t, T.end - .5, T.end).toFixed(3);
+}
+window.render = render;
+window.DURATION = T.end;
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = r; i.onerror = r; }))])
+  .then(() => Promise.all(["600 40px Fredoka", "500 40px Fredoka", "700 40px Fredoka", "700 40px 'Space Grotesk'", "500 40px Inter", "600 40px Inter"].map(f => document.fonts.load(f))))
+  .then(() => { render(0); return true; });
+if (location.hash === "#play") { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % T.end); requestAnimationFrame(loop); }; window.ready.then(loop); }
+</script>
+</body>
+</html>
