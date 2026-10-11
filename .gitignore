@@ -3,3 +3,4 @@ output/frames/
 output/segments/
 *.tmp
 output/stills/
+__pycache__/
