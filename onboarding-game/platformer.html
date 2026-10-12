@@ -1,0 +1,726 @@
+<title>EKA Quest Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700;6..12,800&display=swap">
+<style>
+/* Layout: world map of 3 monthly worlds, then a side-scrolling canvas level with a task tracker above it and touch controls below. */
+:root {
+  --bg: #F3F6FB;
+  --surface: #FFFFFF;
+  --surface-2: #E8EEF8;
+  --ink: #0A1F44;
+  --ink-soft: #4A5A78;
+  --line: #CFD9EA;
+  --green: #4FA932;
+  --green-strong: #3E8E2A;
+  --green-tint: #E5F4DE;
+  --amber: #E9A520;
+  --red: #C8413A;
+  --red-tint: #FBE3E1;
+  --on-accent: #FFFFFF;
+  --shadow: 0 10px 30px rgba(10,31,68,.10);
+  --f-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061331; --surface: #0E2350; --surface-2: #16336B; --ink: #F2F6FF; --ink-soft: #A9B9D8; --line: #24427E;
+    --green: #6CC24A; --green-strong: #8AD86A; --green-tint: #1C3F2A; --amber: #F2B43A; --red: #F07A72; --red-tint: #43222A;
+    --on-accent: #061331; --shadow: 0 10px 30px rgba(0,0,0,.35); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061331; --surface: #0E2350; --surface-2: #16336B; --ink: #F2F6FF; --ink-soft: #A9B9D8; --line: #24427E;
+  --green: #6CC24A; --green-strong: #8AD86A; --green-tint: #1C3F2A; --amber: #F2B43A; --red: #F07A72; --red-tint: #43222A;
+  --on-accent: #061331; --shadow: 0 10px 30px rgba(0,0,0,.35); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--f-body); margin: 0; }
+.wrap { max-width: 1000px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 48px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+h2 { font-size: 1.4rem; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.label { font: 800 .72rem/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--green-strong); }
+.muted { color: var(--ink-soft); }
+.num { font-variant-numeric: tabular-nums; }
+.btn { background: var(--green); color: var(--on-accent); border: 0; border-radius: 999px; padding: 11px 22px; font: 600 1rem var(--f-display); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-weight: 700; font-size: .88rem; }
+
+/* World map */
+.title-card { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: end; background: #0A1F44; color: #F2F6FF; border-radius: 26px; padding: 20px 24px 0; overflow: hidden; position: relative; }
+.title-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: repeating-linear-gradient(90deg, #6CC24A 0 32px, #58AE38 32px 64px); }
+.title-card img { width: 120px; display: block; animation: hop 1.6s ease-in-out infinite; position: relative; z-index: 1; margin-bottom: 14px; }
+@keyframes hop { 0%,100% { transform: translateY(0) } 40% { transform: translateY(-14px) } }
+.title-card .copy { padding-bottom: 34px; display: grid; gap: 8px; min-width: 0; }
+.title-card .label { color: #8AD86A; }
+.title-card p { color: #C9D6EE; max-width: 58ch; }
+.keys { display: flex; gap: 8px; flex-wrap: wrap; font-size: .85rem; color: #C9D6EE; }
+.keys kbd { font: 700 .8rem var(--f-body); background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 6px; padding: 2px 7px; color: #FFFFFF; }
+
+.worlds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.world { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; display: grid; box-shadow: var(--shadow); }
+.world.locked { box-shadow: none; opacity: .75; }
+.world-art { height: 92px; position: relative; }
+.world-art span { position: absolute; left: 14px; bottom: 10px; font: 700 2.4rem/1 var(--f-display); color: #FFFFFF; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.world-body { padding: 14px 16px 16px; display: grid; gap: 10px; align-content: start; }
+.pips { display: flex; gap: 6px; }
+.pips i { width: 22px; height: 22px; border-radius: 6px; background: var(--surface-2); border: 2px solid var(--line); display: grid; place-items: center; font: 700 .7rem var(--f-display); font-style: normal; color: var(--ink-soft); }
+.pips i.on { background: var(--amber); border-color: var(--amber); color: #0A1F44; }
+.lockmsg { font-size: .85rem; font-weight: 700; color: var(--ink-soft); }
+.foot { margin-top: 16px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Play screen */
+.hud { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.tracker { display: flex; gap: 6px; flex-wrap: wrap; }
+.tracker span { font-size: .78rem; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft); }
+.tracker span.on { background: var(--green-tint); border-color: var(--green); color: var(--green-strong); }
+.stage { position: relative; }
+canvas#game { display: block; width: 100%; max-width: 100%; aspect-ratio: 800 / 448; border-radius: 18px; background: #BFE3FF; touch-action: none; }
+.toast { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: rgba(10,31,68,.88); color: #FFFFFF; font: 600 .95rem var(--f-display); padding: 8px 16px; border-radius: 999px; pointer-events: none; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
+.pad { display: none; justify-content: space-between; gap: 12px; margin-top: 12px; user-select: none; -webkit-user-select: none; }
+.pad > div { display: flex; gap: 12px; }
+.pad button { width: 72px; height: 64px; border-radius: 18px; border: 2px solid var(--line); background: var(--surface); font: 700 1.5rem var(--f-display); touch-action: none; }
+.pad button.jump { width: 110px; background: var(--green); color: var(--on-accent); border-color: var(--green); font-size: 1.1rem; }
+.pad button.held { transform: scale(.94); filter: brightness(.92); }
+@media (pointer: coarse) { .pad { display: flex; } .hint-keys { display: none; } }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: rgba(6,19,49,.6); display: grid; place-items: start center; overflow-y: auto; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; }
+.panel { width: min(640px, 100%); background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); padding: 22px; display: grid; gap: 14px; animation: pop .22s ease; margin-top: 4vh; }
+@keyframes pop { from { transform: translateY(12px) scale(.98); opacity: .4 } }
+.panel-head { display: flex; gap: 12px; align-items: center; }
+.panel-head img { width: 44px; flex: none; }
+.q { font: 600 1.15rem/1.3 var(--f-display); }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; background: var(--bg); border: 2px solid var(--line); border-radius: 14px; padding: 11px 14px; font-weight: 700; }
+.opt:hover:not(:disabled) { border-color: var(--green); }
+.opt.right { border-color: var(--green); background: var(--green-tint); }
+.opt.wrong { border-color: var(--red); background: var(--red-tint); }
+.feedback { border-radius: 14px; padding: 10px 14px; font-size: .95rem; }
+.feedback.good { background: var(--green-tint); }
+.feedback.bad { background: var(--red-tint); }
+.checks { display: grid; gap: 8px; }
+.check { display: flex; gap: 12px; align-items: start; padding: 11px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg); cursor: pointer; }
+.check input { width: 22px; height: 22px; accent-color: var(--green); flex: none; margin-top: 2px; }
+.check small { display: block; color: var(--ink-soft); }
+.field { width: 100%; padding: 11px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font: 600 1rem var(--f-body); }
+.settings { display: grid; gap: 12px; }
+.settings label { display: grid; gap: 6px; font-weight: 700; }
+.settings .toggle { display: flex; align-items: center; gap: 10px; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--green); }
+.win { text-align: center; display: grid; gap: 10px; justify-items: center; }
+.win img { width: 96px; }
+.big { font: 700 2.2rem/1 var(--f-display); color: var(--green-strong); }
+
+@media (max-width: 760px) { .worlds { grid-template-columns: 1fr; } }
+@media (max-width: 520px) {
+  .title-card { grid-template-columns: 1fr; }
+  .title-card img { position: absolute; right: 10px; bottom: 4px; width: 80px; margin: 0; }
+  .title-card .copy { padding-right: 70px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <section id="mapScreen"></section>
+  <section id="playScreen" hidden>
+    <div class="hud">
+      <div class="row">
+        <button class="btn ghost" id="exitBtn" style="padding:7px 14px">← Worlds</button>
+        <strong id="worldName" style="font-family:var(--f-display);font-size:1.1rem"></strong>
+      </div>
+      <div class="row">
+        <span class="chip num" id="coinChip">Coins 0</span>
+        <span class="chip hint-keys">← → move · Space jump</span>
+      </div>
+    </div>
+    <div class="tracker" id="tracker" style="margin-bottom:10px"></div>
+    <div class="stage">
+      <canvas id="game" width="800" height="448" aria-label="Platform game. EKA runs and jumps to hit task blocks."></canvas>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+    <div class="pad" aria-label="Touch controls">
+      <div><button data-key="left" aria-label="Move left">◀</button><button data-key="right" aria-label="Move right">▶</button></div>
+      <button class="jump" data-key="jump" aria-label="Jump">JUMP</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* =========================================================================
+   CONTENT: 3 worlds (months) × 5 task blocks. Edit questions here.
+   type "quiz": answer each question correctly (wrong answers show a tip and let you retry).
+   type "mission": real-world checklist the new joiner ticks off.
+   ========================================================================= */
+const WORLDS = [
+  { id: "w1", month: 1, name: "Settle In", badge: "Explorer",
+    intro: "Sunny office park. Meet your people, tools and values.",
+    sky: ["#9ED4FF", "#E4F4FF"], hill: "#7CCB5E", hill2: "#5DB043", grass: "#6CC24A", dirt: "#8B5E3C", brick: "#C8693A", enemySpeed: 2,
+    tasks: [
+      { title: "Welcome Quiz", type: "quiz", qs: [
+        { q: "Who is your first go-to person for day-to-day questions in month one?", a: ["Your onboarding buddy", "The CEO's office", "Whoever sits nearest"], c: 0, why: "Your buddy helps you settle in. Your manager owns your goals." },
+        { q: "Where do you find official, up-to-date HR policies?", a: ["A colleague's old email", "The HR portal / Knowledge Hub", "Last year's printed handbook"], c: 1, why: "Policies change. The portal always has the current version." } ] },
+      { title: "Tool Match", type: "quiz", qs: [
+        { q: "Your laptop won't connect to Wi-Fi. Where do you go?", a: ["HR Portal", "IT Service Desk", "SharePoint"], c: 1, why: "IT Service Desk handles devices and access." },
+        { q: "Where do you apply for leave and see your payslip?", a: ["HR Portal", "Outlook", "Teams"], c: 0, why: "Leave, payslips and personal details live in the HR Portal." },
+        { q: "Where should your team's shared documents live?", a: ["Your desktop", "A USB drive", "SharePoint"], c: 2, why: "SharePoint keeps one up-to-date version that everyone can find." } ] },
+      { title: "Values in Action", type: "quiz", qs: [
+        { q: "You made a mistake on a report. What lives our values?", a: ["Hope nobody notices", "Own it early and suggest a fix", "Blame the template"], c: 1, why: "Owning it early builds trust and limits the impact." },
+        { q: "A teammate asks for your password to save time.", a: ["Share it just this once", "Politely say no and point them to IT", "Write it on a sticky note"], c: 1, why: "Never share passwords. IT can grant the right access." } ] },
+      { title: "Phishing Spotter", type: "quiz", qs: [
+        { q: "Which of these is a phishing red flag?", a: ["The sender's domain isn't ours", "Your manager confirms a meeting you booked", "The email has a signature"], c: 0, why: "Look-alike domains are the most common trick." },
+        { q: "You spot a suspicious email. What do you do?", a: ["Reply to ask if it's real", "Click the link to check", "Use the 'Report phishing' button"], c: 2, why: "Don't click, don't reply. Report it." } ] },
+      { title: "First-Week Mission", type: "mission", items: [
+        ["Collect your laptop and access badge", "Bring photo ID to the front desk."],
+        ["Set up multi-factor authentication (MFA)", "Five minutes with the authenticator app."],
+        ["Have coffee with your onboarding buddy", "Ask: what do you wish you knew in week one?"],
+        ["Agree your 30-day goals with your manager", "Write down 2 or 3 goals you both agree on."],
+        ["Finish mandatory e-learning", "Code of Conduct, Data Privacy, Information Security."] ] }
+    ],
+    level: { W: 130, start: 3,
+      pits: [[28, 29], [66, 68], [96, 97]],
+      plats: [[40, 9, 6]],
+      blocks: [[12, 8], [24, 8], [43, 5], [58, 8], [88, 8]],
+      stairs: 104, enemies: [20, 35, 50, 62, 82, 92],
+      coins: [[16, 10, 4], [41, 8, 4], [66, 9, 3], [98, 10, 4], [74, 10, 5]] } },
+
+  { id: "w2", month: 2, name: "Connect", badge: "Connector",
+    intro: "City at sunset. Learn who does what and how to work with EKA.",
+    sky: ["#FF9E6E", "#FFD9A8"], hill: "#6B5BD7", hill2: "#4B3FA8", grass: "#6CC24A", dirt: "#5A3E6E", brick: "#B5524A", enemySpeed: 2.6,
+    tasks: [
+      { title: "Department Dash", type: "quiz", qs: [
+        { q: "Your payslip shows the wrong allowance. Who do you contact?", a: ["Payroll (HR)", "IT", "Legal"], c: 0, why: "Payroll sits within HR." },
+        { q: "A supplier sends a contract for you to sign.", a: ["Sign it if it looks fine", "Legal / Procurement", "Corporate Comms"], c: 1, why: "Contracts must be reviewed before anyone signs." },
+        { q: "You want to post a team win on the company LinkedIn page.", a: ["Corporate Communications", "Post it yourself", "IT Security"], c: 0, why: "Comms owns official channels and brand tone." } ] },
+      { title: "Jargon Jumble", type: "quiz", qs: [
+        { q: "What is metadata?", a: ["A big spreadsheet", "Tags, owners and review dates that describe a document", "A type of password"], c: 1, why: "Metadata helps people and Copilot know what to trust." },
+        { q: "To 'escalate' an issue means…", a: ["Ignore it", "Pass it up to someone who can decide", "Close it"], c: 1, why: "Escalate with clear notes so nobody starts from scratch." } ] },
+      { title: "Build the Knowledge Hub", type: "quiz", qs: [
+        { q: "What is EKA's first building block of a Knowledge Hub?", a: ["Automation", "Understand", "Analytics"], c: 1, why: "Understand your users, their questions and where trusted answers live." },
+        { q: "Copilot is only as good as your…", a: ["Content", "Font size", "Wi-Fi"], c: 0, why: "Accurate, current content means accurate answers." },
+        { q: "Which block tracks unanswered questions so the hub keeps improving?", a: ["Format", "Governance", "Analytics"], c: 2, why: "Analytics shows what people ask and what's missing." } ] },
+      { title: "Prompt Like a Pro", type: "quiz", qs: [
+        { q: "Which prompt will get a better answer from EKA?", a: ["travel", "What's the claim limit for a one-night domestic work trip, and how do I submit it?"], c: 1, why: "Specific questions get specific answers." },
+        { q: "EKA gives you a policy number. What next?", a: ["Trust it, EKA is never wrong", "Ask for the source document and open it"], c: 1, why: "Always check the source for policy and numbers." } ] },
+      { title: "Network Builder", type: "mission", items: [
+        ["Have 3 coffee chats outside your team", "Ask: how can our teams help each other?"],
+        ["Join a community or employee group", "Sports club, women's network, tech guild…"],
+        ["Shadow a colleague for half a day", "Pick a role your work depends on."],
+        ["Attend a town hall or all-hands", "Note one thing leadership is focused on."],
+        ["Have your 60-day check-in with your manager", "Review your goals and set the next ones."] ] }
+    ],
+    level: { W: 150, start: 3,
+      pits: [[22, 24], [47, 49], [75, 77], [103, 105], [124, 125]],
+      plats: [[30, 9, 5], [55, 9, 3], [60, 7, 3], [73, 9, 6]],
+      blocks: [[14, 8], [32, 5], [61, 3], [88, 8], [114, 8]],
+      stairs: 130, enemies: [12, 28, 40, 52, 66, 84, 92, 110, 118],
+      coins: [[18, 10, 3], [30, 8, 5], [60, 6, 3], [73, 8, 6], [96, 10, 4], [118, 10, 3]] } },
+
+  { id: "w3", month: 3, name: "Contribute", badge: "Contributor",
+    intro: "Night city. Protect data, serve customers and set your goals.",
+    sky: ["#061331", "#16336B"], hill: "#1D3F7E", hill2: "#12295A", grass: "#6CC24A", dirt: "#2A3A5E", brick: "#3D5A9A", enemySpeed: 3.1, night: true,
+    tasks: [
+      { title: "True or False Blitz", type: "quiz", qs: [
+        { q: "True or false: it's OK to paste confidential data into public AI tools if you delete it after.", a: ["True", "False"], c: 1, why: "Use approved tools like EKA, which keep data inside the company." },
+        { q: "True or false: you should report a lost laptop immediately, even out of hours.", a: ["True", "False"], c: 0, why: "IT can lock or wipe it remotely." },
+        { q: "True or false: visitors can borrow your badge if they're with you.", a: ["True", "False"], c: 1, why: "Visitors sign in and get their own pass." } ] },
+      { title: "The Upset Customer", type: "quiz", qs: [
+        { q: "'Third time I'm asking!' What do you do first?", a: ["Say it's not your department", "Acknowledge their frustration and apologise", "Ask them to email instead"], c: 1, why: "Empathy first calms the conversation." },
+        { q: "Next step?", a: ["Check the case history so they don't repeat themselves", "Ask them to explain from the start", "Promise a fix today"], c: 0, why: "Using what's recorded respects their time." },
+        { q: "The fix needs another team. How do you close?", a: ["'Someone will call you'", "Close the case", "Escalate with notes, name the owner and when you'll update them"], c: 2, why: "A clear owner and date builds trust." } ] },
+      { title: "SMART Goal Sorter", type: "quiz", qs: [
+        { q: "Which goal is SMART?", a: ["Be better at customer service", "Cut average response time from 8 to 6 hours by end of Q3"], c: 1, why: "It's specific, measurable and time-bound." },
+        { q: "Which goal is SMART?", a: ["Publish 5 how-to articles to the Knowledge Hub this quarter", "Learn more about the business"], c: 0, why: "A number and a deadline make it trackable." } ] },
+      { title: "Incident Response Run", type: "quiz", qs: [
+        { q: "You think your account was hacked. What's the first move?", a: ["Delete suspicious emails", "Stop, keep everything and report to the IT Service Desk", "Wait a day to see"], c: 1, why: "Report fast and keep the evidence." },
+        { q: "After reporting, you should…", a: ["Follow IT's instructions and reset your password", "Post about it on Teams", "Use a personal laptop instead"], c: 0, why: "Let IT lead the response." } ] },
+      { title: "90-Day Reflection", type: "mission", items: [
+        ["Write down one win from your first 90 days", "Bring it to your review."],
+        ["Share one improvement idea for new joiners", "Send it to HR or your buddy."],
+        ["Set your next-quarter goal with your manager", "Make it SMART."],
+        ["Book your end-of-probation review", "Put it in both calendars."] ] }
+    ],
+    level: { W: 170, start: 3,
+      pits: [[20, 22], [44, 46], [70, 72], [98, 100], [120, 122], [144, 145]],
+      plats: [[26, 9, 6], [50, 9, 3], [55, 7, 3], [60, 9, 3], [80, 9, 4], [86, 7, 4], [127, 9, 5]],
+      blocks: [[12, 8], [28, 5], [56, 3], [88, 3], [136, 8]],
+      stairs: 150, enemies: [16, 33, 38, 64, 76, 92, 106, 112, 116, 132, 140],
+      coins: [[26, 8, 6], [50, 8, 3], [55, 6, 3], [86, 6, 4], [104, 10, 5], [127, 8, 5]] } }
+];
+const DAYS_PER_WORLD = 30;
+
+/* ================================ STATE ================================= */
+const KEY = "eka-quest-run-v1";
+const todayISO = () => new Date().toISOString().slice(0, 10);
+function loadSaved() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {} return null; }
+let save = (window.claude?.hot?.data?.save) || loadSaved() || { name: "", start: todayISO(), preview: true, done: {}, cleared: {}, coins: 0, notes: {} };
+WORLDS.forEach(w => { if (!save.done[w.id]) save.done[w.id] = [false, false, false, false, false]; });
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} }
+window.claude?.hot?.snapshot?.(() => ({ save }));
+
+const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return d; };
+const fmt = d => d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = s => document.querySelector(s);
+const allDone = w => save.done[w.id].every(Boolean);
+function worldLock(i) {
+  if (i === 0) return null;
+  const prev = WORLDS[i - 1];
+  if (!save.cleared[prev.id]) return `Clear World ${prev.month} (all 5 task blocks + the goal) to unlock`;
+  const opens = addDays(save.start, DAYS_PER_WORLD * i);
+  if (!save.preview && new Date() < opens) return `Opens ${fmt(opens)}`;
+  return null;
+}
+
+const ekaImg = new Image(); ekaImg.src = "eka.webp";
+
+/* ================================ WORLD MAP ============================= */
+function renderMap() {
+  $("#playScreen").hidden = true; $("#mapScreen").hidden = false;
+  const cleared = WORLDS.filter(w => save.cleared[w.id]).length;
+  $("#mapScreen").innerHTML = `
+  <section class="title-card">
+    <img src="eka.webp" alt="EKA the robot">
+    <div class="copy">
+      <span class="label">New joiner onboarding · 3 months · 15 tasks</span>
+      <h1>EKA Quest Run</h1>
+      <p>Run, jump and bump the <strong style="color:#F2B43A">?</strong> task blocks. Each world is one month with 5 task blocks. The goal gate opens only when all 5 are done, and clearing a world unlocks next month.</p>
+      <div class="keys hint-keys"><span><kbd>←</kbd> <kbd>→</kbd> move</span><span><kbd>Space</kbd> or <kbd>↑</kbd> jump</span><span>Stomp the phishing emails!</span></div>
+    </div>
+  </section>
+  <div class="worlds">
+    ${WORLDS.map((w, i) => {
+      const lock = worldLock(i), n = save.done[w.id].filter(Boolean).length;
+      return `<article class="world ${lock ? "locked" : ""}">
+        <div class="world-art" style="background:linear-gradient(${w.sky[0]},${w.sky[1]})">
+          <svg viewBox="0 0 300 92" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+            <path d="M0 70 Q60 30 120 70 T240 66 T300 60 V92 H0Z" fill="${w.hill}"/>
+            <rect x="0" y="78" width="300" height="14" fill="${w.grass}"/>
+            <rect x="200" y="36" width="22" height="22" rx="3" fill="#F2B43A"/><text x="211" y="53" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="#0A1F44">?</text>
+          </svg>
+          <span>${w.month}</span>
+        </div>
+        <div class="world-body">
+          <div><span class="label">Month ${w.month} · World ${w.month}</span><h2>${esc(w.name)}</h2></div>
+          <p class="muted">${esc(w.intro)}</p>
+          <div class="pips" aria-label="${n} of 5 task blocks done">${save.done[w.id].map((d, k) => `<i class="${d ? "on" : ""}">${d ? "✓" : k + 1}</i>`).join("")}</div>
+          ${save.cleared[w.id] ? `<span class="label">★ ${esc(w.badge)} badge earned</span>` : ""}
+          ${lock ? `<span class="lockmsg">🔒 ${esc(lock)}</span>` : `<button class="btn" data-play="${i}">${save.cleared[w.id] ? "Play again" : n ? "Continue" : "Start world"}</button>`}
+        </div>
+      </article>`;
+    }).join("")}
+  </div>
+  <div class="foot">
+    <span class="muted num">Badges ${cleared} / 3 · Coins ${save.coins}${save.name ? " · " + esc(save.name) : ""}</span>
+    <button class="btn ghost" id="settingsBtn">Settings</button>
+  </div>
+  ${cleared === 3 ? `<div class="world" style="margin-top:16px;padding:18px;text-align:center;justify-items:center;gap:6px;border:2px dashed var(--green)"><span class="label">Certificate of completion</span><h2>${esc(save.name || "New joiner")} cleared all 3 worlds of EKA Quest Run</h2><p class="muted">Explorer · Connector · Contributor. Show this at your probation review.</p></div>` : ""}`;
+  document.querySelectorAll("[data-play]").forEach(b => b.onclick = () => startWorld(+b.dataset.play));
+  $("#settingsBtn").onclick = openSettings;
+}
+
+/* ================================ LEVEL BUILD =========================== */
+const ROWS = 14, T = 32, VIEW_W = 25;
+function buildLevel(w) {
+  const L = w.level, W = L.W;
+  const g = Array.from({ length: ROWS }, () => Array(W).fill(" "));
+  for (let x = 0; x < W; x++) { g[12][x] = "#"; g[13][x] = "#"; }
+  L.pits.forEach(([a, b]) => { for (let x = a; x <= b; x++) { g[12][x] = " "; g[13][x] = " "; } });
+  L.plats.forEach(([x, y, n]) => { for (let k = 0; k < n; k++) g[y][x + k] = "B"; });
+  // stairs up 4, flat top 2, down 4
+  const s = L.stairs;
+  for (let k = 0; k < 4; k++) for (let h = 0; h <= k; h++) g[11 - h][s + k] = "B";
+  for (let k = 0; k < 2; k++) for (let h = 0; h < 4; h++) g[11 - h][s + 4 + k] = "B";
+  for (let k = 0; k < 4; k++) for (let h = 0; h < 4 - k; h++) g[11 - h][s + 6 + k] = "B";
+  const gate = s + 13, flag = gate + 3;
+  const blocks = {};
+  L.blocks.forEach(([x, y], i) => { g[y][x] = save.done[w.id][i] ? "U" : "?"; blocks[x + "," + y] = i; });
+  if (!allDone(w)) for (let y = 0; y < 12; y++) g[y][gate] = "L";
+  const coins = [];
+  L.coins.forEach(([x, y, n]) => { for (let k = 0; k < n; k++) if (g[y][x + k] === " ") coins.push({ x: x + k + .5, y: y + .5, got: false }); });
+  const enemies = L.enemies.map(x => ({ x, y: 12 - .8, w: .9, h: .8, vx: -w.enemySpeed, alive: true, squash: 0 }));
+  // parallax scenery
+  let seed = w.month * 9973; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const far = [], near = [], stars = [];
+  for (let x = -2; x < W * .5 + 30; x += 3 + rnd() * 5) far.push({ x, h: 2 + rnd() * 4, w: 3 + rnd() * 4 });
+  for (let x = -2; x < W * .75 + 30; x += 4 + rnd() * 7) near.push({ x, h: 1 + rnd() * 2.5, w: 2 + rnd() * 3 });
+  for (let k = 0; k < 90; k++) stars.push({ x: rnd() * (W * .3 + 30), y: rnd() * 7, r: rnd() * 1.6 + .4 });
+  return { g, W, blocks, coins, enemies, gate, flag, far, near, stars };
+}
+
+/* ================================ GAME =================================== */
+const cv = $("#game"), ctx = cv.getContext("2d");
+const G = 58, JUMP = 21.5, RUN = 8.5;
+let world = null, wi = 0, lvl = null, P = null, cam = 0, mode = "map", coinsRun = 0, checkpoint = null, t = 0, flash = 0, winT = 0;
+const input = { left: false, right: false, jump: false, jumpBuf: 0 };
+
+function startWorld(i) {
+  wi = i; world = WORLDS[i]; lvl = buildLevel(world);
+  P = { x: world.level.start, y: 12 - 1.4, w: .8, h: 1.4, vx: 0, vy: 0, on: false, face: 1, coyote: 0 };
+  checkpoint = { x: P.x, y: P.y }; cam = 0; coinsRun = 0; winT = 0; mode = "play";
+  $("#mapScreen").hidden = true; $("#playScreen").hidden = false;
+  $("#worldName").textContent = `World ${world.month}: ${world.name}`;
+  updateHud(); resize();
+  toast(allDone(world) ? "Gate is open. Run to the flag!" : "Bump the ? blocks from below!");
+  window.scrollTo({ top: 0 });
+}
+function updateHud() {
+  $("#tracker").innerHTML = world.tasks.map((tk, k) => `<span class="${save.done[world.id][k] ? "on" : ""}">${save.done[world.id][k] ? "✓" : k + 1} ${esc(tk.title)}</span>`).join("");
+  $("#coinChip").textContent = `Coins ${coinsRun}`;
+}
+let toastTimer = null;
+function toast(msg) {
+  const el = $("#toast"); el.textContent = msg; el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.hidden = true, 2600);
+}
+
+const SOLID = { "#": 1, "B": 1, "?": 1, "U": 1, "L": 1 };
+function solid(x, y) {
+  if (x < 0 || x >= lvl.W) return true;
+  if (y < 0 || y >= ROWS) return false;
+  return !!SOLID[lvl.g[y][x]];
+}
+
+function step(dt) {
+  t += dt;
+  // player horizontal
+  const dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+  if (dir) P.face = dir;
+  P.vx += (dir * RUN - P.vx) * Math.min(1, dt * (P.on ? 14 : 7));
+  if (input.jumpBuf > 0) input.jumpBuf -= dt;
+  P.coyote = P.on ? .1 : P.coyote - dt;
+  if (input.jumpBuf > 0 && P.coyote > 0) { P.vy = -JUMP; P.coyote = 0; input.jumpBuf = 0; P.on = false; }
+  P.vy += G * dt * (!input.jump && P.vy < 0 ? 2.4 : 1);
+  P.vy = Math.min(P.vy, 24);
+
+  P.x += P.vx * dt;
+  for (let y = Math.floor(P.y); y <= Math.floor(P.y + P.h - .001); y++) {
+    if (P.vx > 0 && solid(Math.floor(P.x + P.w), y)) { P.x = Math.floor(P.x + P.w) - P.w - .001; P.vx = 0; }
+    else if (P.vx < 0 && solid(Math.floor(P.x), y)) { P.x = Math.floor(P.x) + 1.001; P.vx = 0; }
+  }
+  if (P.x < 0) P.x = 0;
+  if (lvl.g[0][lvl.gate] === "L" && P.x + P.w > lvl.gate - .02 && P.x < lvl.gate && !lockedNotice) {
+    lockedNotice = true; toast(`Gate locked: ${save.done[world.id].filter(Boolean).length} / 5 task blocks done`);
+    setTimeout(() => lockedNotice = false, 3000);
+  }
+
+  P.y += P.vy * dt; P.on = false;
+  const x0 = Math.floor(P.x), x1 = Math.floor(P.x + P.w - .001);
+  if (P.vy > 0) {
+    const yb = Math.floor(P.y + P.h);
+    if (solid(x0, yb) || solid(x1, yb)) { P.y = yb - P.h; P.vy = 0; P.on = true; }
+  } else if (P.vy < 0) {
+    const yt = Math.floor(P.y);
+    if (solid(x0, yt) || solid(x1, yt)) {
+      P.y = yt + 1; P.vy = 0;
+      const cx = Math.floor(P.x + P.w / 2);
+      const hit = [cx, x0, x1].find(x => lvl.g[yt] && lvl.g[yt][x] === "?");
+      if (hit !== undefined) openTask(lvl.blocks[hit + "," + yt], hit, yt);
+    }
+  }
+
+  // coins
+  lvl.coins.forEach(c => {
+    if (!c.got && Math.abs(c.x - (P.x + P.w / 2)) < .7 && Math.abs(c.y - (P.y + P.h / 2)) < .9) { c.got = true; coinsRun++; save.coins++; updateHud(); }
+  });
+
+  // enemies
+  lvl.enemies.forEach(e => {
+    if (!e.alive) { e.squash += dt; return; }
+    if (Math.abs(e.x - P.x) > 30) return;
+    e.x += e.vx * dt;
+    const ahead = e.vx > 0 ? Math.floor(e.x + e.w) : Math.floor(e.x);
+    const row = Math.floor(e.y + e.h - .01);
+    if (solid(ahead, row) || !solid(ahead, row + 1)) { e.vx *= -1; e.x += e.vx * dt * 2; }
+    if (flash <= 0 && P.x < e.x + e.w && P.x + P.w > e.x && P.y < e.y + e.h && P.y + P.h > e.y) {
+      if (P.vy > 0 && P.y + P.h - e.y < .55) { e.alive = false; P.vy = -JUMP * .6; coinsRun += 2; save.coins += 2; updateHud(); toast("Phish stomped! +2"); }
+      else respawn("A phishing email got you!");
+    }
+  });
+
+  if (P.y > ROWS + 1) respawn("Oops! Back to your checkpoint.");
+  if (flash > 0) flash -= dt;
+
+  // win
+  if (P.x > lvl.flag - .4 && mode === "play") { mode = "win"; winT = 0; }
+  cam = Math.max(0, Math.min(lvl.W - VIEW_W, P.x + P.w / 2 - VIEW_W * .4));
+}
+let lockedNotice = false;
+
+function respawn(msg) {
+  P.x = checkpoint.x; P.y = checkpoint.y; P.vx = 0; P.vy = 0; flash = 1.4; toast(msg);
+}
+
+/* ================================ DRAW =================================== */
+function draw() {
+  const w = world, sc = cv.width / 800;
+  ctx.setTransform(sc, 0, 0, sc, 0, 0);
+  const sky = ctx.createLinearGradient(0, 0, 0, 448);
+  sky.addColorStop(0, w.sky[0]); sky.addColorStop(1, w.sky[1]);
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, 800, 448);
+  const camPx = cam * T;
+  if (w.night) {
+    ctx.fillStyle = "#FFFFFF";
+    lvl.stars.forEach(s => { const x = s.x * T - camPx * .1; ctx.globalAlpha = .5 + .5 * Math.sin(t * 2 + s.x); ctx.beginPath(); ctx.arc(((x % 800) + 800) % 800, s.y * T, s.r, 0, 7); ctx.fill(); });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#F2F6FF"; ctx.beginPath(); ctx.arc(660, 70, 28, 0, 7); ctx.fill();
+    ctx.fillStyle = w.sky[0]; ctx.beginPath(); ctx.arc(672, 62, 24, 0, 7); ctx.fill();
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    for (let k = 0; k < 5; k++) { const x = ((k * 230 - camPx * .15 + t * 6) % 1150 + 1150) % 1150 - 150; cloud(x, 50 + (k % 3) * 34); }
+  }
+  // far scenery
+  lvl.far.forEach(h => {
+    const x = h.x * T - camPx * .3; if (x > 820 || x + h.w * T < -20) return;
+    ctx.fillStyle = w.hill2;
+    if (w.month === 1) { ctx.beginPath(); ctx.ellipse(x + h.w * T / 2, 384, h.w * T / 2, h.h * T, 0, Math.PI, 0); ctx.fill(); }
+    else { ctx.fillRect(x, 384 - h.h * T * 1.4, h.w * T * .8, h.h * T * 1.4);
+      ctx.fillStyle = w.night ? "rgba(242,180,58,.75)" : "rgba(255,240,200,.45)";
+      for (let yy = 384 - h.h * T * 1.4 + 10; yy < 370; yy += 18) for (let xx = x + 8; xx < x + h.w * T * .8 - 10; xx += 16) if ((xx * 7 + yy) % 5 < 3) ctx.fillRect(xx, yy, 7, 9); }
+  });
+  lvl.near.forEach(h => {
+    const x = h.x * T - camPx * .6; if (x > 820 || x + h.w * T < -20) return;
+    ctx.fillStyle = w.hill; ctx.beginPath(); ctx.ellipse(x + h.w * T / 2, 386, h.w * T / 2, h.h * T, 0, Math.PI, 0); ctx.fill();
+  });
+
+  ctx.save(); ctx.translate(-Math.round(camPx), 0);
+  const c0 = Math.max(0, Math.floor(cam) - 1), c1 = Math.min(lvl.W - 1, Math.ceil(cam + VIEW_W) + 1);
+  for (let y = 0; y < ROWS; y++) for (let x = c0; x <= c1; x++) {
+    const ch = lvl.g[y][x], px = x * T, py = y * T;
+    if (ch === "#") {
+      ctx.fillStyle = w.dirt; ctx.fillRect(px, py, T, T);
+      if (y === 12 || lvl.g[y - 1][x] !== "#") { ctx.fillStyle = w.grass; ctx.fillRect(px, py, T, 9); ctx.fillStyle = "rgba(0,0,0,.12)"; ctx.fillRect(px, py + 9, T, 2); }
+      ctx.fillStyle = "rgba(0,0,0,.15)"; ctx.fillRect(px + 6, py + 16, 4, 4); ctx.fillRect(px + 20, py + 24, 4, 4);
+    } else if (ch === "B") {
+      ctx.fillStyle = w.brick; ctx.fillRect(px, py, T, T);
+      ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fillRect(px, py + 15, T, 2); ctx.fillRect(px + 15, py, 2, 15); ctx.fillRect(px + 7, py + 17, 2, 15); ctx.fillRect(px + 23, py + 17, 2, 15);
+      ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(px, py, T, 2);
+    } else if (ch === "?") {
+      const bob = Math.sin(t * 4 + x) * 1.5;
+      ctx.fillStyle = "#B87A0A"; ctx.fillRect(px, py + bob, T, T);
+      ctx.fillStyle = "#F2B43A"; ctx.fillRect(px + 2, py + 2 + bob, T - 4, T - 4);
+      ctx.fillStyle = "#0A1F44"; ctx.font = "700 22px Fredoka, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("?", px + T / 2, py + T / 2 + 1 + bob);
+      ctx.font = "700 9px Fredoka, sans-serif"; ctx.fillText(lvl.blocks[x + "," + y] + 1, px + 26, py + 7 + bob);
+    } else if (ch === "U") {
+      ctx.fillStyle = "#3E8E2A"; ctx.fillRect(px, py, T, T); ctx.fillStyle = "#6CC24A"; ctx.fillRect(px + 2, py + 2, T - 4, T - 4);
+      ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(px + 8, py + 17); ctx.lineTo(px + 14, py + 23); ctx.lineTo(px + 25, py + 10); ctx.stroke();
+    } else if (ch === "L") {
+      ctx.fillStyle = "rgba(108,194,74,.35)"; ctx.fillRect(px + 4, py, T - 8, T);
+      ctx.fillStyle = "rgba(108,194,74,.9)"; ctx.fillRect(px + 8, py, 3, T); ctx.fillRect(px + 21, py, 3, T);
+    }
+  }
+  // gate sign
+  if (lvl.g[0][lvl.gate] === "L") {
+    const gx = lvl.gate * T + T / 2;
+    ctx.fillStyle = "#0A1F44"; roundRect(gx - 44, 250, 88, 40, 10); ctx.fill();
+    ctx.fillStyle = "#FFFFFF"; ctx.font = "700 14px Fredoka, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(`🔒 ${save.done[world.id].filter(Boolean).length}/5 tasks`, gx, 270);
+  }
+  // flag
+  const fx = lvl.flag * T + T / 2;
+  ctx.fillStyle = "#E8EEF8"; ctx.fillRect(fx - 2, 2 * T, 4, 10 * T);
+  ctx.fillStyle = "#F2B43A"; ctx.beginPath(); ctx.arc(fx, 2 * T, 7, 0, 7); ctx.fill();
+  const fy = mode === "win" ? Math.min(10 * T, 2.4 * T + winT * 260) : 2.4 * T;
+  ctx.fillStyle = "#6CC24A"; ctx.beginPath(); ctx.moveTo(fx + 2, fy); ctx.lineTo(fx + 58, fy + 18 + Math.sin(t * 6) * 2); ctx.lineTo(fx + 2, fy + 36); ctx.fill();
+  ctx.fillStyle = "#0A1F44"; ctx.font = "700 13px Fredoka, sans-serif"; ctx.textAlign = "left"; ctx.fillText("EKA", fx + 8, fy + 19);
+  // coins
+  lvl.coins.forEach(c => {
+    if (c.got) return;
+    const s = Math.abs(Math.cos(t * 3 + c.x));
+    ctx.fillStyle = "#F2B43A"; ctx.beginPath(); ctx.ellipse(c.x * T, c.y * T, 9 * s + 2, 10, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "#FFE7A3"; ctx.beginPath(); ctx.ellipse(c.x * T, c.y * T, (9 * s + 2) * .45, 5, 0, 0, 7); ctx.fill();
+  });
+  // enemies: phishing envelopes
+  lvl.enemies.forEach(e => {
+    if (!e.alive && e.squash > .4) return;
+    const ex = e.x * T, ey = e.y * T, ew = e.w * T, eh = e.h * T;
+    ctx.save();
+    if (!e.alive) { ctx.translate(ex + ew / 2, ey + eh); ctx.scale(1.2, .3); ctx.translate(-(ex + ew / 2), -(ey + eh)); }
+    const legs = Math.sin(t * 14 + e.x) * 3;
+    ctx.fillStyle = "#0A1F44"; ctx.fillRect(ex + 5, ey + eh - 3 + legs * .3, 6, 5); ctx.fillRect(ex + ew - 11, ey + eh - 3 - legs * .3, 6, 5);
+    ctx.fillStyle = "#FFFFFF"; roundRect(ex, ey, ew, eh - 2, 4); ctx.fill();
+    ctx.strokeStyle = "#C8413A"; ctx.lineWidth = 2; roundRect(ex, ey, ew, eh - 2, 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex + 1, ey + 2); ctx.lineTo(ex + ew / 2, ey + eh / 2); ctx.lineTo(ex + ew - 1, ey + 2); ctx.stroke();
+    const look = e.vx < 0 ? -2 : 2;
+    ctx.fillStyle = "#C8413A"; ctx.beginPath(); ctx.arc(ex + ew / 2 - 6 + look, ey + eh / 2 + 3, 3, 0, 7); ctx.arc(ex + ew / 2 + 6 + look, ey + eh / 2 + 3, 3, 0, 7); ctx.fill();
+    ctx.fillStyle = "#C8413A"; ctx.font = "700 10px Fredoka, sans-serif"; ctx.textAlign = "center"; ctx.fillText("!", ex + ew - 5, ey + 9);
+    ctx.restore();
+  });
+  // EKA
+  if (!(flash > 0 && Math.floor(flash * 12) % 2)) {
+    const dh = 1.62 * T, dw = dh * (297 / 520);
+    const cx = (P.x + P.w / 2) * T, by = (P.y + P.h) * T;
+    const sq = P.on ? 1 + Math.sin(t * 18) * (Math.abs(P.vx) > 1 ? .03 : 0) : (P.vy < 0 ? 1.06 : .97);
+    ctx.save(); ctx.translate(cx, by); ctx.scale(P.face * (2 - sq), sq);
+    if (ekaImg.complete && ekaImg.naturalWidth) ctx.drawImage(ekaImg, -dw / 2, -dh, dw, dh);
+    else { ctx.fillStyle = "#2A5BD7"; ctx.fillRect(-dw / 2, -dh, dw, dh); }
+    ctx.restore();
+  }
+  ctx.restore();
+}
+function cloud(x, y) { ctx.beginPath(); ctx.arc(x, y, 18, 0, 7); ctx.arc(x + 22, y - 8, 22, 0, 7); ctx.arc(x + 46, y, 18, 0, 7); ctx.rect(x, y, 46, 18); ctx.fill(); }
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+function resize() {
+  const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.max(400, Math.round(r.width * dpr));
+  if (cv.width !== w) { cv.width = w; cv.height = Math.round(w * 448 / 800); }
+}
+window.addEventListener("resize", () => { if (mode !== "map") resize(); });
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
+  if (world && !$("#playScreen").hidden) {
+    if (mode === "play") { let r = dt; while (r > 0) { const s = Math.min(r, 1 / 120); step(s); r -= s; } }
+    else if (mode === "win") { t += dt; winT += dt; P.vx = 0; if (winT > 1.1 && !$("#overlay")) worldClear(); }
+    else t += dt;
+    draw();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ================================ INPUT ================================== */
+const KEYMAP = { ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "jump", KeyW: "jump", Space: "jump" };
+function press(k, down) {
+  if (k === "jump" && down && !input.jump) input.jumpBuf = .12;
+  input[k] = down;
+}
+window.addEventListener("keydown", e => {
+  if ($("#overlay") || $("#playScreen").hidden) return;
+  const k = KEYMAP[e.code]; if (!k) return;
+  e.preventDefault(); press(k, true);
+});
+window.addEventListener("keyup", e => { const k = KEYMAP[e.code]; if (k) press(k, false); });
+window.addEventListener("blur", clearInput);
+function clearInput() { input.left = input.right = input.jump = false; input.jumpBuf = 0; document.querySelectorAll(".pad .held").forEach(b => b.classList.remove("held")); }
+document.querySelectorAll(".pad [data-key]").forEach(b => {
+  const k = b.dataset.key;
+  b.addEventListener("pointerdown", e => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); b.classList.add("held"); press(k, true); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(ev => b.addEventListener(ev, () => { b.classList.remove("held"); press(k, false); }));
+  b.addEventListener("contextmenu", e => e.preventDefault());
+});
+$("#exitBtn").onclick = () => { mode = "map"; clearInput(); renderMap(); };
+
+/* ================================ MODALS ================================= */
+function openModal(kind, title, body) {
+  closeModal(); clearInput();
+  const ov = document.createElement("div"); ov.className = "overlay"; ov.id = "overlay";
+  ov.innerHTML = `<div class="panel" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="panel-head"><img src="eka.webp" alt=""><div><span class="label">${esc(kind)}</span><h2>${esc(title)}</h2></div></div>
+    <div id="mbody">${body || ""}</div></div>`;
+  document.body.appendChild(ov);
+  return $("#mbody");
+}
+function closeModal() { const o = $("#overlay"); if (o) o.remove(); }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay") && mode !== "win") { closeModal(); if (mode === "task") mode = "play"; } });
+
+function openTask(i, bx, by) {
+  const task = world.tasks[i];
+  mode = "task";
+  const m = openModal(`Task block ${i + 1} of 5 · ${task.type === "mission" ? "Real-world mission" : "Quiz"}`, task.title);
+  const done = () => {
+    save.done[world.id][i] = true; persist();
+    lvl.g[by][bx] = "U";
+    checkpoint = { x: bx - 1, y: by + 4 - 1.4 - .05 };
+    const n = save.done[world.id].filter(Boolean).length;
+    if (n === 5) for (let y = 0; y < 12; y++) lvl.g[y][lvl.gate] = " ";
+    coinsRun += 5; save.coins += 5; persist(); updateHud();
+    m.innerHTML = `<div class="win"><div class="big num">+5 coins</div><p>${n === 5 ? "All 5 task blocks done. <strong>The gate is open!</strong> Run to the flag." : `Task block done. ${5 - n} to go. Checkpoint saved here.`}</p><button class="btn" id="go">Keep running</button></div>`;
+    $("#go").onclick = () => { closeModal(); mode = "play"; toast(n === 5 ? "Gate open! Run to the flag!" : `${n} / 5 task blocks done`); };
+    $("#go").focus();
+  };
+  const later = `<button class="btn ghost" id="later" type="button">Come back later</button>`;
+  const bindLater = () => { const l = $("#later"); if (l) l.onclick = () => { closeModal(); mode = "play"; }; };
+
+  if (task.type === "mission") {
+    const saved = save.notes[world.id + i] || [];
+    m.innerHTML = `<p class="muted" style="margin-bottom:10px">Do these in real life, then tick them off.</p>
+      <div class="checks">${task.items.map(([a, b], k) => `<label class="check" for="${world.id}-m${i}-${k}"><input type="checkbox" id="${world.id}-m${i}-${k}" ${saved[k] ? "checked" : ""}><span><strong>${esc(a)}</strong><small>${esc(b)}</small></span></label>`).join("")}</div>
+      <div class="row between" style="margin-top:12px">${later}<button class="btn" id="ok">Mission complete</button></div>`;
+    const boxes = [...m.querySelectorAll("input")];
+    const upd = () => { save.notes[world.id + i] = boxes.map(b => b.checked); persist(); $("#ok").disabled = !boxes.every(b => b.checked); };
+    boxes.forEach(b => b.onchange = upd); upd();
+    $("#ok").onclick = done; bindLater();
+    return;
+  }
+  let q = 0;
+  const show = () => {
+    const Q = task.qs[q];
+    m.innerHTML = `<p class="muted num" style="margin-bottom:6px">Question ${q + 1} of ${task.qs.length}</p>
+      <p class="q" style="margin-bottom:12px">${esc(Q.q)}</p>
+      <div class="opts">${Q.a.map((a, k) => `<button class="opt" data-k="${k}">${esc(a)}</button>`).join("")}</div>
+      <div id="fb" style="margin-top:12px"></div><div class="row" style="margin-top:12px">${later}</div>`;
+    bindLater();
+    m.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const k = +b.dataset.k;
+      if (k === Q.c) {
+        m.querySelectorAll(".opt").forEach(x => x.disabled = true); b.classList.add("right");
+        $("#fb").innerHTML = `<div class="feedback good"><strong>Correct!</strong> ${esc(Q.why)}</div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" id="nx">${q + 1 < task.qs.length ? "Next question" : "Complete task"}</button></div>`;
+        $("#nx").onclick = () => { q++; q < task.qs.length ? show() : done(); }; $("#nx").focus();
+      } else {
+        b.disabled = true; b.classList.add("wrong");
+        $("#fb").innerHTML = `<div class="feedback bad"><strong>Not quite.</strong> Have another look and try again.</div>`;
+      }
+    });
+    m.querySelector(".opt").focus();
+  };
+  show();
+}
+
+function worldClear() {
+  const first = !save.cleared[world.id];
+  save.cleared[world.id] = true; persist();
+  const next = WORLDS[wi + 1];
+  let nextMsg = "";
+  if (next) {
+    const opens = addDays(save.start, DAYS_PER_WORLD * (wi + 1));
+    nextMsg = save.preview || new Date() >= opens ? `World ${next.month}: ${esc(next.name)} is now open.` : `World ${next.month}: ${esc(next.name)} opens on ${fmt(opens)}.`;
+  }
+  const m = openModal("World clear", `World ${world.month}: ${world.name}`);
+  m.innerHTML = `<div class="win">
+    <span class="label">${first ? "Badge earned" : "Cleared again"}</span>
+    <div class="big">★ ${esc(world.badge)}</div>
+    <p class="num">Coins this run: ${coinsRun}</p>
+    <p>${next ? nextMsg : "You've cleared all 3 worlds. Your certificate is on the world map!"}</p>
+    <button class="btn" id="tomap">Back to the world map</button></div>`;
+  $("#tomap").onclick = () => { closeModal(); mode = "map"; renderMap(); };
+  $("#tomap").focus();
+}
+
+function openSettings() {
+  const m = openModal("Settings", "Your journey");
+  m.innerHTML = `<form class="settings" id="sf">
+    <label for="s-name">Your first name<input class="field" id="s-name" value="${esc(save.name)}" placeholder="e.g. Aina"></label>
+    <label for="s-start">Your start date<input class="field" type="date" id="s-start" value="${esc(save.start)}"></label>
+    <p class="muted">World 2 opens 30 days after your start date and World 3 after 60 days. You also need to clear the world before.</p>
+    <label class="toggle" for="s-prev"><input type="checkbox" id="s-prev" ${save.preview ? "checked" : ""}>Preview mode: skip the calendar wait (for HR and demos)</label>
+    <div class="row between"><button class="btn ghost" type="button" id="s-reset">Reset progress</button><div class="row"><button class="btn ghost" type="button" id="s-cancel">Cancel</button><button class="btn" type="submit">Save</button></div></div>
+    <div id="s-confirm"></div></form>`;
+  $("#s-cancel").onclick = closeModal;
+  $("#sf").onsubmit = e => {
+    e.preventDefault();
+    save.name = $("#s-name").value.trim().slice(0, 40); save.start = $("#s-start").value || todayISO(); save.preview = $("#s-prev").checked;
+    persist(); closeModal(); renderMap();
+  };
+  $("#s-reset").onclick = () => {
+    $("#s-confirm").innerHTML = `<div class="feedback bad row between"><span>Clear all task blocks, badges and coins?</span><button class="btn" type="button" id="s-yes">Yes, reset</button></div>`;
+    $("#s-yes").onclick = () => {
+      save = { name: save.name, start: save.start, preview: save.preview, done: {}, cleared: {}, coins: 0, notes: {} };
+      WORLDS.forEach(w => save.done[w.id] = [false, false, false, false, false]);
+      persist(); closeModal(); renderMap();
+    };
+  };
+}
+
+renderMap();
+</script>

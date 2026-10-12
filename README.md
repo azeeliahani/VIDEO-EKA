@@ -7,6 +7,7 @@
 - A 90-day journey in 3 stages, one per month. Each stage has 5 tasks: quizzes, a memory game, sorting, phishing spotting, a word scramble, sequence puzzles, a branching customer scenario and real-world checklists.
 - The next month's stage unlocks only when all 5 tasks are done and that month has started. Preview mode in Settings skips the date check for demos.
 - XP, a badge per month and a completion certificate. Progress is saved in the browser.
+- **Platformer version:** `onboarding-game/platformer.html` (*EKA Quest Run*). EKA runs and jumps through 3 worlds, one per month. In each world EKA bumps 5 **?** task blocks from below to open that month's tasks. The goal gate opens once all 5 are done, and clearing a world unlocks the next. Phishing-email enemies can be stomped. Use the arrow keys and Space, or the on-screen buttons on phones. Its questions are in the `WORLDS` array at the top of the script.
 - All questions live in the `CONTENT` object at the top of the script. The proposed content and how to customise it are in [onboarding-game/CONTENT_PROPOSAL.md](onboarding-game/CONTENT_PROPOSAL.md).
 
 ---
