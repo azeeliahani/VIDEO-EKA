@@ -1,5 +1,16 @@
 # EKA explainers
 
+## EKA Onboarding Quest (new joiner game)
+
+**Game:** `onboarding-game/index.html`. Open it in a browser; it needs no build step.
+
+- A 90-day journey in 3 stages, one per month. Each stage has 5 tasks: quizzes, a memory game, sorting, phishing spotting, a word scramble, sequence puzzles, a branching customer scenario and real-world checklists.
+- The next month's stage unlocks only when all 5 tasks are done and that month has started. Preview mode in Settings skips the date check for demos.
+- XP, a badge per month and a completion certificate. Progress is saved in the browser.
+- All questions live in the `CONTENT` object at the top of the script. The proposed content and how to customise it are in [onboarding-game/CONTENT_PROPOSAL.md](onboarding-game/CONTENT_PROPOSAL.md).
+
+---
+
 ## v2: Building an Enterprise Knowledge Hub (dark blue, white and green)
 
 **Video:** `output/v2/eka_enterprise_knowledge_hub_60s.mp4` (1920×1080, 30 fps, music and SFX)

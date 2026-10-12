@@ -1,0 +1,827 @@
+<title>EKA Onboarding Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&display=swap">
+<style>
+/* Layout: a three-month trail map. Each month is a "stage" with five task stops; a game panel opens over the map. */
+:root {
+  --bg: #F3F6FB;
+  --surface: #FFFFFF;
+  --surface-2: #E8EEF8;
+  --ink: #0A1F44;
+  --ink-soft: #4A5A78;
+  --line: #CFD9EA;
+  --navy: #0A1F44;
+  --navy-mid: #16336B;
+  --green: #4FA932;
+  --green-strong: #3E8E2A;
+  --green-tint: #E5F4DE;
+  --amber: #C98A0B;
+  --amber-tint: #FBF0D6;
+  --red: #C8413A;
+  --red-tint: #FBE3E1;
+  --on-accent: #FFFFFF;
+  --shadow: 0 10px 30px rgba(10,31,68,.10);
+  --f-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061331; --surface: #0E2350; --surface-2: #16336B; --ink: #F2F6FF; --ink-soft: #A9B9D8;
+    --line: #24427E; --navy: #F2F6FF; --navy-mid: #A9B9D8; --green: #6CC24A; --green-strong: #8AD86A;
+    --green-tint: #1C3F2A; --amber: #F2B43A; --amber-tint: #3B3018; --red: #F07A72; --red-tint: #43222A;
+    --on-accent: #061331; --shadow: 0 10px 30px rgba(0,0,0,.35); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061331; --surface: #0E2350; --surface-2: #16336B; --ink: #F2F6FF; --ink-soft: #A9B9D8;
+  --line: #24427E; --navy: #F2F6FF; --navy-mid: #A9B9D8; --green: #6CC24A; --green-strong: #8AD86A;
+  --green-tint: #1C3F2A; --amber: #F2B43A; --amber-tint: #3B3018; --red: #F07A72; --red-tint: #43222A;
+  --on-accent: #061331; --shadow: 0 10px 30px rgba(0,0,0,.35); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--f-body); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 60px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.label { font: 800 .72rem/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--green-strong); }
+.muted { color: var(--ink-soft); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 1.1rem var(--f-display); }
+.brand-dot { width: 30px; height: 30px; border-radius: 50%; background: var(--green); display: grid; place-items: center; color: var(--on-accent); font-size: .85rem; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-weight: 700; font-size: .9rem; }
+.chip b { font-family: var(--f-display); font-weight: 600; }
+.icon-btn { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: .9rem; }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: end; background: var(--navy-hero, #0A1F44); color: #F2F6FF; border-radius: 28px; padding: 22px 26px 0; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.12) 1.4px, transparent 1.8px); background-size: 26px 26px; pointer-events: none; }
+.hero > * { position: relative; }
+.eka { width: 150px; display: block; transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+.hero-copy { padding-bottom: 22px; display: grid; gap: 10px; min-width: 0; }
+.hero .label { color: #8AD86A; }
+.speech { background: #FFFFFF; color: #0A1F44; border-radius: 18px; padding: 12px 16px; font: 500 1.05rem/1.4 var(--f-display); position: relative; max-width: 60ch; }
+.speech::before { content: ""; position: absolute; left: -10px; bottom: 16px; border: 8px solid transparent; border-right: 12px solid #FFFFFF; border-left: 0; }
+.overall { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bar { flex: 1 1 200px; height: 12px; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: #6CC24A; border-radius: inherit; transition: width .6s ease; }
+.hero .muted { color: #A9B9D8; }
+
+/* Rule strip */
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0 26px; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; gap: 2px; font-size: .92rem; }
+.rule strong { font: 600 1rem var(--f-display); }
+
+/* Stages */
+.stages { display: grid; gap: 22px; }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 16px; }
+.stage.locked { box-shadow: none; background: var(--surface-2); }
+.stage-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.stage-title { display: flex; align-items: center; gap: 14px; }
+.month { width: 54px; height: 54px; border-radius: 16px; background: var(--green-tint); color: var(--green-strong); display: grid; place-items: center; text-align: center; font: 600 .7rem/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; flex: none; }
+.month b { display: block; font: 600 1.5rem/1 var(--f-display); letter-spacing: 0; }
+.stage.locked .month { background: var(--surface); color: var(--ink-soft); }
+.status { font-weight: 800; font-size: .8rem; padding: 5px 11px; border-radius: 999px; letter-spacing: .04em; }
+.status.open { background: var(--green-tint); color: var(--green-strong); }
+.status.done { background: var(--green); color: var(--on-accent); }
+.status.lock { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--line); }
+
+.trail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; position: relative; }
+.stop { text-align: left; background: var(--bg); border: 2px solid var(--line); border-radius: 18px; padding: 12px; display: grid; gap: 6px; align-content: start; min-height: 132px; transition: transform .15s ease, border-color .15s ease; }
+.stop:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--green); }
+.stop:disabled { cursor: not-allowed; opacity: .6; }
+.stop .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 600 .95rem var(--f-display); background: var(--surface); border: 2px solid var(--line); }
+.stop.done { border-color: var(--green); background: var(--green-tint); }
+.stop.done .n { background: var(--green); border-color: var(--green); color: var(--on-accent); }
+.stop .t { font: 600 1rem/1.2 var(--f-display); }
+.stop .k { font-size: .78rem; font-weight: 700; color: var(--ink-soft); }
+.stage-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .9rem; }
+.badge-earned { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--green-strong); }
+
+.cert { background: var(--surface); border: 2px dashed var(--green); border-radius: 24px; padding: 22px; text-align: center; display: grid; gap: 8px; justify-items: center; }
+
+/* Game panel */
+.overlay { position: fixed; inset: 0; background: rgba(6,19,49,.6); display: grid; place-items: start center; overflow-y: auto; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; }
+.panel { width: min(760px, 100%); background: var(--surface); border-radius: 26px; box-shadow: var(--shadow); padding: 22px; display: grid; gap: 16px; animation: pop .25s ease; }
+@keyframes pop { from { transform: translateY(14px) scale(.98); opacity: .4 } }
+.panel-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.close { background: var(--surface-2); border: 0; border-radius: 999px; width: 38px; height: 38px; font-size: 1.2rem; flex: none; }
+.how { background: var(--surface-2); border-radius: 14px; padding: 10px 14px; font-size: .92rem; display: flex; gap: 10px; align-items: center; }
+.how img { width: 34px; flex: none; }
+.btn { background: var(--green); color: var(--on-accent); border: 0; border-radius: 999px; padding: 11px 22px; font: 600 1rem var(--f-display); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row.end { justify-content: flex-end; }
+.progress-dots { display: flex; gap: 6px; }
+.progress-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.progress-dots i.on { background: var(--green); }
+
+.q { font: 600 1.2rem/1.3 var(--f-display); }
+.opts { display: grid; gap: 10px; }
+.opt { text-align: left; background: var(--bg); border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; font-weight: 600; }
+.opt:hover:not(:disabled) { border-color: var(--green); }
+.opt.right { border-color: var(--green); background: var(--green-tint); }
+.opt.wrong { border-color: var(--red); background: var(--red-tint); }
+.opt:disabled { cursor: default; }
+.feedback { border-radius: 14px; padding: 10px 14px; font-size: .95rem; }
+.feedback.good { background: var(--green-tint); color: var(--ink); }
+.feedback.bad { background: var(--red-tint); color: var(--ink); }
+.timer { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.timer > i { display: block; height: 100%; background: var(--amber); width: 100%; }
+
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.card { aspect-ratio: 4 / 3; max-width: 100%; border-radius: 14px; border: 2px solid var(--line); background: var(--navy-mid); color: var(--surface); font: 600 .9rem/1.2 var(--f-display); padding: 8px; display: grid; place-items: center; text-align: center; }
+.card.face { background: var(--bg); color: var(--ink); }
+.card.matched { background: var(--green-tint); color: var(--ink); border-color: var(--green); }
+.card.back::after { content: "EKA"; letter-spacing: .1em; opacity: .5; }
+
+.sort-item { background: var(--bg); border: 2px solid var(--line); border-radius: 14px; padding: 14px; font: 600 1.05rem/1.35 var(--f-display); text-align: center; }
+.bins { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bin { border: 2px solid var(--line); border-radius: 14px; padding: 14px 10px; background: var(--surface-2); font-weight: 800; }
+.bin:hover { border-color: var(--green); }
+
+.email { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; font-size: .95rem; }
+.email > div { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.email > div:last-child { border-bottom: 0; }
+.spot { background: none; border: 0; padding: 1px 3px; border-radius: 6px; text-align: left; border-bottom: 2px dotted var(--line); }
+.spot:hover { background: var(--surface-2); }
+.spot.hit { background: var(--red-tint); border-bottom-color: var(--red); }
+.spot.miss { background: var(--surface-2); text-decoration: line-through; }
+
+.checks { display: grid; gap: 8px; }
+.check { display: flex; gap: 12px; align-items: start; padding: 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg); cursor: pointer; }
+.check input { width: 22px; height: 22px; accent-color: var(--green); flex: none; margin-top: 2px; }
+.check small { display: block; color: var(--ink-soft); }
+
+.order-list { display: grid; gap: 8px; }
+.order-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.slot { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green-tint); font-weight: 700; }
+.slot span { width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: var(--on-accent); display: grid; place-items: center; font: 600 .85rem var(--f-display); flex: none; }
+
+.scramble { font: 600 2rem/1 var(--f-display); letter-spacing: .25em; text-align: center; padding: 14px; background: var(--surface-2); border-radius: 14px; overflow-wrap: anywhere; }
+.field { width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font: 600 1rem var(--f-body); }
+textarea.field { min-height: 90px; resize: vertical; font-weight: 400; }
+
+.win { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 10px 0; }
+.win img { width: 110px; }
+.xp-big { font: 700 2.4rem/1 var(--f-display); color: var(--green-strong); }
+
+.settings { display: grid; gap: 12px; }
+.settings label { display: grid; gap: 6px; font-weight: 700; }
+.toggle { display: flex !important; grid-template-columns: none; align-items: center; gap: 10px; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--green); }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
+
+@media (max-width: 760px) {
+  .trail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trail .stop:last-child { grid-column: 1 / -1; }
+  .rules { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .hero { grid-template-columns: 1fr; padding-top: 18px; }
+  .eka { width: 96px; position: absolute; right: 8px; bottom: 0; opacity: .95; }
+  .hero-copy { padding-right: 90px; }
+  .speech::before { display: none; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bins { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap" id="app"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+/* =========================================================================
+   CONTENT: edit everything in this block to fit your organisation.
+   Each month (stage) has exactly 5 tasks. Task types:
+   quiz | timedQuiz | match | sort | spot | checklist | order | scramble | scenario | reflect
+   ========================================================================= */
+const CONTENT = {
+  programme: "EKA Onboarding Quest",
+  stages: [
+    {
+      id: "m1", month: 1, name: "Settle In", badge: "Explorer",
+      intro: "Find your way around: people, tools, values and staying safe.",
+      tasks: [
+        { id: "m1t1", type: "quiz", title: "Welcome Quiz", kind: "Quiz", xp: 100,
+          how: "Answer 5 questions about your first weeks. Get 4 right to pass.",
+          pass: 4,
+          questions: [
+            { q: "Who is your first go-to person for day-to-day questions in month one?", a: ["Your onboarding buddy", "The CEO's office", "Whoever sits nearest"], c: 0,
+              why: "Your buddy is assigned to help you settle in. Your manager owns your goals and performance." },
+            { q: "Where do you find official, up-to-date HR policies?", a: ["A colleague's old email", "The HR portal / Knowledge Hub", "Last year's printed handbook"], c: 1,
+              why: "Policies change. The HR portal and Knowledge Hub always hold the current version." },
+            { q: "When should you agree your first goals with your manager?", a: ["At the end of probation", "Only if they ask", "In your first two weeks"], c: 2,
+              why: "Early goals give you a clear target for your 30, 60 and 90 day check-ins." },
+            { q: "You can't log in to a system you need. What's the fastest fix?", a: ["Raise an IT Service Desk ticket", "Use a teammate's login", "Wait and hope it works tomorrow"], c: 0,
+              why: "A ticket gets tracked and fixed. Never share logins." },
+            { q: "EKA, our Copilot agent, gives the best answers when…", a: ["You type one word", "You ask a clear question with context", "You ask in capital letters"], c: 1,
+              why: "Say who you are, what you need and why. Context gives better answers." }
+          ] },
+        { id: "m1t2", type: "match", title: "Tool Match", kind: "Memory game", xp: 100,
+          how: "Flip two cards at a time. Match each tool to what you use it for.",
+          pairs: [
+            ["Teams", "Chats & meetings"], ["Outlook", "Email & calendar"], ["SharePoint", "Team documents"],
+            ["HR Portal", "Leave & payslips"], ["IT Service Desk", "Laptop & access help"], ["EKA (Copilot)", "Find answers fast"]
+          ] },
+        { id: "m1t3", type: "sort", title: "Values in Action", kind: "Sorting game", xp: 100,
+          how: "Is each behaviour living our values, or off track? Get 7 of 8 right.",
+          pass: 7, bins: ["Living our values", "Off track"],
+          items: [
+            { t: "Replying to a customer with a clear next step and a date", b: 0 },
+            { t: "Sharing your password with a teammate to save time", b: 1 },
+            { t: "Owning a mistake early and suggesting a fix", b: 0 },
+            { t: "Saying 'not my job' when a customer is stuck", b: 1 },
+            { t: "Inviting a quieter colleague to share their idea", b: 0 },
+            { t: "Saving customer data to a personal USB drive", b: 1 },
+            { t: "Asking 'why?' to understand what the customer really needs", b: 0 },
+            { t: "Forwarding confidential slides to your personal email", b: 1 }
+          ] },
+        { id: "m1t4", type: "spot", title: "Phishing Spotter", kind: "Spot the red flags", xp: 100,
+          how: "This email landed in your inbox. Tap the 4 red flags. Careful: wrong taps cost points.",
+          email: [
+            ["From", [{ t: "IT Support <it-support@company-helpdesk.co>", flag: "The domain isn't ours. Real IT emails come from our company domain." }]],
+            ["Subject", [{ t: "URGENT: Your account will be deleted in 1 hour", flag: "Extreme urgency is a pressure tactic." }]],
+            ["Body", [
+              { t: "Hi new joiner," },
+              { t: "We noticed you started this week, welcome aboard!" },
+              { t: "Please confirm your username and password by replying to this email", flag: "IT will never ask for your password." },
+              { t: "or click here to verify: http://bit.ly/verify-acc0unt", flag: "Shortened link with a misspelt word hides the real destination." },
+              { t: "Thanks, the IT team" }
+            ]]
+          ],
+          tip: "Found something suspicious? Use the 'Report phishing' button in Outlook. Don't click, don't reply." },
+        { id: "m1t5", type: "checklist", title: "First-Week Mission", kind: "Real-world checklist", xp: 150,
+          how: "Do these in real life, then tick them off. Your manager may ask about them at your 30-day check-in.",
+          items: [
+            ["Collect your laptop and access badge", "Bring photo ID to the front desk."],
+            ["Set up multi-factor authentication (MFA)", "Takes 5 minutes with the authenticator app."],
+            ["Have coffee with your onboarding buddy", "Ask them: what do you wish you knew in week one?"],
+            ["Agree your 30-day goals with your manager", "Write down 2 or 3 goals you both agree on."],
+            ["Finish mandatory e-learning", "Code of Conduct, Data Privacy and Information Security."]
+          ] }
+      ]
+    },
+    {
+      id: "m2", month: 2, name: "Connect", badge: "Connector",
+      intro: "Learn who does what, speak the language and work with EKA.",
+      tasks: [
+        { id: "m2t1", type: "timedQuiz", title: "Department Dash", kind: "Timed quiz", xp: 120, seconds: 15,
+          how: "15 seconds per question. Which team should you contact? Get 4 of 5 to pass.",
+          pass: 4,
+          questions: [
+            { q: "Your payslip shows the wrong allowance.", a: ["Payroll (HR)", "Finance procurement", "IT"], c: 0, why: "Payroll sits within HR and fixes salary and allowance issues." },
+            { q: "Your laptop won't connect to the VPN.", a: ["Facilities", "IT Service Desk", "Legal"], c: 1, why: "IT handles connectivity, devices and access." },
+            { q: "A supplier sends a contract for you to sign.", a: ["Sign it if it looks fine", "Corporate Comms", "Legal / Procurement"], c: 2, why: "Contracts must be reviewed before anyone signs." },
+            { q: "You want to post about a team win on the company LinkedIn page.", a: ["Corporate Communications", "Post it yourself", "IT Security"], c: 0, why: "Comms owns official channels and brand tone." },
+            { q: "You think you clicked a phishing link.", a: ["Ignore it", "IT Security, right away", "Tell your buddy next week"], c: 1, why: "Speed matters. Reporting quickly limits the damage." }
+          ] },
+        { id: "m2t2", type: "scramble", title: "Jargon Jumble", kind: "Word scramble", xp: 120,
+          how: "Unscramble the workplace terms. Use the clue. You can skip once.",
+          words: [
+            { w: "STAKEHOLDER", clue: "Someone affected by, or with influence over, your project" },
+            { w: "GOVERNANCE", clue: "The rules and owners that keep information reliable" },
+            { w: "METADATA", clue: "Tags, owners and review dates that describe a document" },
+            { w: "MILESTONE", clue: "A key checkpoint on the way to a goal" },
+            { w: "ESCALATE", clue: "To pass an issue up to someone who can decide" }
+          ] },
+        { id: "m2t3", type: "order", title: "Build the Knowledge Hub", kind: "Sequence puzzle", xp: 120,
+          how: "Put EKA's 8 building blocks of an Enterprise Knowledge Hub in order. Tap them one by one.",
+          steps: ["Understand", "Content", "Metadata", "Format", "Governance", "Automation", "Copilot Agent", "Analytics"],
+          tip: "Trusted content, clear governance and continuous improvement. That's a successful Knowledge Hub!" },
+        { id: "m2t4", type: "quiz", title: "Prompt Like a Pro", kind: "Pick the better prompt", xp: 120,
+          how: "Which prompt will get a better answer from EKA? Get 3 of 4 right.",
+          pass: 3,
+          questions: [
+            { q: "You need the travel claim policy.", a: ["travel", "What's the claim limit for a one-night domestic work trip, and how do I submit it?"], c: 1, why: "Specific questions get specific answers." },
+            { q: "You want a meeting summary.", a: ["Summarise this meeting in 5 bullets: decisions, owners and due dates.", "Summarise."], c: 0, why: "Say the format and what matters to you." },
+            { q: "You're drafting an email to a customer.", a: ["Write an email.", "Draft a friendly, 120-word email to a customer apologising for a 2-day delivery delay, offering a new date."], c: 1, why: "Audience, tone, length and purpose all help." },
+            { q: "You're checking a fact EKA gave you.", a: ["Trust it, EKA is never wrong", "Ask EKA for the source document and open it"], c: 1, why: "Always check the source, especially for policy and numbers." }
+          ] },
+        { id: "m2t5", type: "checklist", title: "Network Builder", kind: "Real-world checklist", xp: 150,
+          how: "Grow your network this month, then tick each one off.",
+          items: [
+            ["Have 3 coffee chats outside your team", "Ask: what does your team do, and how can we help each other?"],
+            ["Join a community or employee group", "Sports club, women's network, tech guild: anything you enjoy."],
+            ["Shadow a colleague for half a day", "Pick a role your work depends on."],
+            ["Attend a town hall or all-hands", "Note one thing leadership is focused on this year."],
+            ["Have your 60-day check-in with your manager", "Review your 30-day goals and set the next ones."]
+          ] }
+      ]
+    },
+    {
+      id: "m3", month: 3, name: "Contribute", badge: "Contributor",
+      intro: "Put it all together: protect data, serve customers and set your goals.",
+      tasks: [
+        { id: "m3t1", type: "timedQuiz", title: "True or False Blitz", kind: "Rapid fire", xp: 150, seconds: 10,
+          how: "10 seconds each. Data privacy and security facts. Get 6 of 8 to pass.",
+          pass: 6,
+          questions: [
+            { q: "It's fine to share customer data with a colleague in another team who 'just needs a look'.", a: ["True", "False"], c: 1, why: "Share only with people who need it for their role." },
+            { q: "Locking your screen when you step away is required, even for a minute.", a: ["True", "False"], c: 0, why: "Win + L (or Ctrl + Cmd + Q on Mac). Every time." },
+            { q: "Confidential files can be stored on personal cloud drives if they're password protected.", a: ["True", "False"], c: 1, why: "Use approved company storage only." },
+            { q: "You should report a lost laptop or phone immediately, even out of hours.", a: ["True", "False"], c: 0, why: "IT can lock or wipe it remotely." },
+            { q: "Pasting confidential data into public AI tools is OK if you delete it afterwards.", a: ["True", "False"], c: 1, why: "Use approved tools like EKA, which keep data inside the company." },
+            { q: "A data breach must be reported even if you're not sure it is one.", a: ["True", "False"], c: 0, why: "Report it and let the security team decide." },
+            { q: "Visitors can borrow your badge if they're with you.", a: ["True", "False"], c: 1, why: "Visitors sign in at reception and get their own pass." },
+            { q: "Clear-desk means no confidential papers left out at the end of the day.", a: ["True", "False"], c: 0, why: "Lock them away or shred them." }
+          ] },
+        { id: "m3t2", type: "scenario", title: "The Upset Customer", kind: "Choose your path", xp: 150,
+          how: "A customer is unhappy. Pick your response at each step. Aim for the best outcome.",
+          steps: [
+            { s: "A customer messages: 'Third time I'm asking! My issue still isn't fixed.' What do you do first?",
+              a: [
+                { t: "Acknowledge their frustration and apologise for the repeat contact", good: true, why: "Empathy first calms the conversation." },
+                { t: "Explain it's not your department", good: false, why: "The customer doesn't care whose job it is. Own the first step." },
+                { t: "Ask them to email instead", good: false, why: "Moving channels feels like being passed around." }
+              ] },
+            { s: "They calm down a little. Next?",
+              a: [
+                { t: "Guess what went wrong and promise it'll be fixed today", good: false, why: "Don't promise what you can't control." },
+                { t: "Check the case history so they don't repeat themselves", good: true, why: "Using what's already recorded shows respect for their time." },
+                { t: "Ask them to explain everything from the start", good: false, why: "Asking for the full story again adds to the frustration." }
+              ] },
+            { s: "The fix needs another team. How do you close the conversation?",
+              a: [
+                { t: "Escalate with full notes, tell them who owns it and when you'll update them", good: true, why: "A clear owner, a date and a follow-up build trust." },
+                { t: "Say 'someone will call you'", good: false, why: "Vague promises lead to a fourth contact." },
+                { t: "Close the case since it's with another team", good: false, why: "The case stays open until the customer's problem is solved." }
+              ] }
+          ] },
+        { id: "m3t3", type: "sort", title: "SMART Goal Sorter", kind: "Sorting game", xp: 150,
+          how: "Is each goal SMART (specific, measurable, achievable, relevant, time-bound) or too vague? Get 5 of 6 right.",
+          pass: 5, bins: ["SMART", "Too vague"],
+          items: [
+            { t: "Cut average ticket response time from 8 to 6 hours by end of Q3", b: 0 },
+            { t: "Be better at customer service", b: 1 },
+            { t: "Complete the Copilot Foundations course by 30 November", b: 0 },
+            { t: "Learn more about the business", b: 1 },
+            { t: "Publish 5 how-to articles to the Knowledge Hub this quarter", b: 0 },
+            { t: "Try to network more", b: 1 }
+          ] },
+        { id: "m3t4", type: "order", title: "Incident Response Run", kind: "Sequence puzzle", xp: 150,
+          how: "You think your account was hacked. Put the response steps in the right order.",
+          steps: ["Stop and don't delete anything", "Disconnect from the network if IT advises", "Report it to the IT Service Desk straight away", "Write down what happened and when", "Follow IT's instructions and reset your password"],
+          tip: "Report fast, keep evidence, and follow IT's lead." },
+        { id: "m3t5", type: "reflect", title: "90-Day Reflection", kind: "Reflect & commit", xp: 200,
+          how: "Write a short reflection to bring to your probation review. At least 20 characters each.",
+          prompts: [
+            "What's one win you're proud of from your first 90 days?",
+            "What's one thing we could improve for the next new joiner?",
+            "What's your main goal for the next 3 months?"
+          ],
+          confirm: "I've booked my end-of-probation review with my manager" }
+      ]
+    }
+  ]
+};
+
+/* ================================ STATE ================================= */
+const KEY = "eka-onboarding-v1";
+const DAYS_PER_STAGE = 30;
+const todayISO = () => new Date().toISOString().slice(0, 10);
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {}
+  return null;
+}
+let state = (window.claude && window.claude.hot && window.claude.hot.data && window.claude.hot.data.state) || load() || {
+  name: "", start: todayISO(), preview: true, done: {}, notes: {}
+};
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+window.claude?.hot?.snapshot?.(() => ({ state }));
+
+const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return d; };
+const fmt = d => d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+const stageDone = st => st.tasks.every(t => state.done[t.id]);
+const totalXP = () => Object.values(state.done).reduce((a, d) => a + d.xp, 0);
+const maxXP = CONTENT.stages.reduce((a, s) => a + s.tasks.reduce((b, t) => b + t.xp, 0), 0);
+const doneCount = () => CONTENT.stages.reduce((a, s) => a + s.tasks.filter(t => state.done[t.id]).length, 0);
+
+// A stage opens when the previous stage is complete AND its month has started (unless preview mode skips the date).
+function stageLock(i) {
+  if (i === 0) return null;
+  const prev = CONTENT.stages[i - 1];
+  if (!stageDone(prev)) return `Finish all 5 Month ${prev.month} tasks to unlock`;
+  const opens = addDays(state.start, DAYS_PER_STAGE * i);
+  if (!state.preview && new Date() < opens) return `Opens ${fmt(opens)}`;
+  return null;
+}
+
+/* ================================ HELPERS =============================== */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const EKA = "eka.webp";
+
+function ekaLine() {
+  const n = doneCount(), total = 15;
+  const who = state.name ? `, ${esc(state.name)}` : "";
+  if (n === 0) return `Hi${who}! I'm EKA. Finish 5 tasks each month to level up. Three months, three stages. Let's go!`;
+  if (n === total) return `You did it${who}! All 15 tasks done. You're officially part of the team!`;
+  const cur = CONTENT.stages.find(s => !stageDone(s));
+  const left = cur.tasks.filter(t => !state.done[t.id]).length;
+  return `Nice work${who}! ${left} task${left > 1 ? "s" : ""} left in Month ${cur.month}: ${cur.name}.`;
+}
+
+/* ================================ MAP =================================== */
+function render() {
+  const pct = Math.round(doneCount() / 15 * 100);
+  const badges = CONTENT.stages.filter(stageDone).length;
+  let html = `
+  <header class="top">
+    <div class="brand"><span class="brand-dot">E</span>${esc(CONTENT.programme)}</div>
+    <div class="stats">
+      <span class="chip num">XP <b>${totalXP()}</b> / ${maxXP}</span>
+      <span class="chip num">Badges <b>${badges}</b> / 3</span>
+      <button class="icon-btn" id="openSettings">Settings</button>
+    </div>
+  </header>
+  <section class="hero">
+    <img class="eka" src="${EKA}" alt="EKA the robot">
+    <div class="hero-copy">
+      <span class="label">New joiner journey · 90 days</span>
+      <div class="speech">${ekaLine()}</div>
+      <div class="overall"><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="num muted">${doneCount()} of 15 tasks · ${pct}%</span></div>
+    </div>
+  </section>
+  <section class="rules">
+    <div class="rule"><strong>5 tasks a month</strong><span class="muted">Games, quizzes and real-world missions.</span></div>
+    <div class="rule"><strong>Finish to unlock</strong><span class="muted">Complete all 5 to open next month's stage.</span></div>
+    <div class="rule"><strong>Earn 3 badges</strong><span class="muted">Explorer, Connector, Contributor.</span></div>
+  </section>
+  <div class="stages">`;
+  CONTENT.stages.forEach((st, i) => {
+    const lock = stageLock(i), done = stageDone(st);
+    const n = st.tasks.filter(t => state.done[t.id]).length;
+    const opens = fmt(addDays(state.start, DAYS_PER_STAGE * i));
+    html += `
+    <section class="stage ${lock ? "locked" : ""}" aria-label="Month ${st.month}">
+      <div class="stage-head">
+        <div class="stage-title">
+          <div class="month">Month<b>${st.month}</b></div>
+          <div><h2>${esc(st.name)}</h2><p class="muted">${esc(st.intro)}</p></div>
+        </div>
+        ${done ? `<span class="status done">${esc(st.badge)} badge earned</span>` : lock ? `<span class="status lock">Locked</span>` : `<span class="status open num">${n} / 5 done</span>`}
+      </div>
+      <div class="trail">
+        ${st.tasks.map((t, j) => {
+          const d = state.done[t.id];
+          return `<button class="stop ${d ? "done" : ""}" data-task="${t.id}" ${lock ? "disabled" : ""}>
+            <span class="n">${d ? "✓" : j + 1}</span>
+            <span class="t">${esc(t.title)}</span>
+            <span class="k">${esc(t.kind)} · ${d ? d.xp + " XP earned" : t.xp + " XP"}</span>
+          </button>`;
+        }).join("")}
+      </div>
+      <div class="stage-foot muted">
+        <span>${lock ? esc(lock) : done ? `<span class="badge-earned">★ ${esc(st.badge)}</span>` : "Complete all 5 tasks to earn the " + esc(st.badge) + " badge"}</span>
+        <span class="num">Month starts ${opens}</span>
+      </div>
+    </section>`;
+  });
+  html += `</div>`;
+  if (doneCount() === 15) {
+    html += `<section class="cert" style="margin-top:22px">
+      <img src="${EKA}" alt="" style="width:80px">
+      <span class="label">Certificate of completion</span>
+      <h2>${esc(state.name || "New joiner")} completed the ${esc(CONTENT.programme)}</h2>
+      <p class="muted num">${totalXP()} XP · Explorer · Connector · Contributor</p>
+      <p class="muted">Show this to your manager at your probation review.</p>
+    </section>`;
+  }
+  $("#app").innerHTML = html;
+  $("#openSettings").onclick = openSettings;
+  document.querySelectorAll("[data-task]").forEach(b => b.onclick = () => openTask(b.dataset.task));
+}
+
+/* ================================ PANEL ================================= */
+let panelCleanup = null;
+function openPanel(title, kind, how) {
+  closePanel();
+  const ov = document.createElement("div");
+  ov.className = "overlay"; ov.id = "overlay";
+  ov.innerHTML = `<div class="panel" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="panel-head"><div><span class="label">${esc(kind)}</span><h2>${esc(title)}</h2></div>
+    <button class="close" aria-label="Close">×</button></div>
+    ${how ? `<div class="how"><img src="${EKA}" alt="">${esc(how)}</div>` : ""}
+    <div id="game"></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector(".close").onclick = closePanel;
+  ov.addEventListener("click", e => { if (e.target === ov) closePanel(); });
+  ov.querySelector(".close").focus();
+  return $("#game");
+}
+function closePanel() {
+  if (panelCleanup) { panelCleanup(); panelCleanup = null; }
+  const ov = $("#overlay"); if (ov) ov.remove();
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closePanel(); });
+
+function finish(task, ratio) {
+  const xp = Math.max(Math.round(task.xp * ratio), Math.round(task.xp * .5));
+  const prev = state.done[task.id];
+  if (!prev || prev.xp < xp) state.done[task.id] = { xp, at: todayISO() };
+  save();
+  const st = CONTENT.stages.find(s => s.tasks.includes(task));
+  const stageNow = stageDone(st) && !prev;
+  const g = $("#game");
+  const idx = CONTENT.stages.indexOf(st);
+  const next = CONTENT.stages[idx + 1];
+  let nextMsg = "";
+  if (stageNow && next) {
+    const opens = addDays(state.start, DAYS_PER_STAGE * (idx + 1));
+    nextMsg = state.preview || new Date() >= opens
+      ? `Month ${next.month}: ${esc(next.name)} is now open.`
+      : `Month ${next.month}: ${esc(next.name)} opens on ${fmt(opens)}.`;
+  }
+  g.innerHTML = `<div class="win">
+    <img src="${EKA}" alt="">
+    <span class="label">${stageNow ? "Stage complete" : "Task complete"}</span>
+    <div class="xp-big num">+${xp} XP</div>
+    <p>${stageNow ? `You earned the <strong>${esc(st.badge)}</strong> badge! ${nextMsg}` : "Great job. Head back to the map for your next task."}</p>
+    <button class="btn" id="back">Back to the map</button></div>`;
+  $("#back").onclick = closePanel;
+  $("#back").focus();
+  confetti(stageNow ? 220 : 90);
+  render();
+}
+
+function retry(task, msg) {
+  const g = $("#game");
+  g.innerHTML = `<div class="win"><span class="label">Almost there</span><p>${msg}</p>
+    <div class="row"><button class="btn" id="again">Try again</button><button class="btn ghost" id="back">Back to the map</button></div></div>`;
+  $("#again").onclick = () => openTask(task.id);
+  $("#back").onclick = closePanel;
+}
+
+function openTask(id) {
+  const task = CONTENT.stages.flatMap(s => s.tasks).find(t => t.id === id);
+  const g = openPanel(task.title, task.kind, task.how);
+  ({ quiz: playQuiz, timedQuiz: playQuiz, match: playMatch, sort: playSort, spot: playSpot,
+     checklist: playChecklist, order: playOrder, scramble: playScramble, scenario: playScenario, reflect: playReflect }[task.type])(task, g);
+}
+
+/* ================================ GAMES ================================= */
+function dots(n, i) { return `<div class="progress-dots" aria-label="Question ${i + 1} of ${n}">${Array.from({ length: n }, (_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>`; }
+
+function playQuiz(task, g) {
+  const qs = task.type === "timedQuiz" ? shuffle(task.questions) : task.questions;
+  let i = 0, score = 0, timer = null;
+  panelCleanup = () => clearInterval(timer);
+  const show = () => {
+    const q = qs[i];
+    g.innerHTML = `<div class="row" style="justify-content:space-between">${dots(qs.length, i)}<span class="muted num">Score ${score}</span></div>
+      ${task.seconds ? `<div class="timer"><i id="tbar"></i></div>` : ""}
+      <p class="q">${esc(q.q)}</p>
+      <div class="opts">${q.a.map((a, k) => `<button class="opt" data-k="${k}">${esc(a)}</button>`).join("")}</div>
+      <div id="fb"></div>`;
+    const answer = k => {
+      clearInterval(timer);
+      const ok = k === q.c; if (ok) score++;
+      g.querySelectorAll(".opt").forEach((b, n) => { b.disabled = true; if (n === q.c) b.classList.add("right"); else if (n === k) b.classList.add("wrong"); });
+      $("#fb").innerHTML = `<div class="feedback ${ok ? "good" : "bad"}"><strong>${k === -1 ? "Time's up." : ok ? "Correct!" : "Not quite."}</strong> ${esc(q.why)}</div>
+        <div class="row end" style="margin-top:12px"><button class="btn" id="nx">${i + 1 < qs.length ? "Next" : "See result"}</button></div>`;
+      $("#nx").onclick = () => { i++; i < qs.length ? show() : end(); };
+      $("#nx").focus();
+    };
+    g.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.k));
+    if (task.seconds) {
+      const t0 = Date.now(), dur = task.seconds * 1000;
+      timer = setInterval(() => {
+        const left = Math.max(0, 1 - (Date.now() - t0) / dur);
+        const bar = $("#tbar"); if (bar) bar.style.width = left * 100 + "%";
+        if (left <= 0) answer(-1);
+      }, 100);
+    }
+  };
+  const end = () => score >= task.pass ? finish(task, score / qs.length)
+    : retry(task, `You scored ${score} of ${qs.length}. You need ${task.pass} to pass. Read EKA's tips and have another go.`);
+  show();
+}
+
+function playMatch(task, g) {
+  const cards = shuffle(task.pairs.flatMap((p, k) => [{ k, t: p[0] }, { k, t: p[1] }]));
+  let open = [], matched = 0, moves = 0, busy = false;
+  g.innerHTML = `<div class="row" style="justify-content:space-between"><span class="muted num" id="mv">Moves: 0</span><span class="muted num" id="mt">Pairs: 0 / ${task.pairs.length}</span></div>
+    <div class="cards">${cards.map((c, n) => `<button class="card back" data-n="${n}" aria-label="Hidden card"></button>`).join("")}</div>`;
+  g.querySelectorAll(".card").forEach(b => b.onclick = () => {
+    const n = +b.dataset.n;
+    if (busy || open.includes(n) || b.classList.contains("matched")) return;
+    b.classList.remove("back"); b.classList.add("face"); b.textContent = cards[n].t; b.setAttribute("aria-label", cards[n].t);
+    open.push(n);
+    if (open.length === 2) {
+      moves++; $("#mv").textContent = `Moves: ${moves}`;
+      const [a, c] = open, ea = g.querySelector(`[data-n="${a}"]`), ec = g.querySelector(`[data-n="${c}"]`);
+      if (cards[a].k === cards[c].k) {
+        ea.classList.add("matched"); ec.classList.add("matched"); open = []; matched++;
+        $("#mt").textContent = `Pairs: ${matched} / ${task.pairs.length}`;
+        if (matched === task.pairs.length) setTimeout(() => finish(task, Math.min(1, (task.pairs.length + 4) / moves)), 500);
+      } else {
+        busy = true;
+        setTimeout(() => { [ea, ec].forEach(e => { e.classList.remove("face"); e.classList.add("back"); e.textContent = ""; e.setAttribute("aria-label", "Hidden card"); }); open = []; busy = false; }, 900);
+      }
+    }
+  });
+}
+
+function playSort(task, g) {
+  const items = shuffle(task.items);
+  let i = 0, score = 0;
+  const show = () => {
+    const it = items[i];
+    g.innerHTML = `<div class="row" style="justify-content:space-between">${dots(items.length, i)}<span class="muted num">Score ${score}</span></div>
+      <div class="sort-item">${esc(it.t)}</div>
+      <div class="bins">${task.bins.map((b, k) => `<button class="bin" data-k="${k}">${esc(b)}</button>`).join("")}</div><div id="fb"></div>`;
+    g.querySelectorAll(".bin").forEach(b => b.onclick = () => {
+      const ok = +b.dataset.k === it.b; if (ok) score++;
+      g.querySelectorAll(".bin").forEach(x => x.disabled = true);
+      $("#fb").innerHTML = `<div class="feedback ${ok ? "good" : "bad"}"><strong>${ok ? "Correct!" : "Not quite."}</strong> This one is <em>${esc(task.bins[it.b])}</em>.</div>`;
+      setTimeout(() => { i++; i < items.length ? show() : end(); }, ok ? 700 : 1500);
+    });
+  };
+  const end = () => score >= task.pass ? finish(task, score / items.length)
+    : retry(task, `You sorted ${score} of ${items.length} correctly. You need ${task.pass}.`);
+  show();
+}
+
+function playSpot(task, g) {
+  const flags = task.email.flatMap(r => r[1]).filter(p => p.flag).length;
+  let found = 0, wrong = 0;
+  g.innerHTML = `<div class="row" style="justify-content:space-between"><span class="muted num" id="sf">Red flags found: 0 / ${flags}</span><span class="muted num" id="sw">Wrong taps: 0</span></div>
+    <div class="email">${task.email.map(([lab, parts]) => `<div><span class="label" style="color:var(--ink-soft)">${esc(lab)}</span><br>${parts.map(p => `<button class="spot" data-f="${p.flag ? esc(p.flag) : ""}">${esc(p.t)}</button>`).join(" ")}</div>`).join("")}</div>
+    <div id="fb"></div>`;
+  g.querySelectorAll(".spot").forEach(b => b.onclick = () => {
+    if (b.classList.contains("hit") || b.classList.contains("miss")) return;
+    if (b.dataset.f) {
+      b.classList.add("hit"); found++;
+      $("#fb").innerHTML = `<div class="feedback good"><strong>Red flag!</strong> ${esc(b.dataset.f)}</div>`;
+      $("#sf").textContent = `Red flags found: ${found} / ${flags}`;
+      if (found === flags) setTimeout(() => {
+        $("#fb").innerHTML = `<div class="feedback good"><strong>All red flags found.</strong> ${esc(task.tip)}</div><div class="row end" style="margin-top:12px"><button class="btn" id="dn">Finish</button></div>`;
+        $("#dn").onclick = () => finish(task, Math.max(0.5, 1 - wrong * 0.15));
+      }, 900);
+    } else {
+      b.classList.add("miss"); wrong++;
+      $("#sw").textContent = `Wrong taps: ${wrong}`;
+      $("#fb").innerHTML = `<div class="feedback bad"><strong>That part looks normal.</strong> Look at who sent it, the tone, what it asks for and the link.</div>`;
+    }
+  });
+}
+
+function playChecklist(task, g) {
+  const saved = state.notes[task.id] || [];
+  g.innerHTML = `<div class="checks">${task.items.map(([t, s], k) => `<label class="check" for="${task.id}-c${k}"><input type="checkbox" id="${task.id}-c${k}" ${saved[k] ? "checked" : ""}><span><strong>${esc(t)}</strong><small>${esc(s)}</small></span></label>`).join("")}</div>
+    <div class="row end"><span class="muted num" id="cc"></span><button class="btn" id="dn">Mission complete</button></div>`;
+  const boxes = [...g.querySelectorAll("input")];
+  const upd = () => {
+    const n = boxes.filter(b => b.checked).length;
+    $("#cc").textContent = `${n} / ${boxes.length} done`;
+    $("#dn").disabled = n < boxes.length;
+    state.notes[task.id] = boxes.map(b => b.checked); save();
+  };
+  boxes.forEach(b => b.onchange = upd); upd();
+  $("#dn").onclick = () => finish(task, 1);
+}
+
+function playOrder(task, g) {
+  let pool = shuffle(task.steps), picked = [], mistakes = 0;
+  const draw = (msg) => {
+    g.innerHTML = `<div class="order-list">${picked.map((s, k) => `<div class="slot"><span>${k + 1}</span>${esc(s)}</div>`).join("") || `<p class="muted">Tap the first step below.</p>`}</div>
+      <div class="order-pick">${pool.map(s => `<button class="opt" data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+      <div id="fb">${msg || ""}</div>`;
+    g.querySelectorAll("[data-s]").forEach(b => b.onclick = () => {
+      const s = b.dataset.s;
+      if (s === task.steps[picked.length]) {
+        picked.push(s); pool = pool.filter(x => x !== s);
+        if (!pool.length) {
+          draw(`<div class="feedback good"><strong>Perfect order!</strong> ${esc(task.tip)}</div><div class="row end" style="margin-top:12px"><button class="btn" id="dn">Finish</button></div>`);
+          $("#dn").onclick = () => finish(task, Math.max(0.5, 1 - mistakes * 0.1));
+        } else draw();
+      } else {
+        mistakes++;
+        draw(`<div class="feedback bad"><strong>Not yet.</strong> "${esc(s)}" comes later. Step ${picked.length + 1} is something else. Mistakes: ${mistakes}</div>`);
+      }
+    });
+  };
+  draw();
+}
+
+function playScramble(task, g) {
+  const ws = task.words; let i = 0, score = 0, skips = 1;
+  const mix = w => { let m; do { m = shuffle(w.split("")).join(""); } while (m === w && w.length > 1); return m; };
+  const show = () => {
+    const w = ws[i];
+    g.innerHTML = `<div class="row" style="justify-content:space-between">${dots(ws.length, i)}<span class="muted num">Solved ${score}</span></div>
+      <div class="scramble" aria-label="Scrambled letters">${mix(w.w)}</div>
+      <p><strong>Clue:</strong> ${esc(w.clue)}</p>
+      <form id="sf" class="row"><input class="field" id="sg" autocomplete="off" placeholder="Type your answer" style="flex:1 1 200px" aria-label="Your answer">
+      <button class="btn" type="submit">Check</button>${skips ? `<button class="btn ghost" type="button" id="sk">Skip (${skips} left)</button>` : ""}</form><div id="fb"></div>`;
+    $("#sg").focus();
+    $("#sf").onsubmit = e => {
+      e.preventDefault();
+      const v = $("#sg").value.trim().toUpperCase().replace(/\s+/g, "");
+      if (v === w.w) { score++; $("#fb").innerHTML = `<div class="feedback good"><strong>${w.w}</strong>. Correct!</div>`; setTimeout(next, 800); }
+      else $("#fb").innerHTML = `<div class="feedback bad">Not quite. It has ${w.w.length} letters and starts with <strong>${w.w[0]}</strong>.</div>`;
+    };
+    const sk = $("#sk"); if (sk) sk.onclick = () => { skips--; $("#fb").innerHTML = `<div class="feedback bad">The answer was <strong>${w.w}</strong>.</div>`; setTimeout(next, 1200); };
+  };
+  const next = () => { i++; i < ws.length ? show() : finish(task, score / ws.length); };
+  show();
+}
+
+function playScenario(task, g) {
+  let i = 0, good = 0;
+  const show = () => {
+    const st = task.steps[i];
+    g.innerHTML = `${dots(task.steps.length, i)}<p class="q">${esc(st.s)}</p>
+      <div class="opts">${shuffle(st.a.map((a, k) => ({ ...a, k }))).map(a => `<button class="opt" data-k="${a.k}">${esc(a.t)}</button>`).join("")}</div><div id="fb"></div>`;
+    g.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const a = st.a[+b.dataset.k];
+      if (a.good) {
+        good++;
+        g.querySelectorAll(".opt").forEach(x => x.disabled = true); b.classList.add("right");
+        $("#fb").innerHTML = `<div class="feedback good"><strong>Good call.</strong> ${esc(a.why)}</div><div class="row end" style="margin-top:12px"><button class="btn" id="nx">${i + 1 < task.steps.length ? "Continue" : "See outcome"}</button></div>`;
+        $("#nx").onclick = () => { i++; i < task.steps.length ? show() : finish(task, 1); };
+      } else {
+        b.disabled = true; b.classList.add("wrong");
+        $("#fb").innerHTML = `<div class="feedback bad"><strong>The customer gets more upset.</strong> ${esc(a.why)} Try another response.</div>`;
+      }
+    });
+  };
+  show();
+}
+
+function playReflect(task, g) {
+  const saved = state.notes[task.id] || {};
+  g.innerHTML = `<form id="rf" class="settings">
+    ${task.prompts.map((p, k) => `<label for="${task.id}-r${k}">${esc(p)}<textarea class="field" id="${task.id}-r${k}">${esc((saved.a || [])[k] || "")}</textarea></label>`).join("")}
+    <label class="toggle" for="${task.id}-ok"><input type="checkbox" id="${task.id}-ok" ${saved.ok ? "checked" : ""}>${esc(task.confirm)}</label>
+    <div class="row end"><button class="btn" id="dn" type="submit">Submit reflection</button></div></form>`;
+  const tas = [...g.querySelectorAll("textarea")], ok = $(`#${task.id}-ok`);
+  const upd = () => {
+    state.notes[task.id] = { a: tas.map(t => t.value), ok: ok.checked }; save();
+    $("#dn").disabled = !(ok.checked && tas.every(t => t.value.trim().length >= 20));
+  };
+  tas.forEach(t => t.oninput = upd); ok.onchange = upd; upd();
+  $("#rf").onsubmit = e => { e.preventDefault(); finish(task, 1); };
+}
+
+/* ================================ SETTINGS ============================== */
+function openSettings() {
+  const g = openPanel("Your journey", "Settings", "");
+  g.innerHTML = `<form class="settings" id="sf">
+    <label for="s-name">Your first name<input class="field" id="s-name" value="${esc(state.name)}" placeholder="e.g. Aina"></label>
+    <label for="s-start">Your start date<input class="field" type="date" id="s-start" value="${esc(state.start)}"></label>
+    <p class="muted">Month 2 opens 30 days after your start date and Month 3 after 60 days. You also need to finish all 5 tasks in the month before.</p>
+    <label class="toggle" for="s-prev"><input type="checkbox" id="s-prev" ${state.preview ? "checked" : ""}>Preview mode: skip the calendar wait (for HR and demos)</label>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" type="button" id="s-reset">Reset progress</button>
+      <button class="btn" type="submit">Save</button></div>
+    <div id="s-confirm"></div></form>`;
+  $("#sf").onsubmit = e => {
+    e.preventDefault();
+    state.name = $("#s-name").value.trim().slice(0, 40);
+    state.start = $("#s-start").value || todayISO();
+    state.preview = $("#s-prev").checked;
+    save(); closePanel(); render();
+  };
+  $("#s-reset").onclick = () => {
+    $("#s-confirm").innerHTML = `<div class="feedback bad row" style="justify-content:space-between"><span>Clear all XP, badges and notes?</span><button class="btn" type="button" id="s-yes">Yes, reset</button></div>`;
+    $("#s-yes").onclick = () => { state = { name: state.name, start: state.start, preview: state.preview, done: {}, notes: {} }; save(); closePanel(); render(); };
+  };
+}
+
+/* ================================ CONFETTI ============================== */
+function confetti(n) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("#confetti"), x = c.getContext("2d");
+  c.width = innerWidth; c.height = innerHeight;
+  const cols = ["#6CC24A", "#2A5BD7", "#F2B43A", "#FFFFFF", "#0A1F44"];
+  const ps = Array.from({ length: n }, () => ({ x: c.width / 2, y: c.height / 3, vx: (Math.random() - .5) * 14, vy: Math.random() * -12 - 3, r: Math.random() * 6 + 4, c: cols[Math.random() * cols.length | 0], a: Math.random() * 6 }));
+  let f = 0;
+  (function tick() {
+    x.clearRect(0, 0, c.width, c.height);
+    ps.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; p.a += .2; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; x.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); x.restore(); });
+    if (++f < 140) requestAnimationFrame(tick); else x.clearRect(0, 0, c.width, c.height);
+  })();
+}
+
+render();
+</script>
