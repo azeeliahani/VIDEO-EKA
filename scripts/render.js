@@ -9,12 +9,18 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 // VIDEO=v2 renders the Enterprise Knowledge Hub version (src/hub_v2.html -> output/v2/).
-const V2 = process.env.VIDEO === "v2";
-const URL = "file://" + path.join(ROOT, V2 ? "src/hub_v2.html" : "src/video.html");
-const NAME = V2 ? "eka_enterprise_knowledge_hub_60s" : "eka_knowledge_hub_60s";
+// VIDEO=v3 renders the Account focus areas explainer (src/account_v3.html -> output/v3/), which has no audio.
+const VIDEOS = {
+  v1: { src: "src/video.html", name: "eka_knowledge_hub_60s", out: "" },
+  v2: { src: "src/hub_v2.html", name: "eka_enterprise_knowledge_hub_60s", out: "v2" },
+  v3: { src: "src/account_v3.html", name: "account_focus_areas_44s", out: "v3", silent: true },
+};
+const CFG = VIDEOS[process.env.VIDEO || "v1"];
+const URL = "file://" + path.join(ROOT, CFG.src);
+const NAME = CFG.name;
 const FPS = 30;
 const WORKERS = Number(process.env.WORKERS || 4);
-const OUT = path.join(ROOT, "output", V2 ? "v2" : "");
+const OUT = path.join(ROOT, "output", CFG.out);
 
 async function openPage(browser) {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
@@ -73,10 +79,10 @@ async function full() {
 
   const list = path.join(segDir, "list.txt");
   fs.writeFileSync(list, segs.map(s => `file '${s}'`).join("\n"));
-  const silent = path.join(OUT, `${NAME}_noaudio.mp4`);
+  const silent = path.join(OUT, CFG.silent ? `${NAME}.mp4` : `${NAME}_noaudio.mp4`);
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", list, "-c", "copy", silent], { stdio: "inherit" });
   const mix = path.join(OUT, process.env.MIX || "mix.wav");
-  if (fs.existsSync(mix)) {
+  if (!CFG.silent && fs.existsSync(mix)) {
     const final = path.join(OUT, `${NAME}.mp4`);
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", silent, "-i", mix, "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", final], { stdio: "inherit" });
     console.log("wrote", final);

@@ -1,0 +1,442 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Account Focus Areas v3</title>
+<style>
+  @font-face { font-family: "Montserrat"; font-weight: 600; src: url("../node_modules/@fontsource/montserrat/files/montserrat-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Montserrat"; font-weight: 700; src: url("../node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Montserrat"; font-weight: 800; src: url("../node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2") format("woff2"); }
+
+  :root {
+    --bg: #1B3A4B;        /* slide background */
+    --bg-deep: #132C3A;
+    --green: #5CD614;     /* slide box border */
+    --green-dark: #3F9E0A;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: "Montserrat", sans-serif; color: var(--white); }
+  .layer { position: absolute; inset: 0; }
+  .abs { position: absolute; }
+
+  /* The left half stays plain background: it is reserved for the presenter avatar added in editing.
+     Every decoration below is masked to, or placed in, the right half (x >= 960). */
+  #bg { background: radial-gradient(1200px 1000px at 78% 45%, #224A5E 0%, var(--bg) 55%, var(--bg-deep) 100%); }
+  #grid { background-image: radial-gradient(rgba(255,255,255,.10) 1.6px, transparent 2px); background-size: 44px 44px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 52%, #000 75%); }
+  .glow { position: absolute; border-radius: 50%; filter: blur(90px); }
+  .deco { position: absolute; }
+
+  .pillWrap { position: absolute; width: 900px; text-align: center; }
+  .pill { display: inline-block; padding: 12px 28px; border-radius: 40px; border: 2px solid rgba(92,214,20,.65); background: rgba(92,214,20,.12);
+    font: 700 26px "Montserrat"; letter-spacing: .16em; color: var(--green); white-space: nowrap; }
+
+  /* boxes styled like the source slide: green outline, background fill, bold white text */
+  .box { position: absolute; background: var(--bg); box-shadow: 0 18px 40px rgba(0,0,0,.28); }
+  .box svg.border { position: absolute; left: 0; top: 0; overflow: visible; }
+  .box .flash { position: absolute; inset: 0; background: var(--green); opacity: 0; }
+  .box .txt { position: absolute; left: 0; top: 0; height: 100%; display: flex; align-items: center; font-weight: 700; white-space: nowrap; }
+  .badge { position: absolute; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,.35), 0 0 0 5px var(--bg); }
+
+  .iconStage { position: absolute; width: 400px; height: 400px; }
+  .iconStage .disc { position: absolute; left: 30px; top: 30px; width: 340px; height: 340px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(92,214,20,.20), rgba(255,255,255,.05) 70%, rgba(255,255,255,.03)); }
+  .iconStage .dash { position: absolute; left: 0; top: 0; width: 400px; height: 400px; border-radius: 50%; border: 3px dashed rgba(255,255,255,.22); }
+  .iconStage svg.ring { position: absolute; left: 0; top: 0; overflow: visible; }
+  .iconStage .ico { position: absolute; left: 80px; top: 80px; width: 240px; height: 240px; overflow: visible; }
+  .bigNum { position: absolute; font: 800 30px "Montserrat"; color: var(--green); letter-spacing: .1em; }
+
+  .mini { position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); border: 4px solid var(--green); }
+  .mini svg { position: absolute; overflow: visible; }
+
+  .seg { position: absolute; height: 12px; border-radius: 6px; background: rgba(255,255,255,.15); overflow: hidden; }
+  .seg i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--green); transform-origin: 0 50%; }
+  .segN { position: absolute; width: 40px; text-align: center; font: 700 20px "Montserrat"; color: rgba(255,255,255,.5); }
+
+  .ripple { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 5px solid var(--green); }
+  #cursor { position: absolute; left: 0; top: 0; width: 60px; height: 60px; transform-origin: 6px 4px; filter: drop-shadow(0 8px 10px rgba(0,0,0,.4)); }
+  .conf { position: absolute; width: 14px; height: 22px; border-radius: 3px; }
+  #fade { background: var(--bg); opacity: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="glows" class="layer"></div>
+  <div id="grid" class="layer"></div>
+  <div id="decos" class="layer"></div>
+  <div id="sIntro" class="layer"></div>
+  <div id="sSpots" class="layer"></div>
+  <div id="sRecap" class="layer"></div>
+  <div id="tracker" class="layer"></div>
+  <div id="fx" class="layer"></div>
+  <svg id="cursor" viewBox="0 0 30 30"><path d="M3 2 L3 24 L9 18.5 L13 27 L17 25.2 L13 16.8 L21 16.8 Z" fill="#fff" stroke="#132C3A" stroke-width="1.8" stroke-linejoin="round"/></svg>
+  <div id="fade" class="layer"></div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  outCubic: p => 1 - Math.pow(1 - p, 3),
+  inCubic: p => p * p * p,
+  inOutCubic: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+  outBack: p => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+};
+const tw = (t, a, b, from, to, ease = E.outCubic) => lerp(from, to, ease(prog(t, a, b)));
+function rng(seed) { seed = (seed * 2654435761) % 2147483647 || 1; return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+function el(tag, cls, parent, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; }
+function put(e, { x = 0, y = 0, s = 1, sx, sy, r = 0, o = 1 }) {
+  e.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${(sx ?? s).toFixed(4)}, ${(sy ?? s).toFixed(4)})`;
+  e.style.opacity = clamp(o).toFixed(3);
+  e.style.visibility = o <= 0.001 ? "hidden" : "visible";
+}
+const vis = (e, on) => { e.style.display = on ? "" : "none"; };
+const swing = (u, amp, freq = 2.2, damp = 3) => u < 0 ? 0 : amp * Math.exp(-damp * u) * Math.sin(2 * Math.PI * freq * u);
+const $ = id => document.getElementById(id);
+// Parses one SVG snippet and appends its root element to parent.
+function svgIn(parent, html) { const w = document.createElement("div"); w.innerHTML = html; const e = w.firstElementChild; parent.appendChild(e); return e; }
+const setT = (e, s) => e.setAttribute("transform", s);
+const about = (cx, cy, s, sy = s) => `translate(${cx} ${cy}) scale(${s.toFixed(4)} ${sy.toFixed(4)}) translate(${-cx} ${-cy})`;
+const draw = (e, p) => { e.style.strokeDashoffset = (1 - clamp(p)).toFixed(4); };
+const rrect = (x, y, w, h, r) => `M${x + r} ${y} H${x + w - r} Q${x + w} ${y} ${x + w} ${y + r} V${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} H${x + r} Q${x} ${y + h} ${x} ${y + h - r} V${y + r} Q${x} ${y} ${x + r} ${y}Z`;
+const G = "#5CD614", BG = "#1B3A4B";
+const CHECK = (sz, c = "#fff") => `<svg viewBox="0 0 24 24" width="${sz}" height="${sz}"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="${c}" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* ---------- timeline ---------- */
+const CX = 1420;                    // centre of the right-hand content zone
+const T = { intro: 0, spots: 4.5, spot: 6, recap: 34.5, end: 44 };
+const spotStart = i => T.spots + i * T.spot;
+
+const POINTS = [
+  "Plan accounts more effectively",
+  "Build and activate pipeline",
+  "Progress deals with discipline",
+  "Strengthen customer retention",
+  "Manage Account Transitions",
+];
+
+/* ---------- icons (200x200 line icons, animated by local time u) ---------- */
+const ST = `fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"`;
+const DR = `pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"`;
+const ICONS = [
+  { // 1. Plan: clipboard checklist that fills itself in
+    svg: `<path class="board" d="${rrect(50, 40, 100, 132, 14)}" ${ST}/>
+      <rect class="clip" x="74" y="26" width="52" height="26" rx="9" fill="${G}"/>
+      ${[84, 114, 144].map(y => `<path class="ck" d="M64 ${y} l7 7 l13 -14" ${ST} stroke="${G}" ${DR}/><path class="ln" d="M96 ${y} H132" ${ST} ${DR}/>`).join("")}`,
+    anim(q, u) {
+      q.ln.forEach((e, i) => draw(e, prog(u, .2 + i * .4, .5 + i * .4)));
+      q.ck.forEach((e, i) => draw(e, prog(u, .45 + i * .4, .65 + i * .4)));
+      setT(q.clip[0], `translate(0 ${(-3 * Math.abs(Math.sin(u * 2.4))).toFixed(2)})`);
+    } },
+  { // 2. Pipeline: leads drop through a funnel, a bolt switches it on
+    svg: `${[0, 1, 2, 3, 4, 5].map(k => `<circle class="dot" r="9" fill="${k % 2 ? "#fff" : G}"/>`).join("")}
+      <path d="M34 50 H166 L114 108 V150 L86 166 V108 Z" ${ST}/>
+      <path class="bolt" d="M158 116 L138 148 H154 L144 180 L178 138 H162 L172 116Z" fill="${G}" stroke="${BG}" stroke-width="5" stroke-linejoin="round"/>`,
+    anim(q, u) {
+      q.dot.forEach((e, k) => {
+        const a = u - k * .3, P = 1.8;
+        if (a < 0) { e.setAttribute("opacity", 0); return; }
+        const p = (a % P) / P, x0 = 62 + k * 15;
+        let x, y;
+        if (p < .55) { const s = p / .55; x = lerp(x0, 100, s * s); y = lerp(6, 112, s * s); }
+        else { const s = (p - .55) / .45; x = 100; y = lerp(112, 196, s); }
+        e.setAttribute("cx", x.toFixed(1)); e.setAttribute("cy", y.toFixed(1));
+        e.setAttribute("opacity", (prog(p, 0, .08) * (1 - prog(p, .85, 1))).toFixed(3));
+      });
+      const b = E.outBack(prog(u, .8, 1.2)) * (1 + .06 * Math.sin(u * 7));
+      setT(q.bolt[0], about(158, 148, Math.max(0, b)));
+    } },
+  { // 3. Progress deals: bars climb step by step, trend arrow follows
+    svg: `<path d="M28 172 H174" ${ST}/>
+      ${[[44, 44, "#fff"], [84, 76, "#fff"], [124, 108, G]].map(([x, h, c]) => `<rect class="bar" x="${x}" y="${162 - h}" width="32" height="${h}" rx="6" fill="${c}"/>`).join("")}
+      <path class="arU" d="M36 118 L76 84 L106 100 L156 48" fill="none" stroke="${BG}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" ${DR}/>
+      <path class="ar" d="M36 118 L76 84 L106 100 L156 48" ${ST} stroke="${G}" ${DR}/>
+      <path class="ah" d="M128 44 H160 V76" ${ST} stroke="${G}"/>`,
+    anim(q, u) {
+      q.bar.forEach((e, i) => setT(e, about(0, 162, 1, Math.max(0, E.outBack(prog(u, .1 + i * .25, .55 + i * .25))))));
+      const a = prog(u, .9, 1.5); draw(q.ar[0], a); draw(q.arU[0], a);
+      const h = E.outBack(prog(u, 1.4, 1.75)), n = 3 * Math.sin(u * 3);
+      setT(q.ah[0], `translate(${n.toFixed(2)} ${(-n).toFixed(2)}) ${about(160, 44, Math.max(0, h))}`);
+    } },
+  { // 4. Retention: a beating heart held inside a loop
+    svg: `<g class="loop"><path class="arc" d="M100 24 A76 76 0 0 1 176 100" ${ST} ${DR}/><path class="arc" d="M100 176 A76 76 0 0 1 24 100" ${ST} ${DR}/>
+        <path class="hd" d="M162 88 L176 104 L190 88" ${ST}/><path class="hd" d="M10 112 L24 96 L38 112" ${ST}/></g>
+      <path class="heart" d="M100 146 C58 118 46 96 52 78 C58 58 86 54 100 74 C114 54 142 58 148 78 C154 96 142 118 100 146Z" fill="${G}"/>`,
+    anim(q, u) {
+      q.arc.forEach(e => draw(e, prog(u, .1, .8)));
+      q.hd.forEach(e => e.setAttribute("opacity", prog(u, .7, .85).toFixed(2)));
+      setT(q.loop[0], `rotate(${(Math.max(0, u - .8) * 70).toFixed(2)} 100 100)`);
+      const beat = Math.pow(Math.max(0, Math.sin(u * Math.PI * 1.6)), 8) * .12;
+      setT(q.heart[0], about(100, 104, Math.max(0, E.outBack(prog(u, .3, .75))) * (1 + beat)));
+    } },
+  { // 5. Transitions: two owners passing the account folder back and forth
+    svg: `<path class="sw" d="M66 52 Q100 20 134 52" ${ST} ${DR}/><path class="sh" d="M116 50 L134 52 L134 34" ${ST}/>
+      <path class="sw" d="M134 176 Q100 204 66 176" ${ST} ${DR}/><path class="sh" d="M84 178 L66 176 L66 194" ${ST}/>
+      <circle cx="54" cy="88" r="18" ${ST}/><path d="M24 156 C24 118 84 118 84 156" ${ST}/>
+      <circle cx="146" cy="88" r="18" ${ST} stroke="${G}"/><path d="M116 156 C116 118 176 118 176 156" ${ST} stroke="${G}"/>
+      <g class="file"><rect x="-15" y="-12" width="30" height="24" rx="4" fill="${G}" stroke="${BG}" stroke-width="4"/><path d="M-6 -12 V-17 H6 V-12" fill="none" stroke="${G}" stroke-width="4"/></g>`,
+    anim(q, u) {
+      q.sw.forEach((e, i) => draw(e, prog(u, .1 + i * .3, .6 + i * .3)));
+      q.sh.forEach((e, i) => e.setAttribute("opacity", prog(u, .5 + i * .3, .65 + i * .3).toFixed(2)));
+      const P = 2.4, a = Math.max(0, u - .7), ph = (a % P) / P, top = ph < .5;
+      const s = E.inOutCubic(clamp((top ? ph : ph - .5) / .4));
+      const [p0, p1, p2] = top ? [[66, 52], [100, 20], [134, 52]] : [[134, 176], [100, 204], [66, 176]];
+      const bx = (1 - s) ** 2 * p0[0] + 2 * (1 - s) * s * p1[0] + s * s * p2[0];
+      const by = (1 - s) ** 2 * p0[1] + 2 * (1 - s) * s * p1[1] + s * s * p2[1] - (top ? 14 : -14);
+      setT(q.file[0], `translate(${bx.toFixed(1)} ${by.toFixed(1)}) scale(${(u > .7 ? 1 : 0)})`);
+    } },
+];
+function makeIcon(i, parent, size, left, top) {
+  const svg = svgIn(parent, `<svg viewBox="0 0 200 200" width="${size}" height="${size}" style="overflow:visible">${ICONS[i].svg}</svg>`);
+  svg.style.position = "absolute"; svg.style.left = left + "px"; svg.style.top = top + "px";
+  const q = {};
+  svg.querySelectorAll("[class]").forEach(e => { const c = e.getAttribute("class"); (q[c] = q[c] || []).push(e); });
+  return { svg, q, anim: u => ICONS[i].anim(q, u) };
+}
+
+/* ---------- background (right half only) ---------- */
+const glows = [{ c: "rgba(92,214,20,.22)", w: 700, x: 1250, y: -200 }, { c: "rgba(70,150,190,.30)", w: 800, x: 1300, y: 520 }]
+  .map(b => { const e = el("div", "glow", $("glows")); e.style.width = e.style.height = b.w + "px"; e.style.background = b.c; return { ...b, e }; });
+const R = rng(7);
+const decos = [];
+for (let i = 0; i < 18; i++) {
+  const kind = ["dot", "plus", "ring"][i % 3];
+  const size = 8 + R() * 18, c = i % 3 === 0 ? G : "#FFFFFF";
+  const e = el("div", "deco", $("decos"));
+  e.style.width = e.style.height = size + "px";
+  if (kind === "ring") { e.style.border = `${Math.max(2.5, size / 6)}px solid ${c}`; e.style.borderRadius = "50%"; }
+  if (kind === "dot") { e.style.background = c; e.style.borderRadius = "50%"; }
+  if (kind === "plus") e.innerHTML = `<svg viewBox="0 0 10 10" width="${size}" height="${size}"><path d="M5 1v8M1 5h8" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  decos.push({ e, x: 1020 + R() * 860, y: R() * 1080, ph: R() * 6.28, sp: .15 + R() * .3, o: .1 + R() * .25 });
+}
+function renderBg(t) {
+  glows.forEach((b, i) => put(b.e, { x: b.x + 60 * Math.sin(t * .22 + i * 2), y: b.y + 50 * Math.cos(t * .19 + i), o: 1 }));
+  decos.forEach(d => put(d.e, { x: d.x + 20 * Math.sin(t * d.sp + d.ph), y: ((d.y - t * 16 * d.sp) % 1120 + 1120) % 1120 - 30, o: d.o * (.6 + .4 * Math.sin(t * 2 + d.ph)) }));
+  $("grid").style.backgroundPosition = `${(t * 6) % 44}px ${(t * 9) % 44}px`;
+}
+
+/* ---------- shared pieces ---------- */
+function makeBox(parent, x, y, w, h, text, fs, pad) {
+  const b = el("div", "box", parent);
+  Object.assign(b.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
+  const flash = el("div", "flash", b);
+  svgIn(b, `<svg class="border" width="${w}" height="${h}"><path d="M${w / 2} 4 H${w - 4} V${h - 4} H4 V4 Z" fill="none" stroke="${G}" stroke-width="8" stroke-linejoin="miter" ${DR}/></svg>`);
+  const txt = el("div", "txt", b, text);
+  Object.assign(txt.style, { fontSize: fs + "px", paddingLeft: pad + "px" });
+  const badge = el("div", "badge", b, CHECK(Math.round(h * .3)));
+  const bs = Math.round(h * .46);
+  Object.assign(badge.style, { width: bs + "px", height: bs + "px", right: -bs / 2.4 + "px", top: -bs / 2.4 + "px" });
+  return { b, flash, path: b.querySelector("path"), txt, badge };
+}
+function renderBox(B, u, { inA, drawA, txtA, click }) {
+  const ent = prog(u, inA, inA + .5);
+  draw(B.path, prog(u, drawA, drawA + .8));
+  B.txt.style.clipPath = `inset(-10px ${(100 - 100 * E.outCubic(prog(u, txtA, txtA + .6))).toFixed(2)}% -10px 0)`;
+  const bump = click == null ? 0 : swing(u - click, .05, 2.4, 4);
+  put(B.b, { y: lerp(50, 0, E.outBack(ent)), o: ent, s: 1 + bump });
+  B.flash.style.opacity = click == null ? 0 : (.55 * (1 - prog(u, click, click + .5)) * (u >= click ? 1 : 0)).toFixed(3);
+  B.b.style.boxShadow = click != null && u >= click ? `0 18px 40px rgba(0,0,0,.28), 0 0 ${(50 * (1 - prog(u, click, click + 1.2)) + 18).toFixed(0)}px rgba(92,214,20,.45)` : "";
+  put(B.badge, { s: click == null ? 0 : Math.max(0, E.outBack(prog(u, click + .05, click + .4))), r: click == null ? 0 : tw(u, click + .05, click + .4, -90, 0) });
+}
+function makeRipple(parent, x, y) { const r = el("div", "ripple", parent); r.style.left = x + "px"; r.style.top = y + "px"; return r; }
+function renderRipple(r, u) { put(r, { s: lerp(.2, 3.4, E.outCubic(prog(u, 0, .7))), o: u < 0 ? 0 : 1 - prog(u, .1, .7) }); }
+
+/* ---------- intro (0 - 4.5 s) ---------- */
+const sIntro = $("sIntro");
+const iNum = el("div", "abs", sIntro, `<svg width="260" height="260" viewBox="0 0 260 260" style="overflow:visible"><circle cx="130" cy="130" r="118" fill="${G}"/>
+  <path class="ringI" d="M130 2 A128 128 0 1 1 129.9 2" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="14 12" opacity=".5"/>
+  <text x="130" y="176" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="150" fill="${BG}">5</text></svg>`);
+Object.assign(iNum.style, { left: CX - 130 + "px", top: 170 + "px", width: "260px", height: "260px" });
+const iTitle = el("div", "pillWrap", sIntro, `<div style="font:800 92px/1.05 Montserrat">Key Focus Areas</div>`);
+Object.assign(iTitle.style, { left: CX - 450 + "px", top: 480 + "px" });
+const iBar = el("div", "abs", sIntro); Object.assign(iBar.style, { left: CX - 150 + "px", top: 600 + "px", width: "300px", height: "10px", borderRadius: "5px", background: G, transformOrigin: "50% 50%" });
+const iMinis = POINTS.map((_, k) => {
+  const m = el("div", "mini", sIntro); const S = 132;
+  Object.assign(m.style, { left: CX + (k - 2) * 168 - S / 2 + "px", top: 690 + "px", width: S + "px", height: S + "px" });
+  return { m, ic: makeIcon(k, m, 84, 20, 20) };
+});
+function renderIntro(t) {
+  put(iNum, { s: Math.max(0, E.outBack(prog(t, .2, .85))), r: tw(t, .2, .85, -200, 0) + swing(t - 1, 4) });
+  iNum.querySelector(".ringI").setAttribute("transform", `rotate(${(t * 40).toFixed(1)} 130 130)`);
+  put(iTitle, { y: tw(t, .6, 1.2, 40, 0, E.outBack), o: prog(t, .6, 1.0) });
+  iTitle.style.clipPath = `inset(-20px ${(50 - 50 * E.outCubic(prog(t, .6, 1.3))).toFixed(2)}% -20px ${(50 - 50 * E.outCubic(prog(t, .6, 1.3))).toFixed(2)}%)`;
+  put(iBar, { sx: E.outCubic(prog(t, 1.1, 1.6)), sy: 1 });
+  iMinis.forEach(({ m, ic }, k) => {
+    const a = 1.5 + k * .16;
+    put(m, { s: Math.max(0, E.outBack(prog(t, a, a + .45))), y: 8 * Math.sin((t - a) * 3) * prog(t, a + .5, a + 1) });
+    ic.anim(t - a - .1);
+  });
+  const ex = prog(t, 3.9, 4.5);
+  sIntro.style.opacity = (1 - ex).toFixed(3);
+  sIntro.style.transform = `translateY(${(-40 * E.inCubic(ex)).toFixed(1)}px)`;
+}
+
+/* ---------- spotlights (5 x 6 s) ---------- */
+const CLICK = 3.0;                  // local time of the cursor click in each spotlight
+const BOX = { w: 880, h: 140, y: 690 };
+const CLICK_PT = { x: CX + 300, y: BOX.y + 80 };
+const spots = POINTS.map((p, i) => {
+  const root = el("div", "layer", $("sSpots"));
+  const kick = el("div", "pillWrap", root, `<span class="pill">${String(i + 1).padStart(2, "0")} / 05</span>`);
+  Object.assign(kick.style, { left: CX - 450 + "px", top: 100 + "px" });
+  const stage = el("div", "iconStage", root);
+  Object.assign(stage.style, { left: CX - 200 + "px", top: 200 + "px" });
+  const dash = el("div", "dash", stage);
+  el("div", "disc", stage);
+  const ringSvg = svgIn(stage, `<svg class="ring" width="400" height="400"><path d="M200 30 A170 170 0 1 1 199.9 30" fill="none" stroke="${G}" stroke-width="8" stroke-linecap="round" ${DR}/></svg>`);
+  const icon = makeIcon(i, stage, 240, 80, 80);
+  const box = makeBox(root, CX - BOX.w / 2, BOX.y, BOX.w, BOX.h, p, 46, 50);
+  const rip = makeRipple(root, CLICK_PT.x, CLICK_PT.y);
+  return { root, kick, stage, dash, ring: ringSvg.querySelector("path"), icon, box, rip };
+});
+function renderSpots(t) {
+  spots.forEach((S, i) => {
+    const u = t - spotStart(i);
+    const on = u >= 0 && u < T.spot;
+    vis(S.root, on);
+    if (!on) return;
+    put(S.kick, { y: tw(u, 0, .5, -30, 0, E.outBack), o: prog(u, 0, .4) });
+    const pop = swing(u - CLICK - .05, .1, 2, 3.5);
+    put(S.stage, { s: Math.max(0, E.outBack(prog(u, .1, .7))) + pop, r: swing(u - CLICK - .05, 6, 1.6, 3) });
+    put(S.dash, { r: u * 20 });
+    draw(S.ring, prog(u, .3, 1.2));
+    S.icon.anim(u - .45);
+    renderBox(S.box, u, { inA: .7, drawA: .85, txtA: 1.25, click: CLICK });
+    renderRipple(S.rip, u - CLICK);
+    const ex = prog(u, 5.4, 6);
+    S.root.style.opacity = (1 - ex).toFixed(3);
+    S.root.style.transform = `translateY(${(-50 * E.inCubic(ex)).toFixed(1)}px)`;
+  });
+}
+
+/* ---------- progress tracker ---------- */
+const TR = { x: CX - 340, y: 960, w: 124, gap: 15 };
+const segs = POINTS.map((_, k) => {
+  const s = el("div", "seg", $("tracker")); Object.assign(s.style, { left: TR.x + k * (TR.w + TR.gap) + "px", top: TR.y + "px", width: TR.w + "px" });
+  const n = el("div", "segN", $("tracker"), String(k + 1).padStart(2, "0")); Object.assign(n.style, { left: TR.x + k * (TR.w + TR.gap) + TR.w / 2 - 20 + "px", top: TR.y + 24 + "px" });
+  return { s, fill: el("i", null, s), n };
+});
+function renderTracker(t) {
+  const o = prog(t, T.spots, T.spots + .5) * (1 - prog(t, T.recap - .4, T.recap));
+  $("tracker").style.opacity = o.toFixed(3);
+  segs.forEach((g, k) => {
+    const a = spotStart(k);
+    g.fill.style.transform = `scaleX(${E.inOutCubic(prog(t, a + .3, a + CLICK)).toFixed(4)})`;
+    const cur = t >= a && t < a + T.spot;
+    g.n.style.color = cur ? G : t >= a + CLICK ? "#fff" : "rgba(255,255,255,.45)";
+    put(g.n, { s: 1 + (cur ? .25 * E.outBack(prog(t, a, a + .4)) : 0) });
+  });
+}
+
+/* ---------- recap (34.5 - 44 s): the slide itself, rebuilt ---------- */
+const sRecap = $("sRecap");
+const RC = { x: 1100, w: 720, h: 112, y0: 246, step: 138, icon: 104 };
+const rKick = el("div", "pillWrap", sRecap, `<span class="pill">ALL 5 FOCUS AREAS</span>`);
+Object.assign(rKick.style, { left: (RC.x - 120 + RC.x + RC.w) / 2 - 450 + "px", top: 140 + "px" });
+const rCheck = k => 2.3 + k * .55;   // local click time on row k
+const rows = POINTS.map((p, k) => {
+  const y = RC.y0 + k * RC.step;
+  const m = el("div", "mini", sRecap);
+  Object.assign(m.style, { left: RC.x - 64 - RC.icon / 2 + "px", top: y + RC.h / 2 - RC.icon / 2 + "px", width: RC.icon + "px", height: RC.icon + "px" });
+  const ic = makeIcon(k, m, 66, 15, 15);
+  const box = makeBox(sRecap, RC.x, y, RC.w, RC.h, p, 34, 32);
+  const rip = makeRipple(sRecap, RC.x + RC.w - 110, y + RC.h / 2 + 10);
+  return { m, ic, box, rip, y };
+});
+function renderRecap(t) {
+  const u = t - T.recap;
+  vis(sRecap, u >= 0);
+  if (u < 0) return;
+  put(rKick, { y: tw(u, 0, .5, -30, 0, E.outBack), o: prog(u, 0, .4) });
+  rows.forEach((R, k) => {
+    const a = .3 + k * .18, c = rCheck(k);
+    put(R.m, { s: Math.max(0, E.outBack(prog(u, a, a + .45))) + swing(u - c, .12, 2, 3.5), r: swing(u - c, 10, 1.6, 3) });
+    R.ic.anim(u - a - .2);
+    renderBox(R.box, u, { inA: a + .05, drawA: a + .15, txtA: a + .35, click: c });
+    put(R.box.b, { x: tw(u, a + .05, a + .6, 260, 0, E.outBack), o: prog(u, a + .05, a + .4), s: 1 + swing(u - c, .04, 2.4, 4) });
+    renderRipple(R.rip, u - c);
+    // closing wave of light down the list
+    const w = Math.sin(clamp((u - 6 - k * .15) / .6) * Math.PI);
+    if (u > 6) R.box.b.style.boxShadow = `0 18px 40px rgba(0,0,0,.28), 0 0 ${(14 + 40 * w).toFixed(0)}px rgba(92,214,20,${(.25 + .4 * w).toFixed(2)})`;
+  });
+}
+
+/* ---------- cursor ---------- */
+const CUR = [];
+const CLICKS = [];
+for (let i = 0; i < 5; i++) {
+  const s = spotStart(i);
+  CUR.push({ t: s + 1.9, x: 1990, y: 1130 }, { t: s + 2.9, x: CLICK_PT.x, y: CLICK_PT.y }, { t: s + 3.6, x: CLICK_PT.x, y: CLICK_PT.y }, { t: s + 4.6, x: 1995, y: 1010 });
+  CLICKS.push(s + CLICK);
+}
+CUR.push({ t: T.recap + 1.5, x: 1995, y: 260 });
+rows.forEach((R, k) => { CUR.push({ t: T.recap + rCheck(k) - .02, x: RC.x + RC.w - 110, y: R.y + RC.h / 2 + 10 }); CLICKS.push(T.recap + rCheck(k)); });
+CUR.push({ t: T.recap + 5.6, x: 1995, y: 980 });
+function renderCursor(t) {
+  let x = CUR[0].x, y = CUR[0].y;
+  for (let j = 0; j < CUR.length; j++) {
+    const A = CUR[j], B = CUR[j + 1];
+    if (t < A.t) break;
+    if (!B || t >= B.t) { x = (B || A).x; y = (B || A).y; continue; }
+    const p = E.inOutCubic(prog(t, A.t, B.t));
+    x = lerp(A.x, B.x, p); y = lerp(A.y, B.y, p); break;
+  }
+  let s = 1;
+  CLICKS.forEach(c => { if (t > c - .08 && t < c + .18) s = .8; });
+  put($("cursor"), { x, y, s });
+}
+
+/* ---------- confetti bursts on each click ---------- */
+const BURSTS = [];
+for (let i = 0; i < 5; i++) BURSTS.push({ t: spotStart(i) + CLICK, x: CLICK_PT.x, y: CLICK_PT.y, n: 22, pow: 1 });
+rows.forEach((R, k) => BURSTS.push({ t: T.recap + rCheck(k), x: RC.x + RC.w - 110, y: R.y + RC.h / 2, n: 10, pow: .6 }));
+const COLORS = [G, "#FFFFFF", "#9BE86A", "#7FC4E0"];
+const confPool = [];
+BURSTS.forEach((B, bi) => {
+  const r = rng(100 + bi);
+  B.pcs = [];
+  for (let j = 0; j < B.n; j++) {
+    const e = el("div", "conf", $("fx")); e.style.background = COLORS[j % 4];
+    if (j % 3 === 0) { e.style.width = e.style.height = "14px"; e.style.borderRadius = "50%"; }
+    const ang = -Math.PI / 2 + (r() - .5) * 2.4, sp = (380 + r() * 520) * B.pow;
+    B.pcs.push({ e, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, rot: r() * 720 - 360 });
+  }
+});
+function renderConfetti(t) {
+  BURSTS.forEach(B => {
+    const u = t - B.t;
+    B.pcs.forEach(P => {
+      if (u < 0 || u > 1.4) { P.e.style.visibility = "hidden"; return; }
+      const x = B.x + P.vx * u, y = B.y + P.vy * u + 900 * u * u;
+      put(P.e, { x: Math.max(990, x), y, r: P.rot * u, o: 1 - prog(u, .9, 1.4) });
+    });
+  });
+}
+
+/* ---------- master ---------- */
+function render(t) {
+  renderBg(t);
+  vis(sIntro, t < T.spots);
+  if (t < T.spots) renderIntro(t);
+  renderSpots(t);
+  renderTracker(t);
+  renderRecap(t);
+  renderCursor(t);
+  renderConfetti(t);
+  $("fade").style.opacity = prog(t, T.end - .8, T.end).toFixed(3);
+}
+window.render = render;
+window.DURATION = T.end;
+window.ready = document.fonts.ready
+  .then(() => Promise.all(["600 40px Montserrat", "700 40px Montserrat", "800 40px Montserrat"].map(f => document.fonts.load(f))))
+  .then(() => { render(0); return true; });
+if (location.hash === "#play") { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % T.end); requestAnimationFrame(loop); }; window.ready.then(loop); }
+</script>
+</body>
+</html>

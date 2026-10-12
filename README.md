@@ -1,5 +1,25 @@
 # EKA explainers
 
+## v3: Account focus areas (no voice-over, no music)
+
+**Video:** `output/v3/account_focus_areas_44s.mp4` (1920×1080, 30 fps, silent)
+
+Turns the five-box slide (`assets/source/account_focus_slide.png`) into a motion explainer in the slide's own navy and lime-green colours.
+**The left half of the frame stays empty background on purpose**, so a presenter avatar can be placed there in editing. All content sits in the right half.
+
+| Time | Scene |
+|---|---|
+| 0–4.5 s | A "5" badge spins in, then the title *Key Focus Areas* and a row of the five icons |
+| 4.5–34.5 s | One spotlight per point, 6 s each: an animated icon, the slide-style green box, and a cursor that clicks the box (ripple, confetti, check badge). A 01–05 tracker fills underneath |
+| 34.5–44 s | Recap: the original slide is rebuilt with an icon beside each box, and the cursor ticks off each one |
+
+Icons: clipboard checklist (plan), funnel with a lightning bolt (pipeline), rising bars with a trend arrow (deals), heart inside a loop (retention), two people handing over a folder (transitions).
+The wording, timings and icons are all in `src/account_v3.html`.
+
+Rebuild: `npm install && VIDEO=v3 node scripts/render.js`. For quick stills, run `VIDEO=v3 node scripts/render.js --stills 3,8.6,39`.
+
+---
+
 ## v2: Building an Enterprise Knowledge Hub (dark blue, white and green)
 
 **Video:** `output/v2/eka_enterprise_knowledge_hub_60s.mp4` (1920×1080, 30 fps, music and SFX)
